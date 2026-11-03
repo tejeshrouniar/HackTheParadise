@@ -47,4 +47,4 @@ Open the GitHub repository's **Settings → Secrets and variables → Actions �
 - `VITE_SUPABASE_URL` = the project URL
 - `VITE_SUPABASE_PUBLISHABLE_KEY` = the publishable key
 
-The Pages workflow already reads these variables during its build. Browser publishable keys are intended to be public; row-level security protects database rows. Do not add Google client secrets or Supabase service-role keys to the frontend or GitHub Pages build.
+The Pages workflow reads these variables when set and has the current public project values as fallbacks, so a deploy still connects if the variables are absent. Browser publishable keys are intended to be public; row-level security protects database rows. Do not add Google client secrets or Supabase service-role keys to the frontend or GitHub Pages build.
