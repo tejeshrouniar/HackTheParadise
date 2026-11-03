@@ -2,11 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Toaster } from 'react-hot-toast';
 import { App } from './App';
+import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
     {/* Global toast notification system — use toast() from 'react-hot-toast' anywhere */}
     <Toaster
       position="bottom-right"

@@ -5,6 +5,8 @@ import { cn } from '../../lib/utils';
 import { CODEDEX_LESSONS, CodedexLesson } from '../../data/codedexLessons';
 import { CodedexHome } from '../CodedexHome/CodedexHome';
 import { sound } from '../../utils/sound';
+import { useAuth } from '../../contexts/AuthContext';
+import { loadPlayerProgress, savePlayerProgress } from '../../lib/userProgress';
 import {
   Sparkles,
   Play,
@@ -54,6 +56,8 @@ const stageInfo: Record<string, { emoji: string; name: string }> = {
 };
 
 export const CodedexApp: React.FC = () => {
+  const { user } = useAuth();
+  const progressStorageKey = user ? `storicode_completed_lessons_${user.id}` : 'spellscript_completed_lessons';
   // Navigation View: 'home' (Codédex Hero Meadow) or 'quest' (Coding Lab)
   const [currentView, setCurrentView] = useState<'home' | 'quest'>('home');
 
@@ -67,12 +71,13 @@ export const CodedexApp: React.FC = () => {
   // Completed lessons tracking
   const [completedLessons, setCompletedLessons] = useState<number[]>(() => {
     try {
-      const saved = localStorage.getItem('spellscript_completed_lessons');
+      const saved = localStorage.getItem(progressStorageKey);
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
     }
   });
+  const [isProgressLoaded, setIsProgressLoaded] = useState(!user);
 
   // Hints and solutions toggles
   const [showHint, setShowHint] = useState<boolean>(false);
@@ -149,12 +154,41 @@ export const CodedexApp: React.FC = () => {
     ]);
   }, [currentLessonId]);
 
-  // Persist completed lessons
+  // Restore account progress before syncing local edits to Supabase.
   useEffect(() => {
+    if (!user) {
+      setIsProgressLoaded(true);
+      return;
+    }
+
+    let cancelled = false;
+    setIsProgressLoaded(false);
+    void loadPlayerProgress(user.id)
+      .then((savedLessons) => {
+        if (!cancelled && savedLessons) setCompletedLessons(savedLessons);
+      })
+      .catch((error) => {
+        console.warn('Could not load cloud progress; local progress is still available.', error);
+      })
+      .finally(() => {
+        if (!cancelled) setIsProgressLoaded(true);
+      });
+
+    return () => { cancelled = true; };
+  }, [user?.id]);
+
+  // Persist completed lessons locally and, when signed in, to the player's own Supabase row.
+  useEffect(() => {
+    if (!isProgressLoaded) return;
     try {
-      localStorage.setItem('spellscript_completed_lessons', JSON.stringify(completedLessons));
+      localStorage.setItem(progressStorageKey, JSON.stringify(completedLessons));
     } catch {}
-  }, [completedLessons]);
+    if (user) {
+      void savePlayerProgress(user.id, completedLessons).catch((error) => {
+        console.warn('Could not sync Storicode progress to Supabase.', error);
+      });
+    }
+  }, [completedLessons, isProgressLoaded, progressStorageKey, user?.id]);
 
   const resetStage = () => {
     setIsExecuting(false);

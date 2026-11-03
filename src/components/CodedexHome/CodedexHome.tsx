@@ -26,6 +26,8 @@ import { CODEDEX_LESSONS, CodedexLesson } from '../../data/codedexLessons';
 import homeBg from '/home-bg-2k.png';
 import { ArcaneTerminalModal } from './ArcaneTerminalModal';
 import { SparkyCompanionModal } from './SparkyCompanionModal';
+import { AuthModal } from '../Auth/AuthModal';
+import { useAuth } from '../../contexts/AuthContext';
 
 export interface CodedexHomeProps {
   onStartAdventure: (lessonId?: number) => void;
@@ -34,6 +36,7 @@ export interface CodedexHomeProps {
 export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) => {
   // Always dark fantasy theme
   const isDarkMode = true;
+  const { user, signOut, isPasswordRecovery } = useAuth();
 
   // Mascot Modal state
   const [isSparkyOpen, setIsSparkyOpen] = useState<boolean>(false);
@@ -50,12 +53,10 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
 
   // Sign Up Modal state
   const [isSignUpOpen, setIsSignUpOpen] = useState<boolean>(false);
-  const [signUpName, setSignUpName] = useState<string>('');
-  const [signUpEmail, setSignUpEmail] = useState<string>('');
-  const [signUpPassword, setSignUpPassword] = useState<string>('');
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<'Python' | 'JavaScript' | 'Storicode'>('Python');
-  const [isSignedUp, setIsSignedUp] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isPasswordRecovery) setIsSignUpOpen(true);
+  }, [isPasswordRecovery]);
 
   // Close dropdowns on outside click or escape
   const navRef = useRef<HTMLDivElement>(null);
@@ -117,19 +118,6 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
     );
   });
 
-  const handleSignUpSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!signUpName.trim() || !signUpEmail.trim()) return;
-
-    sound.playVictoryFanfare();
-    confetti({
-      particleCount: 80,
-      spread: 70,
-      origin: { y: 0.6 },
-    });
-    setIsSignedUp(true);
-  };
-
   return (
     <div
       className={`min-h-screen flex flex-col font-body selection:bg-[#9274D8] selection:text-white overflow-x-hidden relative transition-colors duration-300 ${
@@ -190,16 +178,23 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
               </kbd>
             </button>
 
-            {/* Sign Up Retro Magic Button */}
-            <button
-              onClick={() => {
-                sound.playWandCast();
-                setIsSignUpOpen(true);
-              }}
-              className="px-4 py-2 rounded-xl bg-[#8B5CF6] hover:bg-[#9B6DF7] text-[#FFF7ED] font-bold text-xs tracking-wider uppercase border-2 border-[#6D28D9] shadow-[0_3px_0_#4C1D95] hover:translate-y-[1px] hover:shadow-[0_2px_0_#4C1D95] active:translate-y-[3px] active:shadow-none transition-all font-pixel cursor-pointer"
-            >
-              Sign up
-            </button>
+            {user ? (
+              <div className="flex items-center gap-2 rounded-xl border border-[#5EEAD4]/25 bg-[#5EEAD4]/[.07] px-2 py-1.5">
+                {user.user_metadata.avatar_url ? <img src={user.user_metadata.avatar_url} alt="" className="h-7 w-7 rounded-lg object-cover" /> : <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#5EEAD4]/15 text-xs font-bold text-[#5EEAD4]">{(user.user_metadata.display_name || user.email || 'S').slice(0, 1).toUpperCase()}</span>}
+                <span className="hidden max-w-28 truncate text-xs font-semibold text-[#D6FFF7] sm:block">{user.user_metadata.display_name || user.email?.split('@')[0]}</span>
+                <button onClick={() => void signOut()} className="rounded-lg px-2 py-1 text-[10px] font-semibold text-white/50 transition hover:bg-white/10 hover:text-white" title="Sign out">Sign out</button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  sound.playWandCast();
+                  setIsSignUpOpen(true);
+                }}
+                className="rounded-xl border-2 border-[#6D28D9] bg-[#8B5CF6] px-4 py-2 font-pixel text-xs font-bold uppercase tracking-wider text-[#FFF7ED] shadow-[0_3px_0_#4C1D95] transition-all hover:translate-y-[1px] hover:bg-[#9B6DF7] hover:shadow-[0_2px_0_#4C1D95] active:translate-y-[3px] active:shadow-none"
+              >
+                Join free
+              </button>
+            )}
           </div>
         </div>
       </nav>
@@ -648,179 +643,18 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
         </div>
       )}
 
-      {/* 5. APPRENTICE SIGN UP MODAL */}
-      {isSignUpOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn">
-          <div
-            className={`w-full max-w-md rounded-3xl border-2 p-6 md:p-8 shadow-2xl backdrop-blur-2xl animate-scaleUp relative ${
-              isDarkMode
-                ? 'bg-[#1A1230]/95 border-[#8B5CF6]/60 text-[#FFF7ED] shadow-[0_0_50px_rgba(139,92,246,0.35)]'
-                : 'bg-white/95 border-[#DDD6FE] text-[#231238] shadow-2xl'
-            }`}
-          >
-            {/* Close button */}
-            <button
-              onClick={() => {
-                sound.playClick();
-                setIsSignUpOpen(false);
-                setIsSignedUp(false);
-              }}
-              className="absolute top-5 right-5 p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {!isSignedUp ? (
-              <form onSubmit={handleSignUpSubmit} className="space-y-4">
-                {/* Header */}
-                <div className="text-center space-y-1.5 pb-2">
-                  <div className="w-12 h-12 mx-auto rounded-2xl bg-[#8B5CF6] border-2 border-[#6D28D9] flex items-center justify-center text-2xl shadow-lg">
-                    🪄
-                  </div>
-                  <h3 className="font-pixelify font-black text-2xl tracking-wide">
-                    Join the Academy
-                  </h3>
-                  <p className={`text-xs ${isDarkMode ? 'text-[#CBD5E1]' : 'text-[#475569]'}`}>
-                    Register your apprentice wand to start learning Python through play!
-                  </p>
-                </div>
-
-                {/* Name */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold flex items-center gap-1.5 opacity-80">
-                    <User className="w-3.5 h-3.5 text-[#F472B6]" />
-                    <span>Apprentice Name</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={signUpName}
-                    onChange={(e) => setSignUpName(e.target.value)}
-                    placeholder="e.g. Merlin the Coder"
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-medium outline-none transition-colors ${
-                      isDarkMode
-                        ? 'bg-black/30 border-[#8B5CF6]/40 focus:border-[#F472B6] text-white'
-                        : 'bg-gray-50 border-gray-200 focus:border-[#8B5CF6] text-gray-900'
-                    }`}
-                  />
-                </div>
-
-                {/* Email */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold flex items-center gap-1.5 opacity-80">
-                    <Mail className="w-3.5 h-3.5 text-[#5EEAD4]" />
-                    <span>Arcane Email</span>
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={signUpEmail}
-                    onChange={(e) => setSignUpEmail(e.target.value)}
-                    placeholder="wizard@example.com"
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-medium outline-none transition-colors ${
-                      isDarkMode
-                        ? 'bg-black/30 border-[#8B5CF6]/40 focus:border-[#F472B6] text-white'
-                        : 'bg-gray-50 border-gray-200 focus:border-[#8B5CF6] text-gray-900'
-                    }`}
-                  />
-                </div>
-
-                {/* Magic Language School */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold flex items-center gap-1.5 opacity-80">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Primary Spell Language</span>
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(['Python', 'JavaScript', 'Storicode'] as const).map((lang) => (
-                      <button
-                        key={lang}
-                        type="button"
-                        onClick={() => setSelectedLanguage(lang)}
-                        className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all ${
-                          selectedLanguage === lang
-                            ? 'bg-[#8B5CF6] text-white border-[#6D28D9] shadow-md'
-                            : isDarkMode
-                            ? 'bg-black/20 border-white/10 hover:bg-white/10 text-gray-300'
-                            : 'bg-gray-100 border-gray-200 hover:bg-gray-200 text-gray-700'
-                        }`}
-                      >
-                        {lang === 'Python' ? '🐍 Python' : lang === 'JavaScript' ? '⚡ JS' : '🪄 Spells'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold flex items-center gap-1.5 opacity-80">
-                    <Lock className="w-3.5 h-3.5 text-[#F472B6]" />
-                    <span>Secret Incantation (Password)</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={signUpPassword}
-                      onChange={(e) => setSignUpPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-medium outline-none transition-colors pr-10 ${
-                        isDarkMode
-                          ? 'bg-black/30 border-[#8B5CF6]/40 focus:border-[#F472B6] text-white'
-                          : 'bg-gray-50 border-gray-200 focus:border-[#8B5CF6] text-gray-900'
-                      }`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-gray-400 hover:text-white"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Submit button */}
-                <button
-                  type="submit"
-                  className="w-full mt-2 py-3 rounded-xl bg-[#8B5CF6] hover:bg-[#9B6DF7] text-white font-pixel font-bold text-xs uppercase border-2 border-[#6D28D9] shadow-[0_4px_0_#4C1D95] hover:translate-y-[1px] active:translate-y-[4px] active:shadow-none transition-all flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Register Apprentice Wand</span>
-                </button>
-              </form>
-            ) : (
-              <div className="text-center py-6 space-y-4 animate-scaleUp">
-                <div className="w-16 h-16 mx-auto rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-3xl">
-                  ✨
-                </div>
-                <div className="space-y-1">
-                  <h3 className="font-pixelify font-black text-2xl text-emerald-400">
-                    Welcome, {signUpName}!
-                  </h3>
-                  <p className={`text-xs ${isDarkMode ? 'text-[#CBD5E1]' : 'text-[#475569]'}`}>
-                    Your apprentice wand has been registered and attuned to <strong>{selectedLanguage}</strong>.
-                  </p>
-                </div>
-                <div className="pt-2">
-                  <button
-                    onClick={() => {
-                      sound.playVictoryFanfare();
-                      setIsSignUpOpen(false);
-                      setIsSignedUp(false);
-                      onStartAdventure(1);
-                    }}
-                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-night-950 font-pixel font-bold text-xs uppercase shadow-lg transition-transform hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    <Play className="w-4 h-4 fill-current" />
-                    <span>Enter Chapter 1: Dragon's Lair</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <AuthModal
+        isOpen={isSignUpOpen}
+        onClose={() => setIsSignUpOpen(false)}
+        onGuest={() => {
+          setIsSignUpOpen(false);
+          onStartAdventure(1);
+        }}
+        onAuthenticated={() => {
+          sound.playVictoryFanfare();
+          confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+        }}
+      />
 
       {/* 6. ARCANE TERMINAL SANDBOX MODAL */}
       <ArcaneTerminalModal
