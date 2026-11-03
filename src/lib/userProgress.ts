@@ -12,13 +12,3 @@ export async function loadPlayerProgress(userId: string): Promise<number[] | nul
   return data?.completed_lessons ?? null;
 }
 
-export async function savePlayerProgress(userId: string, completedLessons: number[]) {
-  if (!supabase) return;
-  const { error } = await supabase.from('player_progress').upsert({
-    user_id: userId,
-    completed_lessons: completedLessons,
-    updated_at: new Date().toISOString(),
-  }, { onConflict: 'user_id' });
-
-  if (error) throw error;
-}

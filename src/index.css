@@ -37,7 +37,7 @@
     padding-right: env(safe-area-inset-right);
   }
 
-  /* Fondamento brings the handwritten fantasy style to display text. */
+  /* Outfit gives headings a distinctive, readable shape. */
   h1, h2, h3, h4, h5, h6, .font-fantasy {
     font-family: 'Outfit', system-ui, sans-serif;
   }

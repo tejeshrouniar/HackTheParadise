@@ -1,3 +1,4 @@
+import { Modal } from '../ui/Modal';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
@@ -268,7 +269,7 @@ export const ArcaneTerminalModal: React.FC<ArcaneTerminalModalProps> = ({
 
       setOutputLogs(newLogs);
       sound.playSuccessChime();
-      confetti({
+      confetti({ disableForReducedMotion: true,
         particleCount: 50,
         spread: 60,
         origin: { y: 0.6 },
@@ -285,7 +286,7 @@ export const ArcaneTerminalModal: React.FC<ArcaneTerminalModalProps> = ({
   const currentPresetObj = PRESET_SNIPPETS.find((p) => p.id === selectedPreset);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn">
+    <Modal open={isOpen} onClose={onClose} title="Code playground" wide>
       <div
         className={`w-full max-w-4xl max-h-[92vh] rounded-3xl border-2 flex flex-col shadow-2xl backdrop-blur-2xl overflow-hidden animate-scaleUp transition-colors ${
           isDarkMode
@@ -483,6 +484,6 @@ export const ArcaneTerminalModal: React.FC<ArcaneTerminalModalProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 };

@@ -1,5 +1,7 @@
 # Storicode Supabase setup
 
+**For the renovated platform, follow [the upgrade guide](docs/RENOVATION.md).** Existing installations need migrations `202611030002` and `202611030003`, in that order. Do not rerun the older trigger migration below after applying the upgrade.
+
 ## 1. Create the project and connect the app
 
 1. Create a project at [supabase.com/dashboard](https://supabase.com/dashboard).

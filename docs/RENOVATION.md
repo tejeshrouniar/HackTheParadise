@@ -2,7 +2,7 @@
 
 ## Apply the database upgrade
 
-Your existing project is `qlptlxzrnvrahanlordb`. Its `profiles` and `player_progress` tables are already present. The publishable key can read permitted data, but cannot execute administrator SQL. No live migration has been executed by this renovation.
+Your existing project is `qlptlxzrnvrahanlordb`. The user applied migrations 002 and 003 during this renovation. Live checks subsequently confirmed eight chapters, the story, three achievements, and denied anonymous access to profiles, private preferences and chat. **Do not rerun those migrations on this project.** The steps below are retained for future installations. The publishable key cannot execute administrator SQL.
 
 1. Open [your Supabase SQL Editor](https://supabase.com/dashboard/project/qlptlxzrnvrahanlordb/sql/new).
 2. Open `supabase/migrations/202611030002_storicode_platform.sql` in VS Code. Copy the entire file into a new query and click **Run** once. This adds the platform tables, policies and avatar bucket. It keeps existing profiles and lesson progress.
