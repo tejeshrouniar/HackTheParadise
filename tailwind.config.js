@@ -55,11 +55,11 @@ export default {
         astralCyan: '#56E2D8',
       },
       fontFamily: {
-        fantasy: ['Fondamento', 'Georgia', 'serif'],
-        pixel: ['Fondamento', 'Georgia', 'serif'],
-        pixelify: ['Merienda', 'cursive'],
+        fantasy: ['Outfit', 'system-ui', 'sans-serif'],
+        pixel: ['Outfit', 'system-ui', 'sans-serif'],
+        pixelify: ['Nunito Sans', 'system-ui', 'sans-serif'],
         code: ['JetBrains Mono', 'Fira Code', 'Courier New', 'monospace'],
-        body: ['Merienda', 'cursive'],
+        body: ['Nunito Sans', 'system-ui', 'sans-serif'],
       },
       // Fluid font sizes using clamp for perfect scaling at every breakpoint
       fontSize: {

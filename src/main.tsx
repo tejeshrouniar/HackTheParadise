@@ -4,6 +4,9 @@ import { Toaster } from 'react-hot-toast';
 import { App } from './App';
 import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
+import './styles/tokens.css';
+import './styles/shell.css';
+import './styles/features.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -21,7 +24,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           border: '1px solid rgba(146, 116, 216, 0.4)',
           borderRadius: '12px',
           fontSize: '0.875rem',
-          fontFamily: "'Merienda', cursive",
+          fontFamily: "'Nunito Sans', sans-serif",
           backdropFilter: 'blur(12px)',
         },
         success: {

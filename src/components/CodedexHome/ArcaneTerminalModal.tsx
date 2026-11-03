@@ -142,7 +142,7 @@ export const ArcaneTerminalModal: React.FC<ArcaneTerminalModalProps> = ({
 
   const handleCopyCode = () => {
     sound.playClick();
-    navigator.clipboard.writeText(code);
+    void navigator.clipboard.writeText(code).catch(() => setOutputLogs(['Copy was blocked. Select and copy the code manually.']));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -157,26 +157,7 @@ export const ArcaneTerminalModal: React.FC<ArcaneTerminalModalProps> = ({
     ];
 
     try {
-      // First try sending to backend if available
-      let backendSuccess = false;
-      try {
-        const res = await fetch('http://localhost:5001/api/quests/execute', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.output && data.output.length > 0) {
-            newLogs.push(...data.output);
-            backendSuccess = true;
-          }
-        }
-      } catch {
-        // Backend offline or unreachable, fall back gracefully to local JS simulation
-      }
-
-      if (!backendSuccess) {
+      {
         // Local simulation of Python execution
         const lines = code.split('\n');
         const variables: Record<string, any> = {};

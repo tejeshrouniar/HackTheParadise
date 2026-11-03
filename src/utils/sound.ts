@@ -9,72 +9,19 @@ export interface BgmTrack {
 }
 
 export const BGM_TRACKS: BgmTrack[] = [
-  // 💜 BTS Special Tracks
-  {
-    id: 'bts_dynamite',
-    name: 'Dynamite',
-    artist: 'BTS',
-    emoji: '🕺',
-    vibe: 'Upbeat Disco-Pop & Starlight Groove',
-  },
-  {
-    id: 'bts_butter',
-    name: 'Butter',
-    artist: 'BTS',
-    emoji: '🧈',
-    vibe: 'Smooth Synth-Pop Bassline & Summer Vibe',
-  },
-  {
-    id: 'bts_spring_day',
-    name: 'Spring Day (봄날)',
-    artist: 'BTS',
-    emoji: '🌸',
-    vibe: 'Emotional Nostalgic Lofi & Piano Chords',
-  },
-  {
-    id: 'bts_mikrokosmos',
-    name: 'Mikrokosmos (소우주)',
-    artist: 'BTS',
-    emoji: '🌌',
-    vibe: 'Ethereal Cosmic Starlight Anthem',
-  },
-  {
-    id: 'bts_life_goes_on',
-    name: 'Life Goes On',
-    artist: 'BTS',
-    emoji: '☕',
-    vibe: 'Cozy Acoustic Healing & Warm Melody',
-  },
-
-  // ✨ Original Fantasy Soundscapes
-  {
-    id: 'twilight',
-    name: 'Twilight Sanctuary',
-    emoji: '✨',
-    vibe: 'Dreamy Lo-Fi Chords & Starlight Bells',
-  },
-  {
-    id: 'citadel',
-    name: 'Cyber Citadel',
-    emoji: '🏰',
-    vibe: 'Warm Ethereal Synth Pads & Neon Flow',
-  },
-  {
-    id: 'meadow',
-    name: 'Arcane Meadow',
-    emoji: '🌿',
-    vibe: 'Peaceful Nature Harp & Gentle Breeze',
-  },
+ { id: 'twilight', name: 'Twilight Sanctuary', emoji: '✨', vibe: 'Synthesized lo-fi and bells' },
+ { id: 'citadel', name: 'Cyber Citadel', emoji: '🏰', vibe: 'Synthesized warm pads' },
+ { id: 'meadow', name: 'Arcane Meadow', emoji: '🌿', vibe: 'Synthesized soft harp' },
 ];
 
 class SoundSystem {
   private ctx: AudioContext | null = null;
-  private isMuted: boolean = false;
+  private isMuted: boolean = true;
 
   // Background Music (BGM) Engine State - Boosted Volume
   private isBgmActive: boolean = false;
-  private bgmVolume: number = 0.85; // Boosted volume
-  private currentTrackId: string = 'bts_dynamite'; // Default to iconic BTS track!
+  private bgmVolume: number = 0.35; // Boosted volume
+  private currentTrackId: string = 'twilight';
   private bgmMasterGain: GainNode | null = null;
   private bgmFilter: BiquadFilterNode | null = null;
   private bgmIntervalId: any = null;
@@ -182,12 +129,12 @@ class SoundSystem {
     try {
       const savedVol = localStorage.getItem('spellscript_bgm_volume');
       if (savedVol) {
-        this.bgmVolume = parseFloat(savedVol);
+        this.bgmVolume = Number.isFinite(Number(savedVol)) ? Math.max(0, Math.min(1, Number(savedVol))) : 0.35;
       } else {
-        this.bgmVolume = 0.85;
+        this.bgmVolume = 0.35;
       }
     } catch {
-      this.bgmVolume = 0.85;
+      this.bgmVolume = 0.35;
     }
   }
 
@@ -203,13 +150,13 @@ class SoundSystem {
     }
   }
 
+  public setEffectsEnabled(enabled: boolean) {
+    this.isMuted = !enabled;
+    window.dispatchEvent(new Event('storicode:sound'));
+  }
+
   public toggleMute(): boolean {
-    this.isMuted = !this.isMuted;
-    if (this.bgmMasterGain && this.ctx) {
-      const targetGain = this.isMuted ? 0 : this.bgmVolume;
-      this.bgmMasterGain.gain.setValueAtTime(this.bgmMasterGain.gain.value, this.ctx.currentTime);
-      this.bgmMasterGain.gain.linearRampToValueAtTime(targetGain, this.ctx.currentTime + 0.2);
-    }
+    this.setEffectsEnabled(this.isMuted);
     return this.isMuted;
   }
 
@@ -230,7 +177,7 @@ class SoundSystem {
 
     if (this.isBgmActive) {
       if (this.bgmMasterGain) {
-        const target = this.isMuted ? 0 : this.bgmVolume;
+        const target = this.bgmVolume;
         this.bgmMasterGain.gain.setValueAtTime(this.bgmMasterGain.gain.value, this.ctx.currentTime);
         this.bgmMasterGain.gain.linearRampToValueAtTime(target, this.ctx.currentTime + 0.3);
       }
@@ -241,7 +188,7 @@ class SoundSystem {
 
     // Master BGM Gain Node (Boosted for full volume richness)
     this.bgmMasterGain = this.ctx.createGain();
-    const initialGain = this.isMuted ? 0 : this.bgmVolume;
+    const initialGain = this.bgmVolume;
     this.bgmMasterGain.gain.setValueAtTime(0, this.ctx.currentTime);
     this.bgmMasterGain.gain.linearRampToValueAtTime(initialGain, this.ctx.currentTime + 0.6);
 
@@ -269,25 +216,16 @@ class SoundSystem {
   }
 
   public stopBgm() {
-    if (!this.isBgmActive || !this.ctx) return;
-
-    if (this.bgmMasterGain) {
-      this.bgmMasterGain.gain.setValueAtTime(this.bgmMasterGain.gain.value, this.ctx.currentTime);
-      this.bgmMasterGain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.5);
-    }
-
-    setTimeout(() => {
-      if (this.bgmIntervalId) {
-        clearInterval(this.bgmIntervalId);
-        this.bgmIntervalId = null;
-      }
-      if (this.bgmMelodyIntervalId) {
-        clearInterval(this.bgmMelodyIntervalId);
-        this.bgmMelodyIntervalId = null;
-      }
-      this.stopPadOscs();
-      this.isBgmActive = false;
-    }, 550);
+    if (this.bgmIntervalId) clearInterval(this.bgmIntervalId);
+    if (this.bgmMelodyIntervalId) clearInterval(this.bgmMelodyIntervalId);
+    this.bgmIntervalId = null;
+    this.bgmMelodyIntervalId = null;
+    this.stopPadOscs();
+    this.bgmMasterGain?.disconnect();
+    this.bgmFilter?.disconnect();
+    this.bgmMasterGain = null;
+    this.bgmFilter = null;
+    this.isBgmActive = false;
   }
 
   public toggleBgm(): boolean {
@@ -307,7 +245,7 @@ class SoundSystem {
     } catch {
       // Ignore
     }
-    if (this.bgmMasterGain && this.ctx && !this.isMuted) {
+    if (this.bgmMasterGain && this.ctx) {
       this.bgmMasterGain.gain.setValueAtTime(this.bgmMasterGain.gain.value, this.ctx.currentTime);
       this.bgmMasterGain.gain.linearRampToValueAtTime(this.bgmVolume, this.ctx.currentTime + 0.1);
     }

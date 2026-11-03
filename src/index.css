@@ -39,7 +39,7 @@
 
   /* Fondamento brings the handwritten fantasy style to display text. */
   h1, h2, h3, h4, h5, h6, .font-fantasy {
-    font-family: 'Fondamento', Georgia, serif;
+    font-family: 'Outfit', system-ui, sans-serif;
   }
 
   code, pre, .font-code {

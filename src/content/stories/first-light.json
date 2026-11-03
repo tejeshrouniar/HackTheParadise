@@ -1,0 +1,236 @@
+{
+  "id": "first-light",
+  "title": "The First Light",
+  "description": "A sleeping realm. A curious dragon. Eight small spells that can change everything.",
+  "chapters": [
+    {
+      "id": "the-awakening",
+      "position": 1,
+      "title": "The awakening",
+      "subtitle": "Every adventure begins with a single instruction.",
+      "lesson_id": 1,
+      "content": [
+        {
+          "id": "arrival",
+          "type": "narration",
+          "text": "The academy gates open without a sound. Beyond them, the lanterns have gone dark. A small dragon sleeps beside a crystal that pulses like a tiny heartbeat. You unfold the note in your pocket: ‘The realm has forgotten its language. Help it remember.’"
+        },
+        {
+          "id": "sparky-hello",
+          "type": "dialogue",
+          "speaker": "Sparky",
+          "text": "Oh! You can read the symbols? I’m Sparky. I know how to move, but I need someone to tell me where to go. One clear instruction at a time."
+        },
+        {
+          "id": "first-response",
+          "type": "choice",
+          "text": "How do you greet your new companion?",
+          "options": [
+            {
+              "id": "careful",
+              "label": "Let’s take this one step at a time.",
+              "response": "Sparky nods. ‘A good plan starts small.’ He points his tail toward the crystal."
+            },
+            {
+              "id": "curious",
+              "label": "What happens if we reach that crystal?",
+              "response": "‘Only one way to find out!’ Sparky’s wings shimmer with anticipation."
+            }
+          ]
+        },
+        {
+          "id": "first-task",
+          "type": "narration",
+          "text": "Guide Sparky across the grid and collect the crystal. The academy’s first lantern is waiting for you."
+        }
+      ]
+    },
+    {
+      "id": "a-little-alchemy",
+      "position": 2,
+      "title": "A little alchemy",
+      "subtitle": "Give something a name, and you can begin to change it.",
+      "lesson_id": 2,
+      "content": [
+        {
+          "id": "laboratory",
+          "type": "narration",
+          "text": "The first lantern reveals a crooked door marked ALCHEMY. Inside, empty bottles crowd a workbench. A cauldron waits beneath a recipe covered in unfamiliar names."
+        },
+        {
+          "id": "keeper",
+          "type": "dialogue",
+          "speaker": "The keeper",
+          "text": "Names are how we keep track of things. Call a bottle mana, give it a value, and the recipe becomes much easier to follow."
+        },
+        {
+          "id": "brew",
+          "type": "narration",
+          "text": "Use variables to measure your ingredients. Then bring the cauldron back to life."
+        }
+      ]
+    },
+    {
+      "id": "the-patient-garden",
+      "position": 3,
+      "title": "The patient garden",
+      "subtitle": "Small actions become powerful when you repeat them.",
+      "lesson_id": 3,
+      "content": [
+        {
+          "id": "garden",
+          "type": "narration",
+          "text": "Outside the laboratory lies a garden of sleeping flowers. Each one needs exactly the same spell. Your notebook is almost full before you reach the second row."
+        },
+        {
+          "id": "loop",
+          "type": "dialogue",
+          "speaker": "Sparky",
+          "text": "What if we could tell the garden to repeat a spell? Like walking in a circle, but with a clear place to stop."
+        },
+        {
+          "id": "bloom",
+          "type": "narration",
+          "text": "A loop will do the patient work for you. Help the garden bloom, one repetition at a time."
+        }
+      ]
+    },
+    {
+      "id": "across-the-quiet",
+      "position": 4,
+      "title": "Across the quiet",
+      "subtitle": "Build a tool once. Use it wherever you need it.",
+      "lesson_id": 4,
+      "content": [
+        {
+          "id": "river",
+          "type": "narration",
+          "text": "A silver river divides the academy. The old bridge has dissolved into scattered tiles. An inscription on the bank describes a spell that can build a section of it."
+        },
+        {
+          "id": "bridge-talk",
+          "type": "dialogue",
+          "speaker": "Sparky",
+          "text": "That’s a function! Give the spell a name, teach it what to do, and call it when you need another piece."
+        },
+        {
+          "id": "build",
+          "type": "narration",
+          "text": "Complete the bridge function and make a path to the other side."
+        }
+      ]
+    },
+    {
+      "id": "a-different-path",
+      "position": 5,
+      "title": "A different path",
+      "subtitle": "The right action depends on what you find.",
+      "lesson_id": 5,
+      "content": [
+        {
+          "id": "runes",
+          "type": "narration",
+          "text": "On the far bank, runes float in the air. Some glow warmly. Others flicker with the curse that silenced the realm. Casting the same spell at every rune would only make things worse."
+        },
+        {
+          "id": "decision",
+          "type": "dialogue",
+          "speaker": "The keeper",
+          "text": "Mistakes leave clues. Read the error, find the wrong rune number, then repair that instruction. That is debugging."
+        },
+        {
+          "id": "cleanse",
+          "type": "narration",
+          "text": "Check the runes and choose the right action to lift the curse."
+        }
+      ]
+    },
+    {
+      "id": "the-sky-door",
+      "position": 6,
+      "title": "The sky door",
+      "subtitle": "A few well-ordered steps can open a world.",
+      "lesson_id": 6,
+      "content": [
+        {
+          "id": "observatory",
+          "type": "narration",
+          "text": "The observatory roof opens onto a sky full of sleeping constellations. In its centre, great rings turn around an unlit gate."
+        },
+        {
+          "id": "gate-talk",
+          "type": "dialogue",
+          "speaker": "Sparky",
+          "text": "First align the rings. Then charge the gate. Even powerful spells need the right order."
+        },
+        {
+          "id": "gate",
+          "type": "narration",
+          "text": "Combine what you know to awaken the stargate and discover where it leads."
+        }
+      ]
+    },
+    {
+      "id": "pieces-of-time",
+      "position": 7,
+      "title": "Pieces of time",
+      "subtitle": "Find the pattern hiding in the collection.",
+      "lesson_id": 7,
+      "content": [
+        {
+          "id": "time",
+          "type": "narration",
+          "text": "Beyond the gate, moments drift like leaves. Four crystals hold the academy’s timeline, but their order has been scrambled. A morning follows a midnight. A door closes before it opens."
+        },
+        {
+          "id": "sort",
+          "type": "dialogue",
+          "speaker": "Sparky",
+          "text": "A list keeps things together. Sorting helps us put them where they belong."
+        },
+        {
+          "id": "stabilize",
+          "type": "narration",
+          "text": "Put the crystals in order and stabilize the time vortex."
+        }
+      ]
+    },
+    {
+      "id": "first-light-restored",
+      "position": 8,
+      "title": "First light, restored",
+      "subtitle": "You already have the pieces. Now bring them together.",
+      "lesson_id": 8,
+      "content": [
+        {
+          "id": "chimera",
+          "type": "narration",
+          "text": "At the heart of the academy, the Glitch Chimera guards the last lantern. It is made of forgotten instructions and unfinished ideas. Sparky lands beside you. This time, you know how to begin."
+        },
+        {
+          "id": "last-choice",
+          "type": "choice",
+          "text": "What will you remember about this journey?",
+          "options": [
+            {
+              "id": "persistence",
+              "label": "A mistake is a clue to the next step.",
+              "response": "Sparky smiles. ‘Then nothing here can stop us for long.’"
+            },
+            {
+              "id": "together",
+              "label": "Learning is better with a companion.",
+              "response": "‘And now you can be that companion for someone else,’ Sparky says."
+            }
+          ]
+        },
+        {
+          "id": "finish",
+          "type": "dialogue",
+          "speaker": "Sparky",
+          "text": "Raise your shield. Cast your spells. The first light is ours to bring back."
+        }
+      ]
+    }
+  ]
+}
