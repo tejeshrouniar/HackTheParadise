@@ -1,3 +1,4 @@
+import { canEnterLevel } from "./journeyProgress";
 import { useState, useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
 import { CODEDEX_LESSONS } from "../../data/codedexLessons";
@@ -41,6 +42,7 @@ export function useQuestEngine(
   // Lesson state
   const [currentLessonId, changeLessonId] = useState<number>(initialLessonId);
   const setCurrentLessonId = (id: number) => {
+    if (!canEnterLevel(id, completedLessons)) return;
     runId.current++;
     running.current = false;
     changeLessonId(id);

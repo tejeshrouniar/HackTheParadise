@@ -13,7 +13,7 @@ import {
 } from "./AvatarGraphic";
 import { useAppearance } from "./AppearanceContext";
 import { interactionDuration, spriteClips } from "./spriteAnimation";
-import { JOURNEY } from "../../content/journey";
+
 import { sound } from "../../utils/sound";
 import sky from "../../assets/trail/sky.png";
 import far from "../../assets/trail/far.png";
@@ -21,9 +21,8 @@ import middle from "../../assets/trail/middle.png";
 import near from "../../assets/trail/near.png";
 import bushes from "../../assets/trail/bushes.png";
 import ground from "../../assets/trail/ground.png";
-import foreground from "../../assets/trail/foreground.png";
 import lamp from "../../assets/trail/lamp.png";
-import statue from "../../assets/trail/statue.png";
+import chest from "../../assets/realms/treasure_chest.png";
 import arch from "../../assets/trail/arch.png";
 
 const viewWidth = 640;
@@ -46,21 +45,21 @@ const landmarks = [
     image: lamp,
     width: 40,
     height: 108,
-    name: "Trail lantern",
+    name: "Light the lantern",
   },
   {
     x: 610,
-    image: statue,
-    width: 57,
-    height: 104,
-    name: "Old watcher",
+    image: chest,
+    width: 64,
+    height: 64,
+    name: "Find the keepsake",
   },
   {
     x: 1040,
     image: arch,
     width: 167,
     height: 110,
-    name: "Academy gate",
+    name: "Enter your story",
   },
 ];
 type Landmark = (typeof landmarks)[number];
@@ -69,16 +68,19 @@ function bound(value: number, min = 46, max = trailWidth - 46) {
   return Math.max(min, Math.min(max, value));
 }
 
-export function ForestTrail({ chapter, onQuest, completed }: { chapter: number; onQuest: (id: number) => void; completed: number[] }) {
-  const realm = JOURNEY[chapter];
+export function ForestTrail({ onStory }: { onStory: () => void }) {
   const { appearance } = useAppearance();
   const [position, setPosition] = useState(160);
   const [action, setAction] = useState<SpriteAction>("idle");
   const [direction, setDirection] = useState<SpriteDirection>("right");
   const [interactionId, setInteractionId] = useState(0);
   const [lanternLit, setLanternLit] = useState(false);
+  const [message, setMessage] = useState("A quiet clearing, a hidden keepsake, and a road waiting for you.");
   const [destination, setDestination] = useState<Landmark | null>(null);
-  const [discovered, setDiscovered] = useState<string[]>([]);
+  const [discovered, setDiscovered] = useState<string[]>(() => {
+    try { const saved: unknown = JSON.parse(localStorage.getItem("storicode:clearing") ?? "[]"); return Array.isArray(saved) ? saved.filter((value): value is string => typeof value === "string" && landmarks.some(mark => mark.name === value)) : []; } catch { return []; }
+  });
+  useEffect(() => { try { localStorage.setItem("storicode:clearing", JSON.stringify(discovered)); } catch { /* Exploration remains available when storage is blocked. */ } }, [discovered]);
   const glowId = useId();
   const x = useRef(160);
   const target = useRef<number | null>(null);
@@ -101,8 +103,9 @@ export function ForestTrail({ chapter, onQuest, completed }: { chapter: number; 
     setAction("interact");
     setInteractionId((value) => value + 1);
     setDirection(landmark.x < x.current ? "left" : "right");
-    setLanternLit(true);
-    setDestination(landmark);
+    if (landmark.image === lamp) { setLanternLit(value => !value); setMessage("The lantern answers your touch. Come back whenever you need a little light."); }
+    if (landmark.image === chest) setMessage("You found the clearing’s keepsake. A small discovery, just for you.");
+    if (landmark.image === arch) setDestination(landmark);
     setDiscovered((previous) =>
       previous.includes(landmark.name)
         ? previous
@@ -169,6 +172,8 @@ export function ForestTrail({ chapter, onQuest, completed }: { chapter: number; 
     const release = () => {
       keys.current = { left: false, right: false, sprint: false };
       velocity.current = 0;
+      target.current = null;
+      pending.current = null;
       previous = performance.now();
     };
     window.addEventListener("blur", release);
@@ -183,11 +188,11 @@ export function ForestTrail({ chapter, onQuest, completed }: { chapter: number; 
   useEffect(() => {
     if (!destination) return;
     const timer = window.setTimeout(
-      () => onQuest(realm.levels[landmarks.indexOf(destination)]),
+      () => onStory(),
       interactionDuration,
     );
     return () => window.clearTimeout(timer);
-  }, [destination, onQuest, realm]);
+  }, [destination, onStory]);
 
   const renderPosition = Math.round(position);
   const camera = Math.round(bound(position - viewWidth / 2, 0, trailWidth - viewWidth));
@@ -229,23 +234,23 @@ export function ForestTrail({ chapter, onQuest, completed }: { chapter: number; 
   }
 
   return (
-    <section className={`sc-trail realm-${realm.theme}`} aria-label={`Explore ${realm.place}`}>
+    <section className="sc-trail sc-home-clearing" aria-label="Explore the clearing">
       <div className="sc-trail-label">
         <div>
           <span>
-            <Sparkles size={14} /> CHAPTER {chapter + 1}
+            <Sparkles size={14} /> FREE ROAM
           </span>
-          <h2>{realm.place}</h2>
+          <h2>The Lantern Clearing</h2>
         </div>
         <small>
-          {realm.levels.filter(id => completed.includes(id)).length} / 3 spells learned
+          {discovered.filter(name => name !== "Enter your story").length} / 2 discoveries
         </small>
       </div>
       <div
         className="sc-trail-stage"
         ref={stage}
         tabIndex={0}
-        aria-label="Chapter trail. Arrow keys to walk, Shift to run, E to enter a level."
+        aria-label="The clearing. Arrow keys to walk, Shift to run, E to interact."
         onKeyDown={(event) => onKey(event, true)}
         onKeyUp={(event) => onKey(event, false)}
         onBlur={() => {
@@ -305,20 +310,6 @@ export function ForestTrail({ chapter, onQuest, completed }: { chapter: number; 
               )}
             </g>
           ))}
-          <image
-            href={foreground}
-            x={-camera % viewWidth}
-            width="640"
-            height="360"
-            pointerEvents="none"
-          />
-          <image
-            href={foreground}
-            x={viewWidth - (camera % viewWidth)}
-            width="640"
-            height="360"
-            pointerEvents="none"
-          />
           <ellipse
             cx={renderPosition - camera}
             cy={groundLine}
@@ -354,11 +345,12 @@ export function ForestTrail({ chapter, onQuest, completed }: { chapter: number; 
                 else goTo(landmark.x + (x.current < landmark.x ? -36 : 36), landmark);
               }}
             >
-              <Hand size={13} /> {completed.includes(realm.levels[landmarks.indexOf(landmark)]) ? "✓ " : ""}{realm.stops[landmarks.indexOf(landmark)]}
+              <Hand size={13} /> {discovered.includes(landmark.name) && landmark.image !== arch ? "✓ " : ""}{landmark.name}
             </button>
           ))}
 
       </div>
+      <p className="sc-clearing-message" role="status">{message}</p>
       <div className="sc-trail-controls">
         <span>
           <Footprints size={16} /> Click the trail or use <kbd>←</kbd>{" "}

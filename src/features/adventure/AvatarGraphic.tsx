@@ -222,11 +222,13 @@ export function AvatarGraphic({
       paint();
     }
     resume();
-    media.addEventListener("change", resume);
+    if (typeof media.addEventListener === "function") media.addEventListener("change", resume);
+    else media.addListener(resume);
     document.addEventListener("visibilitychange", resume);
     return () => {
       cancelAnimationFrame(request);
-      media.removeEventListener("change", resume);
+      if (typeof media.removeEventListener === "function") media.removeEventListener("change", resume);
+      else media.removeListener(resume);
       document.removeEventListener("visibilitychange", resume);
     };
   }, [action, playId, loop, directControl, ready, preferences.reduced_motion]);

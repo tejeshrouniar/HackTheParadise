@@ -1,3 +1,4 @@
+import { journeyProgress } from "../learning/journeyProgress";
 import { useEffect, useState } from "react";
 import { AvatarGraphic } from "../adventure/AvatarGraphic";
 import { useAppearance } from "../adventure/AppearanceContext";
@@ -45,9 +46,9 @@ export function JourneyScene({ chapter, beat = 0, playing = false }: { chapter: 
       {[256,352,448].map(x=><g key={x}>{item("clay_pot",x,256)}{beat===2 && item("healing_herb",x,240)}</g>)}
     </g>}
     {chapter === 3 && [160,416,544].map(x=><g key={x}>{item("wooden_sign",x,256)}{beat>0 && item("lantern",x,224)}</g>)}
-    <g className={moving ? "sc-cutscene-travel" : ""} key={beat} style={{transform: `translateX(${beat * 140}px)`}}>
+    <g transform={`translate(${beat * 140} 0)`} key={beat}><g className={moving ? "sc-cutscene-travel" : ""}>
       <AvatarGraphic appearance={appearance} action={moving ? "walk" : "idle"} directControl={moving} x={80} y={floor-64} size={64} />
-    </g>
+    </g></g>
     {beat > 0 && <g className={moving ? "sc-realm-glimmer" : ""} fill="#ffe3a0" shapeRendering="crispEdges">{[0,1,2,3,4].map(i=><rect key={i} x={210+i*70} y={floor-48-(i%2)*12} width="2" height="2"/>)}</g>}
   </svg>;
 }
@@ -55,8 +56,8 @@ export function StoryCinema({ chapter, onQuest }: { chapter: number; onQuest: (i
   const { completed } = useProgress();
   const realm = JOURNEY[chapter];
   const [beat, setBeat] = useState(0);
-  const unlocked = completed.includes(realm.levels[beat]);
-  const nextUnlocked = beat < 2 && completed.includes(realm.levels[beat + 1]);
+  const unlocked = realm.levels[beat] <= journeyProgress(completed).cleared;
+  const nextUnlocked = beat < 2 && realm.levels[beat + 1] <= journeyProgress(completed).cleared;
   const [playing, setPlaying] = useState(false);
   const [narrate, setNarrate] = useState(true);
   const [notice, setNotice] = useState("");

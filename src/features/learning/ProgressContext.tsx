@@ -1,3 +1,4 @@
+import { canEnterLevel } from "./journeyProgress";
 import {
   createContext,
   useContext,
@@ -83,7 +84,7 @@ export function ProgressProvider({ children }: PropsWithChildren) {
     };
   }, [user?.id, attempt]);
   function complete(id: number) {
-    if (!validLessonIds([id]).length) return;
+    if (!validLessonIds([id]).length || !canEnterLevel(id, current.current)) return;
     const next = mergeLessons(current.current, [id]);
     current.current = next;
     setCompleted(next);

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { JOURNEY } from "../../content/journey";
-import { ArrowRight, BookOpen, Code2, Map, Shirt } from "lucide-react";
+import { JourneyTrail } from "../adventure/JourneyTrail";
+import { journeyProgress } from "./journeyProgress";
+import { ArrowRight, BookOpen, Code2, Shirt } from "lucide-react";
 import { WorldMap } from "./WorldMap";
 import { useProgress } from "./ProgressContext";
 import { CODEDEX_LESSONS } from "../../data/codedexLessons";
-import { ForestTrail } from "../adventure/ForestTrail";
 import { AvatarGraphic } from "../adventure/AvatarGraphic";
 import { useAppearance } from "../adventure/AppearanceContext";
 import { sound } from "../../utils/sound";
@@ -13,7 +14,6 @@ export default function Dashboard({
   onQuest,
   onCompanion,
   onTerminal,
-  onMap,
   onCharacter,
   catalog = false,
 }: {
@@ -26,12 +26,11 @@ export default function Dashboard({
 }) {
   const { completed, status, retry } = useProgress();
   const { appearance } = useAppearance();
-  const nextOverall =
-    CODEDEX_LESSONS.find((lesson) => !completed.includes(lesson.id)) ??
-    CODEDEX_LESSONS[0];
-  const [chapter, setChapter] = useState(() => Math.min(3, Math.floor((nextOverall.id - 1) / 3)));
-  const nextId = JOURNEY[chapter].levels.find(id => !completed.includes(id)) ?? JOURNEY[chapter].levels[0];
-  const next = CODEDEX_LESSONS.find(lesson => lesson.id === nextId)!;
+  const progress = journeyProgress(completed);
+  const [chapter, setChapter] = useState(progress.chapter);
+  const realm = JOURNEY[chapter];
+  const chapterDone = progress.cleared >= realm.levels[2];
+  const next = CODEDEX_LESSONS.find(lesson => lesson.id === progress.next)!;
   if (catalog)
     return (
       <div className="sc-page">
@@ -42,23 +41,20 @@ export default function Dashboard({
     <div className="sc-page sc-trail-home">
       <header className="sc-trail-home-heading">
         <div>
-          <span>YOUR JOURNEY</span>
-          <h1>{JOURNEY[chapter].title}</h1>
+          <span>CHAPTER {chapter + 1} · YOUR JOURNEY</span>
+          <h1>{realm.place}</h1>
         </div>
-        <button className="sc-button secondary" onClick={onMap}>
-          <Map size={18} /> World map
-        </button>
       </header>
-      <nav className="sc-chapter-tabs" aria-label="Explore a chapter">{JOURNEY.map((realm, i) => <button key={realm.title} aria-pressed={chapter === i} onClick={() => setChapter(i)}>{i + 1}. {realm.place}</button>)}</nav>
+      <p className="sc-home-intro">{progress.finished ? "The road is restored. Revisit any part of your adventure." : chapterDone ? "This place is restored. Your next chapter is waiting." : realm.title + ". Complete each spell to open the road ahead."}</p>
       <div className="sc-trail-layout">
-        <ForestTrail key={chapter} chapter={chapter} onQuest={onQuest} completed={completed} />
+        <JourneyTrail completed={completed} onQuest={onQuest} onLocation={setChapter} />
         <aside className="sc-trail-sidebar">
           <section className="sc-trail-character-card">
             <svg viewBox="0 0 56 56" aria-hidden="true">
               <AvatarGraphic appearance={appearance} x={0} y={0} size={56} />
             </svg>
             <div>
-              <strong>Your adventurer</strong>
+              <strong>Make it yours</strong>
               <button onClick={onCharacter}>
                 <Shirt size={14} /> Customize character
               </button>
@@ -66,7 +62,7 @@ export default function Dashboard({
           </section>
           <section className="sc-trail-quest-card">
             <span>
-              <BookOpen size={15} /> NEXT QUEST ·{" "}
+              <BookOpen size={15} /> MAIN STORY ·{" "}
               {String(next.id).padStart(2, "0")}
             </span>
             <h2>{next.title}</h2>
@@ -84,14 +80,14 @@ export default function Dashboard({
           </section>
           <section className="sc-trail-progress">
             <strong>
-              {completed.length}{" "}
+              {progress.cleared}{" "}
               <small>/ {CODEDEX_LESSONS.length} quests</small>
             </strong>
             <div aria-hidden="true">
               {CODEDEX_LESSONS.map((lesson) => (
                 <i
                   key={lesson.id}
-                  className={completed.includes(lesson.id) ? "done" : ""}
+                  className={lesson.id <= progress.cleared ? "done" : ""}
                 />
               ))}
             </div>

@@ -23,7 +23,7 @@
 .sc-cinema-controls { display:flex; flex-wrap:wrap; gap:10px; padding:14px; align-items:center; }
 .sc-cinema small { display:block; padding:10px 16px; }
 .sc-cutscene-travel { animation:cutscene-walk 6s linear both; }
-@keyframes cutscene-walk { from { translate:-55px 0; } to { translate:55px 0; } }
+@keyframes cutscene-walk { from { transform:translateX(-55px); } to { transform:translateX(55px); } }
 @media(prefers-reduced-motion:reduce) { .sc-cutscene-travel { animation:none; } }
 .sc-chapter-missions { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:20px 0; }
 .sc-chapter-missions button { display:grid; gap:10px; text-align:left; padding:18px; border:1px solid #526e60; background:#142b24; border-radius:4px; }
@@ -38,3 +38,5 @@
 .sc-realm-glimmer { animation:realm-glimmer 2.4s steps(4,end) infinite; }
 @keyframes realm-water { 0%,100% { opacity:0; } 50% { opacity:1; } }
 @keyframes realm-glimmer { 0%,100% { opacity:.6; } 50% { opacity:1; } }
+
+@media(prefers-reduced-motion:reduce) { .sc-water-frame,.sc-realm-glimmer { animation:none; } }

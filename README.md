@@ -81,3 +81,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 - Character template: [Eris Esra](https://erisesra.itch.io/character-templates-pack).
 - Ancient Forest artwork: [Sismodyn](https://sismodyn.itch.io/ancientforest).
+
+### Chapter artwork
+The four chapter compositions use the supplied Ancient Forest, Moon Graveyard (Anokolisa), Pixel Trees 32x32 v2, Desert Ruins (reodesuxz), and Fantasy RPG Item Icons (RetroLabStudioCo) packs. Selected 16px desert tiles are enlarged to 32px with nearest-neighbor sampling; character frames remain native 32px. Scenes are composed locally, without image generation. `scripts/build-realm-art.mjs <extracted-pack-directory>` rebuilds the scene textures and selected props. The source archives are not redistributed. The Cozy Isometric pack is excluded because its supplied free license prohibits public repository uploads. Full supplied license texts for the included licensed packs are retained in `docs/asset-licenses`.

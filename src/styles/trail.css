@@ -435,3 +435,59 @@
     width: 274px;
   }
 }
+/* Home is a playable clearing, separate from campaign progression. */
+.sc-home-intro { max-width:620px; margin:0 0 26px; color:#b9ccbd; line-height:1.7; font-size:14px; }
+.sc-trail-home-heading h1 { max-width:800px; font-size:clamp(32px,4.5vw,58px); line-height:1.12; letter-spacing:-1.2px; margin:12px 0; }
+.sc-trail-home-heading span { color:#e4c587; letter-spacing:2px; }
+.sc-home-clearing { box-shadow:0 16px 50px #06181055; border-color:#678067; border-radius:3px; }
+.sc-home-clearing .sc-trail-label { background:#21392c; padding:18px; }
+.sc-clearing-message { min-height:48px; padding:14px 18px; font-size:12px; line-height:1.6; color:#e0d6b6; border-top:1px solid #4d6448; background:#1b3025; }
+.sc-trail-sidebar .sc-trail-quest-card { padding:24px 20px; border-color:#a38e5a; background:linear-gradient(145deg,#354431,#172d24); }
+.sc-trail-quest-card h2 { font-size:29px; margin:15px 0 8px; line-height:1.2; }
+.sc-trail-quest-card .sc-world-primary { margin-top:24px; min-height:46px; }
+.sc-home-clearing .sc-trail-marker { min-height:36px; }
+.sc-trail-art,.sc-journey-scene { image-rendering:crisp-edges; image-rendering:pixelated; }
+@media(max-width:600px) {
+  .sc-trail-home-heading h1 { letter-spacing:-.5px; }
+  .sc-home-intro { margin-bottom:18px; }
+
+
+  .sc-home-clearing .sc-trail-label { padding:12px; }
+  .sc-home-clearing .sc-trail-marker { min-height:32px; }
+}
+.sc-home-journey { border:1px solid #657d62; border-radius:4px; overflow:hidden; background:#152820; min-width:0; }
+.sc-home-route { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); list-style:none; margin:0; padding:0; border-top:1px solid #657d62; }
+.sc-home-route li + li { border-left:1px solid #465c47; }
+.sc-home-route button { width:100%; padding:16px; text-align:left; display:grid; gap:8px; min-height:130px; }
+.sc-home-route button[aria-current="step"] { background:#35472e; box-shadow:inset 0 3px #e5cc90; }
+.sc-home-route button span { color:#e5cc90; font-size:18px; }
+.sc-home-route button strong { font-size:13px; }
+.sc-home-route button small { color:#c5d4bf; font-size:11px; }
+.sc-home-route button:disabled,.sc-chapter-tabs button:disabled,.sc-realm-card button:disabled,.sc-chapter-missions button:disabled { opacity:.5; cursor:not-allowed; }
+.sc-home-passage { border-top:1px solid #465c47; padding:18px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.sc-home-passage > div { display:grid; gap:5px; }
+.sc-home-passage small { font-size:9px; letter-spacing:1.5px; color:#cfba82; }
+.sc-home-passage button:disabled { opacity:.5; cursor:not-allowed; }
+@media(max-width:600px) { .sc-home-passage { flex-wrap:wrap; } .sc-home-route button { padding:12px 8px; } .sc-home-route button strong { font-size:11px; } }
+.sc-walking-world { border:1px solid #657d62; border-radius:4px; overflow:hidden; background:#152820; min-width:0; }
+.sc-walking-stage { position:relative; aspect-ratio:640/352; overflow:hidden; cursor:crosshair; }
+.sc-walking-stage:focus-visible { outline:2px solid #e5cc90; outline-offset:-2px; }
+.sc-walking-stage .sc-trail-marker { max-width:30%; white-space:normal; text-align:center; font-size:10px; }
+@media(max-width:600px) { .sc-walking-stage .sc-trail-marker { font-size:8px; padding:5px; } }
+/* Closer camera, legible landmarks, and mist-covered chapter thresholds. */
+.sc-walking-stage { aspect-ratio:480/300; }
+.sc-walking-stage .sc-trail-marker { min-height:44px; max-width:38%; padding:8px 11px; font-size:12px; line-height:1.35; border:1px solid #e4ce92; background:#11271af5; color:#fff2cf; box-shadow:0 3px 0 #07180e; }
+.sc-walking-stage .sc-trail-marker[aria-disabled="true"] { color:#e1ddd0; border-color:#9aab9b; background:#23332cf5; }
+.sc-walking-world button:focus-visible,.sc-accessible-route summary:focus-visible { outline:3px solid #ffe29b; outline-offset:3px; }
+.sc-walking-world .sc-trail-controls button { min-width:48px; min-height:48px; }
+.sc-walking-world .sc-trail-controls span { font-size:12px; color:#e0e8da; }
+.sc-border-mist { animation:chapter-mist 9s ease-in-out infinite alternate; }
+@keyframes chapter-mist { from { transform:translateX(-8px); } to { transform:translateX(8px); } }
+.sc-border-mist.still { animation:none; }
+.sc-accessible-route { padding:12px 18px; border-top:1px solid #526e54; color:#e9ddbc; font-size:12px; }
+.sc-accessible-route summary { cursor:pointer; padding:6px 0; }
+.sc-accessible-route > div { display:flex; flex-wrap:wrap; gap:8px; padding-top:12px; }
+.sc-accessible-route button { min-height:44px; padding:9px 12px; border:1px solid #8a9c7f; border-radius:3px; }
+.sc-accessible-route button:disabled { opacity:.6; cursor:not-allowed; }
+@media(prefers-reduced-motion:reduce) { .sc-border-mist { animation:none; } }
+@media(max-width:600px) { .sc-walking-stage .sc-trail-marker { font-size:10px; padding:6px; min-height:44px; } .sc-walking-world .sc-trail-controls { gap:12px; } }

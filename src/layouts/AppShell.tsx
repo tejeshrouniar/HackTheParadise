@@ -1,3 +1,5 @@
+import { useProgress } from "../features/learning/ProgressContext";
+import { canEnterLevel, journeyProgress } from "../features/learning/journeyProgress";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { MotionConfig } from "framer-motion";
 import {
@@ -63,6 +65,7 @@ const routeFromHash = () =>
     : "home";
 export function AppShell() {
   const { user, isPasswordRecovery, signOut } = useAuth();
+  const { completed } = useProgress();
   const { profile } = useProfile();
   const { preferences } = usePreferences();
   const [small, setSmall] = useState(
@@ -90,7 +93,10 @@ export function AppShell() {
     setMobile(false);
     window.scrollTo({ top: 0, behavior: "instant" });
   }
-  const openQuest = (id: number) => navigate(`quest/${id}`);
+  const openQuest = (id: number) => {
+    if (canEnterLevel(id, completed)) navigate(`quest/${id}`);
+    else toast("Finish the earlier levels to unlock this part of the story.");
+  };
   useEffect(() => {
     const listener = () => {
       setRoute(routeFromHash());
@@ -297,11 +303,13 @@ export function AppShell() {
           </header>
           <main id="main-content" tabIndex={-1}>
             <Suspense fallback={<Loading label="Opening your workspace…" />}>
-              {route.startsWith("quest/") ? (
+              {route.startsWith("quest/") && !canEnterLevel(Number(route.split("/")[1]), completed) ? (
+                <section className="sc-page sc-locked-scene"><h1>This level is still locked</h1><p>Follow the story in order to reach this place.</p><button className="sc-button" onClick={() => openQuest(journeyProgress(completed).next)}>Continue your story</button></section>
+              ) : route.startsWith("quest/") ? (
                 <Quest
                   key={route}
                   initialLessonId={Number(route.split("/")[1])}
-                  onExit={() => navigate("learn")}
+                  onExit={() => navigate("home")}
                   onLessonChange={openQuest}
                 />
               ) : route === "story" ? (
