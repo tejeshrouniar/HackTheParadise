@@ -1,4 +1,5 @@
 import toast from "react-hot-toast";
+import { useRef } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -7,6 +8,7 @@ import {
   HelpCircle,
   Play,
   RotateCcw,
+  Square,
   Volume2,
   VolumeX,
 } from "lucide-react";
@@ -15,6 +17,8 @@ import { QuestDialogs } from "../../features/learning/QuestDialogs";
 import { useQuestEngine } from "../../features/learning/useQuestEngine";
 import { StoryArtwork } from "../../features/story/StoryArtwork";
 import { chapterOutcome } from "../../content/eldoria";
+import { FOREST_CHAPTERS, FOREST_OUTCOMES } from "../../content/forestCampaign";
+import { CODEDEX_LESSONS } from "../../data/codedexLessons";
 
 export const CodedexApp = ({
   initialLessonId = 1,
@@ -26,6 +30,7 @@ export const CodedexApp = ({
   onLessonChange?: (id: number) => void;
 }) => {
   const state = useQuestEngine(initialLessonId, onLessonChange);
+  const worldRef = useRef<HTMLElement>(null);
   const {
     lesson,
     code,
@@ -63,7 +68,9 @@ export const CodedexApp = ({
           <ArrowLeft size={16} />
           Quests
         </button>
-        <span>Quest {lesson.id} of 8</span>
+        <span>
+          Quest {lesson.id} of {CODEDEX_LESSONS.length}
+        </span>
         <button
           className="sc-icon-button"
           aria-label={
@@ -87,6 +94,11 @@ export const CodedexApp = ({
       <header className="sc-quest-intro">
         <h1>{lesson.title}</h1>
         <p>{lesson.taskObjective}</p>
+        {FOREST_CHAPTERS.find((chapter) => chapter.id === lesson.id) && (
+          <p className="sc-chapter-story">
+            {FOREST_CHAPTERS.find((chapter) => chapter.id === lesson.id)?.story}
+          </p>
+        )}
       </header>
       <div className="sc-coding-layout">
         <section className="sc-card sc-spell-editor">
@@ -138,6 +150,7 @@ export const CodedexApp = ({
               ref={textareaRef}
               maxLength={20000}
               value={code}
+              readOnly={isExecuting}
               onChange={(e) => {
                 setCode(e.target.value);
                 if (errorPointer) setErrorPointer(null);
@@ -159,12 +172,31 @@ export const CodedexApp = ({
           <div className="sc-spell-actions">
             <button
               className="sc-button mint"
-              onClick={handleRunCode}
+              onClick={() => {
+                if (window.matchMedia("(max-width: 1100px)").matches) {
+                  worldRef.current?.scrollIntoView({
+                    block: "start",
+                    behavior:
+                      preferences.reduced_motion ||
+                      window.matchMedia("(prefers-reduced-motion: reduce)")
+                        .matches
+                        ? "auto"
+                        : "smooth",
+                  });
+                }
+                void handleRunCode();
+              }}
               disabled={isExecuting}
             >
               <Play size={16} />
               {isExecuting ? "Running…" : "Run spell"}
             </button>
+            {isExecuting && (
+              <button className="sc-button secondary" onClick={state.stopRun}>
+                <Square size={14} />
+                Stop
+              </button>
+            )}
             <button
               className="sc-button secondary"
               onClick={() => setIsTutorialOpen(true)}
@@ -201,13 +233,33 @@ export const CodedexApp = ({
             </pre>
           </details>
         </section>
-        <section className="sc-card sc-live-world">
+        <section className="sc-card sc-live-world" ref={worldRef}>
           <header>
             <h2>{currentStageInfo.name}</h2>
             <span className={questSuccess ? "complete" : ""}>
               {questSuccess ? "Complete" : isExecuting ? "Running" : "Ready"}
             </span>
           </header>
+          <div className="sc-playback-bar">
+            <span>
+              {state.executionStep.total
+                ? `Step ${state.executionStep.current} / ${state.executionStep.total}`
+                : "Watch your spell unfold"}
+            </span>
+            <label>
+              Pace{" "}
+              <select
+                aria-label="Animation pace"
+                value={state.stepDuration}
+                disabled={isExecuting}
+                onChange={(e) => state.setStepDuration(Number(e.target.value))}
+              >
+                <option value={1100}>Relaxed</option>
+                <option value={750}>Steady</option>
+                <option value={450}>Quick</option>
+              </select>
+            </label>
+          </div>
           <div className="sc-stage-canvas">
             {lesson.stageType !== "boss" && (
               <div className="sc-stage-backdrop">
@@ -218,6 +270,11 @@ export const CodedexApp = ({
               <StageWorld state={state} />
             </div>
           </div>
+          <p className="sc-action-caption" role="status">
+            {questSuccess
+              ? "Beautifully done. Your spell worked."
+              : state.executionStep.label}
+          </p>
           {questSuccess && (
             <div className="sc-quest-result" role="status">
               <div>
@@ -226,14 +283,22 @@ export const CodedexApp = ({
               </div>
               <button
                 className="sc-button mint"
-                onClick={lesson.id < 8 ? handleNextQuest : onExit}
+                onClick={
+                  lesson.id < CODEDEX_LESSONS.length ? handleNextQuest : onExit
+                }
               >
-                {lesson.id < 8 ? "Next quest" : "Back to quests"}
+                {lesson.id < CODEDEX_LESSONS.length
+                  ? "Next quest"
+                  : "Back to quests"}
                 <ArrowRight size={16} />
               </button>
               <details>
                 <summary>What happens next?</summary>
-                <p>{chapterOutcome(lesson.id, state.completedLessons)}</p>
+                <p>
+                  {lesson.id <= 8
+                    ? chapterOutcome(lesson.id, state.completedLessons)
+                    : FOREST_OUTCOMES[lesson.id]}
+                </p>
               </details>
             </div>
           )}

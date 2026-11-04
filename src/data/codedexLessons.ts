@@ -1,3 +1,4 @@
+import { forestLessons } from "./forestLessons.ts";
 export interface CodedexTask {
   id: string;
   text: string;
@@ -548,3 +549,5 @@ restore_core()`,
     },
   },
 ];
+
+CODEDEX_LESSONS.push(...forestLessons(CODEDEX_LESSONS));

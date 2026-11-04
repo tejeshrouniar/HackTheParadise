@@ -9,7 +9,7 @@ export function validLessonIds(value: unknown): number[] {
     ? [
         ...new Set(
           value.filter(
-            (id): id is number => Number.isInteger(id) && id >= 1 && id <= 8,
+            (id): id is number => Number.isInteger(id) && id >= 1 && id <= 12,
           ),
         ),
       ].sort((a, b) => a - b)

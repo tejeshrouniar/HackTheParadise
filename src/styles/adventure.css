@@ -1,0 +1,657 @@
+/* The world owns the screen; controls sit above it without obscuring the path. */
+.sc-adventure-shell {
+  --world-ink: #e9e5d2;
+  --world-gold: #e9c780;
+  --world-panel: #0d211ded;
+  background: #101d1c;
+}
+.sc-world-home {
+  max-width: none;
+}
+.sc-world-entrance {
+  min-height: calc(100dvh - 68px);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: 80px clamp(24px, 5.3vw, 100px) 200px;
+  background: #112825;
+}
+.sc-world-landscape {
+  position: absolute;
+  z-index: -3;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 58% center;
+}
+.sc-world-atmosphere {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      #081a18ef 0%,
+      #0a1c1bc9 25%,
+      #0b201d42 56%,
+      #10252112 100%
+    ),
+    linear-gradient(0deg, #0a1919c9, transparent 33%);
+}
+.sc-world-welcome {
+  max-width: 570px;
+  position: relative;
+  z-index: 3;
+  color: var(--world-ink);
+}
+.sc-world-welcome > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #efdbab;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+.sc-world-welcome h1 {
+  margin: 23px 0 17px;
+  font:
+    500 clamp(37px, 4.4vw, 72px)/1.11 Georgia,
+    serif;
+  letter-spacing: -1.8px;
+  text-shadow: 0 4px 22px #07150d;
+}
+.sc-world-welcome h1 em {
+  color: #ebd7a2;
+  font-style: normal;
+}
+.sc-world-welcome p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #d1ddd0;
+}
+.sc-world-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 31px;
+}
+.sc-world-primary {
+  min-height: 50px;
+  padding: 0 20px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  color: #1d261c;
+  background: #e6ca8f;
+  border: 1px solid #ffedba;
+  border-radius: 4px;
+  font-weight: 800;
+  font-size: 13px;
+  box-shadow: 0 7px 20px #07130b66;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+.sc-world-primary:hover {
+  background: #f3dfb1;
+  transform: translateY(-2px);
+}
+.sc-world-map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #f1ead7;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 12px 2px;
+}
+.sc-world-map-link:hover {
+  color: #f9d989;
+}
+.sc-world-companion {
+  position: absolute;
+  z-index: 2;
+  bottom: 14%;
+  left: 61%;
+  width: clamp(100px, 12vw, 190px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  filter: drop-shadow(0 6px 9px #06140caa);
+}
+.sc-world-companion img {
+  width: 100%;
+  height: auto;
+  max-height: 280px;
+  object-fit: contain;
+  animation: sc-world-idle 4s ease-in-out infinite;
+}
+.sc-world-companion span {
+  color: #f8e6b8;
+  background: #0b231fdb;
+  padding: 7px 9px;
+  border: 1px solid #e1c78a88;
+  border-radius: 4px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  white-space: nowrap;
+  font-size: 10px;
+}
+.sc-world-companion:hover span {
+  background: #39513c;
+}
+.sc-world-mission {
+  position: absolute;
+  z-index: 3;
+  bottom: 39px;
+  left: clamp(24px, 5.3vw, 100px);
+  width: min(410px, calc(100% - 48px));
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid #d4c29270;
+  background: var(--world-panel);
+  color: var(--world-ink);
+  border-radius: 5px;
+  backdrop-filter: blur(12px);
+}
+.sc-world-mission-icon {
+  width: 43px;
+  height: 43px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: #e8ca88;
+  background: #d7bf8521;
+  border: 1px solid #e4cb8a66;
+}
+.sc-world-mission > div {
+  min-width: 0;
+  flex: 1;
+}
+.sc-world-mission small,
+.sc-world-mission strong,
+.sc-world-mission div span {
+  display: block;
+}
+.sc-world-mission small {
+  color: #d3bf92;
+  font-size: 9px;
+  letter-spacing: 1.3px;
+}
+.sc-world-mission strong {
+  font:
+    500 18px/1.3 Georgia,
+    serif;
+  margin: 5px 0;
+}
+.sc-world-mission div span {
+  color: #b5c8ba;
+  font-size: 11px;
+}
+.sc-world-mission > button {
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  color: #ecd8a1;
+}
+.sc-world-progress {
+  position: absolute;
+  z-index: 3;
+  bottom: 42px;
+  left: calc(clamp(24px, 5.3vw, 100px) + 430px);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  color: #d7e4d5;
+  font-size: 11px;
+  text-shadow: 0 2px 5px #000;
+}
+.sc-world-progress strong {
+  color: #f8dfa6;
+  font-size: 16px;
+}
+.sc-world-progress > div {
+  display: flex;
+  gap: 4px;
+}
+.sc-world-progress i {
+  width: 12px;
+  height: 3px;
+  background: #bdc7ae70;
+}
+.sc-world-progress i.done {
+  background: #f4d997;
+}
+.sc-world-progress button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #e9d9ac;
+  font-size: 11px;
+  text-align: left;
+}
+.sc-world-home .sc-sync-notice {
+  margin: 0;
+  padding: 15px 25px;
+  background: #12251e;
+  color: #e9dbad;
+}
+@keyframes sc-world-idle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+@media (min-width: 761px) {
+  .sc-adventure-shell .sc-sidebar {
+    width: 100%;
+    height: 68px;
+    padding: 0 235px 0 30px;
+    flex-direction: row;
+    align-items: center;
+    gap: 35px;
+    border: 0;
+    border-bottom: 1px solid #d6c18c40;
+    background: #101d1af2;
+    z-index: 60;
+  }
+  .sc-adventure-shell .sc-brand {
+    padding: 0;
+    flex-shrink: 0;
+    gap: 9px;
+  }
+  .sc-adventure-shell .sc-brand > span {
+    width: 29px;
+    height: 30px;
+    transform: none;
+    border-radius: 3px;
+    color: #1b3222;
+    background: #dcc28a;
+  }
+  .sc-adventure-shell .sc-brand strong {
+    font:
+      600 22px Georgia,
+      serif;
+    letter-spacing: 0;
+    color: #f3ebd7;
+  }
+  .sc-adventure-shell .sc-brand strong span {
+    color: #d9bb7c;
+  }
+  .sc-adventure-shell .sc-sidebar nav {
+    flex-direction: row;
+    gap: 6px;
+    align-self: stretch;
+    align-items: center;
+    min-width: 0;
+  }
+  .sc-adventure-shell .sc-sidebar nav button {
+    height: 100%;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 0;
+    color: #bfcabe;
+    background: transparent;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .sc-adventure-shell .sc-sidebar nav button svg {
+    display: none;
+  }
+  .sc-adventure-shell .sc-sidebar nav button.active {
+    color: #f5dfab;
+    box-shadow: inset 0 -3px #e5c683;
+  }
+  .sc-adventure-shell .sc-sidebar nav button.active:before {
+    display: none;
+  }
+  .sc-adventure-shell .sc-sidebar nav button:hover {
+    color: #fff4da;
+  }
+  .sc-adventure-shell .sc-sidebar-bottom {
+    margin: 0 0 0 auto;
+  }
+  .sc-adventure-shell .sc-sidebar-profile {
+    width: auto;
+    border: 0;
+    padding: 0;
+    gap: 7px;
+    color: #d2dbd0;
+  }
+  .sc-adventure-shell .sc-sidebar-profile strong {
+    max-width: 100px;
+  }
+  .sc-adventure-shell .sc-sidebar-profile small,
+  .sc-adventure-shell .sc-sidebar-profile > svg:last-child {
+    display: none;
+  }
+  .sc-adventure-shell .sc-workspace {
+    margin-left: 0;
+    padding-top: 68px;
+  }
+  .sc-adventure-shell .sc-topbar {
+    height: 68px;
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 65;
+    padding: 0 25px 0 8px;
+    background: transparent;
+    border: 0;
+    backdrop-filter: none;
+  }
+  .sc-adventure-shell .sc-topbar-location {
+    display: none;
+  }
+  .sc-adventure-shell .sc-topbar-actions {
+    gap: 14px;
+  }
+  .sc-adventure-shell .sc-search-trigger {
+    padding: 8px;
+    background: transparent;
+    border: 0;
+  }
+  .sc-adventure-shell .sc-search-trigger span {
+    display: none;
+  }
+  .sc-adventure-shell .sc-signin {
+    background: #d8bd81;
+    color: #142018;
+    border: 1px solid #f1d69a;
+    border-radius: 4px;
+  }
+  .sc-adventure-shell .sc-tools-trigger {
+    color: #d8dfd3;
+  }
+}
+@media (min-width: 761px) and (max-width: 1100px) {
+  .sc-adventure-shell .sc-sidebar {
+    gap: 12px;
+    padding-left: 18px;
+    padding-right: 180px;
+  }
+  .sc-adventure-shell .sc-sidebar nav button {
+    padding: 0 8px;
+    font-size: 11px;
+  }
+  .sc-adventure-shell .sc-sidebar-profile strong {
+    display: none;
+  }
+  .sc-adventure-shell .sc-topbar {
+    padding-right: 12px;
+  }
+  .sc-adventure-shell .sc-tools-trigger span {
+    display: none;
+  }
+  .sc-world-progress {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .sc-adventure-shell .sc-topbar {
+    height: 62px;
+    background: #11221ff2;
+    border-color: #d6c18c35;
+  }
+  .sc-world-entrance {
+    min-height: calc(100dvh - 62px);
+    padding: 90px 22px 230px;
+    align-items: flex-start;
+  }
+  .sc-world-landscape {
+    object-position: 57% center;
+  }
+  .sc-world-atmosphere {
+    background:
+      linear-gradient(90deg, #071b18e6, #0d241bb3 50%, #10291c42),
+      linear-gradient(0deg, #071612e6, transparent 55%);
+  }
+  .sc-world-welcome h1 {
+    font-size: clamp(34px, 9vw, 48px);
+  }
+  .sc-world-welcome p {
+    font-size: 13px;
+  }
+  .sc-world-actions {
+    gap: 7px 16px;
+  }
+  .sc-world-primary {
+    font-size: 12px;
+  }
+  .sc-world-companion {
+    width: 100px;
+    left: auto;
+    right: 9%;
+    bottom: 116px;
+  }
+  .sc-world-companion img {
+    max-height: 150px;
+  }
+  .sc-world-mission {
+    left: 20px;
+    bottom: 22px;
+    width: calc(100% - 40px);
+    padding: 12px;
+  }
+  .sc-world-progress {
+    display: none;
+  }
+  .sc-world-companion span {
+    font-size: 9px;
+    padding: 5px;
+  }
+  .sc-adventure-shell .sc-mini-player {
+    bottom: 14px;
+    right: 14px;
+    transform: translateY(-84px);
+  }
+  .sc-on-home .sc-mini-player {
+    transform: none;
+    position: relative;
+    bottom: auto;
+    right: auto;
+    margin: 12px 16px;
+    width: calc(100% - 32px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sc-world-companion img {
+    animation: none;
+  }
+  .sc-world-primary {
+    transition: none;
+  }
+}
+[data-reduce-motion="true"] .sc-world-companion img {
+  animation: none;
+}
+/* Lesson panels share the forest palette while maintaining legible code. */
+.sc-adventure-shell.sc-on-quest {
+  background: #10201d;
+}
+.sc-on-quest .sc-simple-quest {
+  max-width: 1600px;
+  padding-top: 24px;
+  padding-bottom: 115px;
+}
+.sc-on-quest .sc-quest-topline {
+  margin-bottom: 6px;
+}
+.sc-on-quest .sc-quest-intro {
+  margin-bottom: 20px;
+}
+.sc-on-quest .sc-quest-intro h1 {
+  font-family: Georgia, serif;
+  color: #f0e7d1;
+  font-size: clamp(28px, 2.8vw, 40px);
+}
+.sc-on-quest .sc-quest-intro p {
+  color: #c0d0bf;
+  line-height: 1.7;
+}
+.sc-on-quest .sc-coding-layout {
+  grid-template-columns: minmax(300px, 0.82fr) minmax(0, 1.18fr);
+  gap: 18px;
+}
+.sc-on-quest .sc-card {
+  background: #132722;
+  border: 1px solid #bdb08466;
+  border-radius: 5px;
+  box-shadow: 0 12px 30px #05120d40;
+}
+.sc-on-quest .sc-spell-editor > header,
+.sc-on-quest .sc-live-world > header {
+  background: #162d26;
+  border-color: #bdb08445;
+}
+.sc-on-quest .sc-spell-editor h2,
+.sc-on-quest .sc-live-world h2 {
+  font-family: Georgia, serif;
+  color: #f2e2bd;
+}
+.sc-on-quest .sc-code-input {
+  background: #0a1d1a;
+}
+.sc-on-quest .sc-code-input textarea {
+  color: #d5efd8;
+  font-size: 13px;
+}
+.sc-on-quest .sc-code-lines {
+  color: #83a396;
+  border-color: #bdb0841f;
+}
+.sc-on-quest .sc-spell-actions {
+  border-color: #bdb08440;
+}
+.sc-on-quest .sc-spell-actions .mint,
+.sc-on-quest .sc-quest-result .mint {
+  background: #e8ca8e;
+  color: #1b2619;
+  border: 1px solid #ffdea0;
+  border-radius: 4px;
+}
+.sc-on-quest .sc-spell-actions .secondary {
+  color: #e9e0c5;
+  border-color: #bdb08455;
+  background: #1a332a;
+}
+.sc-on-quest .sc-playback-bar,
+.sc-on-quest .sc-action-caption,
+.sc-on-quest .sc-world figcaption {
+  background: #142b26;
+  color: #d5dccb;
+  border-color: #bdb08435;
+}
+.sc-on-quest .sc-playback-bar select {
+  background: #1f3b30;
+  border-color: #bdb08455;
+}
+.sc-on-quest .sc-quest-disclosure {
+  border-color: #bdb08426;
+}
+.sc-on-quest .sc-quest-disclosure summary {
+  color: #c6d1c4;
+}
+.sc-on-quest .sc-quest-result {
+  background: #bde8b40b;
+}
+@media (max-width: 1100px) {
+  .sc-on-quest .sc-coding-layout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .sc-on-quest .sc-simple-quest {
+    padding: 20px 16px 120px;
+  }
+}
+.sc-adventure-shell {
+  --sc-bg: #10201d;
+  --sc-sidebar: #10201d;
+  --sc-surface: #172b25;
+  --sc-raised: #20372d;
+  --sc-border: #405145;
+  --sc-text: #f1eddf;
+  --sc-muted: #bdcbbd;
+  --sc-faint: #a1b2a2;
+  --sc-purple: #e1c88d;
+  --sc-mint: #c4e7ca;
+}
+@media (min-width: 761px) {
+  .sc-app.sc-adventure-shell .sc-sidebar nav button.active {
+    background: #1d3028;
+    border-radius: 0;
+  }
+}
+.sc-adventure-shell .sc-map-next,
+.sc-adventure-shell .sc-forest-chapters button {
+  background: #172c24;
+}
+.sc-adventure-shell .sc-map-next .sc-button.mint {
+  background: #e6ca8f;
+  color: #1d261c;
+}
+.sc-adventure-shell .sc-world-map-heading h2,
+.sc-adventure-shell .sc-forest-campaign h3 {
+  font-family: Georgia, serif;
+  color: #f2ead5;
+}
+.sc-adventure-shell .sc-mini-player {
+  background: #0d211df0;
+  border-color: #d3c18b70;
+}
+@media (max-width: 760px) {
+  .sc-on-home .sc-mini-player {
+    position: fixed;
+    bottom: 12px;
+    right: 12px;
+    margin: 0;
+    width: 210px;
+    transform: none;
+  }
+  .sc-on-home .sc-world-mission {
+    bottom: 78px;
+  }
+  .sc-on-home .sc-world-companion {
+    bottom: 175px;
+  }
+}
+:root {
+  --sc-bg: #10201d;
+  --sc-sidebar: #10201d;
+  --sc-surface: #172b25;
+  --sc-raised: #20372d;
+  --sc-border: #405145;
+  --sc-text: #f1eddf;
+  --sc-muted: #bdcbbd;
+  --sc-faint: #a1b2a2;
+  --sc-purple: #e1c88d;
+  --sc-mint: #c4e7ca;
+}
+.sc-modal,
+.sc-tools-drawer {
+  background: #142923;
+  border-color: #a79a7170;
+  color: #f1eddf;
+}
+.sc-modal {
+  border-radius: 6px;
+}
+.sc-modal-heading h2,
+.sc-tools-drawer h2 {
+  font-family: Georgia, serif;
+  color: #f1e3bf;
+}

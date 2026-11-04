@@ -37,7 +37,7 @@ test("the final story outcome requires all five fragments, including out-of-orde
   assert.match(chapterOutcome(8, [1, 2, 3, 4, 7, 8]), /academy doors/);
 });
 
-test("all eight quest solutions and guide examples compile into real actions", () => {
+test("all quest solutions and guide examples compile into real actions", () => {
   for (const lesson of CODEDEX_LESSONS) {
     const instructions = compileQuestCode(lesson.solutionCode);
     assert.ok(instructions.length > 0, lesson.title);
@@ -46,6 +46,14 @@ test("all eight quest solutions and guide examples compile into real actions", (
       `${lesson.title} guide example`,
     );
   }
+});
+test("forest campaign spells produce the actions needed by each mission", () => {
+  const actions = (id) => compileQuestCode(CODEDEX_LESSONS.find((lesson) => lesson.id === id).solutionCode);
+  assert.equal(actions(9).filter((action) => action.name === "grow_flower").length, 3);
+  assert.equal(actions(10).filter((action) => action.name === "place_starlight_tile").length, 3);
+  assert.deepEqual(actions(11).filter((action) => action.name === "purify_rune").map((action) => action.args[0]), [2, 3]);
+  assert.ok(actions(12).some((action) => action.name === "align_gate_rings"));
+  assert.equal(actions(12).find((action) => action.name === "charge_stargate").args[0], 120);
 });
 test("bridge functions only run when invoked and expand their real loop body", () => {
   const solution = CODEDEX_LESSONS.find(
@@ -79,7 +87,9 @@ test("stargate return values are calculated, not assumed to be 200", () => {
   );
 });
 test("boss shield and all loop attacks execute", () => {
-  const actions = compileQuestCode(CODEDEX_LESSONS.at(-1).solutionCode);
+  const actions = compileQuestCode(
+    CODEDEX_LESSONS.find((lesson) => lesson.id === 8).solutionCode,
+  );
   assert.deepEqual(actions[0], {
     line: 0,
     name: "assign:mana_shield",
@@ -134,7 +144,7 @@ test("usernames normalize consistently and reject invalid names", () => {
 });
 test("progress merges without losing completions and ignores corrupted local data", () => {
   assert.deepEqual(
-    mergeLessons([1, 3], [2, 3, 8], null, "oops", [0, 9, "4", NaN]),
+    mergeLessons([1, 3], [2, 3, 8], null, "oops", [0, 13, "4", NaN]),
     [1, 2, 3, 8],
   );
 });

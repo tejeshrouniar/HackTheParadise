@@ -26,6 +26,14 @@ import { ProfileForm } from "../features/profile/ProfileForm";
 import { CODEDEX_LESSONS } from "../data/codedexLessons";
 import toast from "react-hot-toast";
 import { errorMessage } from "../lib/validation";
+import { MiniPlayer } from "../features/tools/MiniPlayer";
+import "../styles/adventure.css";
+import "../styles/trail.css";
+const CharacterStudio = lazy(() =>
+  import("../features/adventure/CharacterStudio").then((module) => ({
+    default: module.CharacterStudio,
+  })),
+);
 const Quest = lazy(() =>
   import("../components/CodedexView/CodedexApp").then((m) => ({
     default: m.CodedexApp,
@@ -43,12 +51,14 @@ const Playground = lazy(() =>
 );
 const links = [
   { id: "home", label: "Home", Icon: Home },
-  { id: "learn", label: "Quests", Icon: Compass },
+  { id: "learn", label: "World map", Icon: Compass },
   { id: "story", label: "Storybook", Icon: BookOpen },
   { id: "community", label: "Community", Icon: MessageCircle },
 ];
 const routeFromHash = () =>
-  /^#\/(home|learn|story|community|settings|quest\/[1-8])$/.test(location.hash)
+  /^#\/(home|learn|story|community|settings|quest\/(?:[1-9]|1[0-2]))$/.test(
+    location.hash,
+  )
     ? location.hash.slice(2)
     : "home";
 export function AppShell() {
@@ -67,6 +77,7 @@ export function AppShell() {
   const [query, setQuery] = useState("");
   const [companion, setCompanion] = useState(false);
   const [playground, setPlayground] = useState(false);
+  const [character, setCharacter] = useState(false);
   const name =
     profile?.display_name ||
     user?.user_metadata?.full_name ||
@@ -151,7 +162,9 @@ export function AppShell() {
     <MotionConfig
       reducedMotion={preferences.reduced_motion ? "always" : "user"}
     >
-      <div className="sc-app">
+      <div
+        className={`sc-app sc-adventure-shell ${route === "home" ? "sc-on-home" : ""} ${route.startsWith("quest/") ? "sc-on-quest" : ""}`}
+      >
         <a
           className="sc-skip"
           href="#main-content"
@@ -296,13 +309,18 @@ export function AppShell() {
               ) : route === "community" ? (
                 <Chat onSignIn={() => setAuth(true)} />
               ) : route === "settings" ? (
-                <Settings onSignIn={() => setAuth(true)} />
+                <Settings
+                  onSignIn={() => setAuth(true)}
+                  onCharacter={() => setCharacter(true)}
+                />
               ) : (
                 <Dashboard
                   catalog={route === "learn"}
                   onQuest={openQuest}
                   onCompanion={() => setCompanion(true)}
                   onTerminal={() => setPlayground(true)}
+                  onMap={() => navigate("learn")}
+                  onCharacter={() => setCharacter(true)}
                 />
               )}
             </Suspense>
@@ -314,6 +332,13 @@ export function AppShell() {
           onGuest={() => {}}
           onAuthenticated={() => setAuth(false)}
         />
+        {!tools &&
+          !auth &&
+          !search &&
+          !companion &&
+          !playground &&
+          !character &&
+          !(small && mobile) && <MiniPlayer onOpen={openTools} />}
         <Modal
           open={
             !!profile && !profile.onboarding_completed && !isPasswordRecovery
@@ -378,6 +403,7 @@ export function AppShell() {
           {companion && (
             <Companion isOpen={companion} onClose={() => setCompanion(false)} />
           )}
+          {character && <CharacterStudio onClose={() => setCharacter(false)} />}
           {playground && (
             <Playground
               isOpen={playground}

@@ -6,6 +6,7 @@ import { ProgressProvider } from "./features/learning/ProgressContext";
 import { MusicProvider } from "./features/tools/MusicContext";
 import { AppShell } from "./layouts/AppShell";
 import { Loading } from "./components/ui/Status";
+import { AppearanceProvider } from "./features/adventure/AppearanceContext";
 
 export const App: React.FC = () => {
   const { user, loading } = useAuth();
@@ -15,7 +16,9 @@ export const App: React.FC = () => {
       <PreferencesProvider>
         <ProgressProvider>
           <MusicProvider>
-            <AppShell />
+            <AppearanceProvider>
+              <AppShell />
+            </AppearanceProvider>
           </MusicProvider>
         </ProgressProvider>
       </PreferencesProvider>

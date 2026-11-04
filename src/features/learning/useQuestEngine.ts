@@ -60,6 +60,13 @@ export function useQuestEngine(
   // Execution & Diagnostics states
   const [isExecuting, setIsExecuting] = useState<boolean>(false);
   const [activeLine, setActiveLine] = useState<number | null>(null);
+  // Reading pace is independent of reduced motion: less movement must not skip the lesson.
+  const [stepDuration, setStepDuration] = useState(1100);
+  const [executionStep, setExecutionStep] = useState({
+    current: 0,
+    total: 0,
+    label: "Ready when you are",
+  });
   const [errorPointer, setErrorPointer] = useState<ErrorPointer | null>(null);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
     "$ storicode init",
@@ -138,6 +145,7 @@ export function useQuestEngine(
     running.current = false;
     setIsExecuting(false);
     setActiveLine(null);
+    setExecutionStep({ current: 0, total: 0, label: "Ready when you are" });
     setQuestSuccess(false);
     setErrorPointer(null);
 
@@ -176,6 +184,18 @@ export function useQuestEngine(
     setBossHitFlash(false);
   };
 
+  const stopRun = () => {
+    runId.current++;
+    running.current = false;
+    setIsExecuting(false);
+    setActiveLine(null);
+    setBossHitFlash(false);
+    setExecutionStep((step) => ({
+      ...step,
+      label: "Stopped. Run again to start over.",
+    }));
+  };
+
   const handleRunCode = async () => {
     if (running.current) return;
     resetStage();
@@ -205,11 +225,43 @@ export function useQuestEngine(
     let currentLine = 0;
     try {
       const instructions = compileQuestCode(code);
-      for (const instruction of instructions) {
+      setExecutionStep({
+        current: 0,
+        total: instructions.length,
+        label: "Preparing your spell…",
+      });
+      await new Promise((resolve) => setTimeout(resolve, 450));
+      for (const [index, instruction] of instructions.entries()) {
         if (token !== runId.current) return;
         currentLine = instruction.line;
         setActiveLine(currentLine);
         const { name, args } = instruction;
+        const labels: Record<string, string> = {
+          "dragon.move_forward": "Aether takes a step",
+          "dragon.turn_right": "Turn right",
+          "dragon.turn_left": "Turn left",
+          "dragon.collect_crystal": "Recover the fragment",
+          "cauldron.brew_elixir": "Brew the elixir",
+          grow_flower: "A flower opens",
+          place_starlight_tile: "A bridge stone takes shape",
+          purify_rune: `Release rune ${args[0]}`,
+          align_gate_rings: "Align the gate rings",
+          charge_stargate: "Channel energy into the gate",
+          "crystals.sort": "Put the crystals in order",
+          stabilize_vortex: "Steady the timeline",
+          cast_starlight_bolt: "Cast a starlight bolt",
+          holy_smite: "Restore the Core",
+        };
+        setExecutionStep({
+          current: index + 1,
+          total: instructions.length,
+          label:
+            labels[name] ??
+            `Set ${name.replace("assign:", "")} to ${JSON.stringify(args[0])}`,
+        });
+        // Give the highlighted line a moment before its effect appears.
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        if (token !== runId.current) return;
         if (name.startsWith("assign:")) {
           const variable = name.slice(7),
             value = args[0];
@@ -317,15 +369,7 @@ export function useQuestEngine(
             ")",
         );
         setTerminalLogs([...logs]);
-        await new Promise((resolve) =>
-          setTimeout(
-            resolve,
-            preferences.reduced_motion ||
-              window.matchMedia("(prefers-reduced-motion: reduce)").matches
-              ? 30
-              : 320,
-          ),
-        );
+        await new Promise((resolve) => setTimeout(resolve, stepDuration));
         if (token !== runId.current) return;
         setBossHitFlash(false);
       }
@@ -351,12 +395,16 @@ export function useQuestEngine(
       if (token !== runId.current) return;
       const message =
         error instanceof Error ? error.message : "This spell could not run.";
-      setErrorPointer({
-        lineIndex: error instanceof QuestCodeError ? error.line : currentLine,
-        message,
-        suggestion:
-          "Check the highlighted line and compare it with the quest guide.",
-      });
+      setErrorPointer(
+        (previous) =>
+          previous ?? {
+            lineIndex:
+              error instanceof QuestCodeError ? error.line : currentLine,
+            message,
+            suggestion:
+              "Check the highlighted line and compare it with the quest guide.",
+          },
+      );
       sound.playError();
       logs.push("Error: " + message);
       setTerminalLogs([...logs]);
@@ -472,52 +520,54 @@ export function useQuestEngine(
         throw new Error(err.message);
       }
     } else if (lesson.stageType === "garden") {
-      if (blooms >= 6) {
+      const target = lesson.stageConfig?.target ?? 6;
+      if (blooms >= target) {
         passed = true;
       } else {
         const err: ErrorPointer = {
           lineIndex: 0,
-          message: `Only ${blooms} flowers bloomed (needed 6).`,
-          suggestion:
-            'Write "for step in range(6):" to repeat grow_flower() 6 times.',
+          message: `Only ${blooms} flowers bloomed (needed ${target}).`,
+          suggestion: `Use a loop to repeat grow_flower() ${target} times.`,
         };
         setErrorPointer(err);
         throw new Error(err.message);
       }
     } else if (lesson.stageType === "bridge") {
-      if (bridge >= 4) {
+      if (bridge >= (lesson.stageConfig?.target ?? 4)) {
         passed = true;
       } else {
         const err: ErrorPointer = {
           lineIndex: Math.max(0, lines.length - 1),
           message: "Bridge incomplete!",
-          suggestion:
-            "Define build_bridge() with 4 tiles, and remember to call build_bridge() at the end!",
+          suggestion: lesson.hint,
         };
         setErrorPointer(err);
         throw new Error(err.message);
       }
     } else if (lesson.stageType === "curse") {
-      if (runes.includes(1) && runes.includes(2) && runes.includes(3)) {
+      if (
+        (
+          (lesson.stageConfig?.target as number[] | undefined) ?? [1, 2, 3]
+        ).every((rune) => runes.includes(rune))
+      ) {
         passed = true;
       } else {
         const err: ErrorPointer = {
           lineIndex: 2,
-          message: "Not all 3 runes were cleansed!",
-          suggestion: "Make sure runes 1, 2, and 3 are all purified.",
+          message: "The required runes are still sealed!",
+          suggestion: lesson.hint,
         };
         setErrorPointer(err);
         throw new Error(err.message);
       }
     } else if (lesson.stageType === "stargate") {
-      if (ringsAligned && flux >= 200) {
+      if (ringsAligned && flux >= (lesson.stageConfig?.target ?? 200)) {
         passed = true;
       } else {
         const err: ErrorPointer = {
           lineIndex: 0,
           message: "Stargate not fully powered!",
-          suggestion:
-            "Align astral rings with align_gate_rings() and charge stargate with charge_stargate(200)!",
+          suggestion: lesson.hint,
         };
         setErrorPointer(err);
         throw new Error(err.message);
@@ -637,6 +687,10 @@ export function useQuestEngine(
     isExecuting,
     setIsExecuting,
     activeLine,
+    stepDuration,
+    setStepDuration,
+    executionStep,
+    stopRun,
     setActiveLine,
     errorPointer,
     setErrorPointer,

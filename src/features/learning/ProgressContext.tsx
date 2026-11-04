@@ -51,7 +51,25 @@ export function ProgressProvider({ children }: PropsWithChildren) {
           lesson_ids: merged,
         });
         if (!active) return;
-        if (error) throw error;
+        if (error) {
+          // The server may still be on the eight-quest schema. Sync the original
+          // completions separately while retaining newer ones on this device.
+          if (
+            merged.some((id) => id > 8) &&
+            error.message.includes("Invalid lesson identifiers")
+          ) {
+            const fallback = await supabase!.rpc("merge_player_progress", {
+              lesson_ids: merged.filter((id) => id <= 8),
+            });
+            if (fallback.error) throw fallback.error;
+            if (active)
+              setStatus(
+                "Saved on this device. Forest quests need the latest database update to sync.",
+              );
+            return;
+          }
+          throw error;
+        }
         current.current = mergeLessons(current.current, data);
         setCompleted(current.current);
         writeLocal(key, current.current);

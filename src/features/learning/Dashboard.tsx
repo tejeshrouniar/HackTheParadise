@@ -1,154 +1,108 @@
-import { ArrowRight, Check, Code2, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Code2, Map, Shirt } from "lucide-react";
+import { WorldMap } from "./WorldMap";
 import { useProgress } from "./ProgressContext";
-import { useProfile } from "../profile/ProfileContext";
-import { useAuth } from "../../contexts/AuthContext";
 import { CODEDEX_LESSONS } from "../../data/codedexLessons";
-import { StoryArtwork, AETHER_PORTRAIT } from "../story/StoryArtwork";
+import { ForestTrail } from "../adventure/ForestTrail";
+import { AvatarGraphic } from "../adventure/AvatarGraphic";
+import { useAppearance } from "../adventure/AppearanceContext";
+import { sound } from "../../utils/sound";
 
 export default function Dashboard({
   onQuest,
   onCompanion,
   onTerminal,
+  onMap,
+  onCharacter,
   catalog = false,
 }: {
   onQuest: (id: number) => void;
   onCompanion: () => void;
   onTerminal: () => void;
+  onMap: () => void;
+  onCharacter: () => void;
   catalog?: boolean;
 }) {
   const { completed, status, retry } = useProgress();
-  const { profile } = useProfile();
-  const { user } = useAuth();
+  const { appearance } = useAppearance();
   const next =
-    CODEDEX_LESSONS.find((l) => !completed.includes(l.id)) ??
+    CODEDEX_LESSONS.find((lesson) => !completed.includes(lesson.id)) ??
     CODEDEX_LESSONS[0];
-  const displayName =
-    profile?.display_name ||
-    user?.user_metadata?.full_name ||
-    user?.user_metadata?.display_name;
-  const shortName = displayName ? String(displayName).split(" ")[0] : "";
-  return (
-    <div className="sc-page sc-dashboard sc-simple-dashboard">
-      <div className="sc-page-heading">
-        <div>
-          <h1>
-            {catalog
-              ? "Choose a quest."
-              : shortName
-                ? `Welcome back, ${shortName}.`
-                : "Your adventure starts here."}
-          </h1>
-          {catalog && (
-            <p>
-              Eight small steps from curious beginner to confident spellcaster.
-            </p>
-          )}
-        </div>
+  if (catalog)
+    return (
+      <div className="sc-page">
+        <WorldMap onQuest={onQuest} />
       </div>
-      {catalog ? (
-        <div className="sc-simple-catalog">
-          {CODEDEX_LESSONS.map((lesson) => (
-            <button
-              className="sc-quest-card sc-illustrated-quest sc-simple-quest-card"
-              key={lesson.id}
-              onClick={() => onQuest(lesson.id)}
-            >
-              <StoryArtwork
-                lesson={lesson.id}
-                className="sc-quest-cover"
-                decorative
-                compact
-              />
-              <div className="sc-simple-card-meta">
-                <span>{String(lesson.id).padStart(2, "0")}</span>
-                {completed.includes(lesson.id) ? (
-                  <span className="sc-quest-status done">
-                    <Check size={13} />
-                    Complete
-                  </span>
-                ) : lesson.id === next.id ? (
-                  <span className="sc-quest-status">Up next</span>
-                ) : null}
-              </div>
-              <h2>{lesson.title}</h2>
-              <p>{lesson.conceptName}</p>
-              <ArrowRight
-                className="sc-card-arrow"
-                size={18}
-                aria-hidden="true"
-              />
-            </button>
-          ))}
+    );
+  return (
+    <div className="sc-page sc-trail-home">
+      <header className="sc-trail-home-heading">
+        <div>
+          <span>THE FRAGMENTS OF ELDORIA</span>
+          <h1>Welcome to the trail</h1>
         </div>
-      ) : (
-        <>
-          <section className="sc-hero sc-eldoria-hero">
-            <StoryArtwork className="sc-eldoria-cover" decorative priority />
-            <div className="sc-hero-copy">
-              <span className="sc-pill">
-                <Sparkles size={13} />
-                THE FRAGMENTS OF ELDORIA
-              </span>
-              <h2>
-                A world in pieces.
-                <br />
-                <em>A spell at a time.</em>
-              </h2>
-              <p>Help Aether bring magic back to Eldoria.</p>
-              <button
-                className="sc-button mint"
-                onClick={() => onQuest(next.id)}
-              >
-                {completed.length === 8
-                  ? "Play again"
-                  : completed.length
-                    ? "Continue adventure"
-                    : "Begin adventure"}
-                <ArrowRight size={18} />
-              </button>
-              <small>
-                Quest {String(next.id).padStart(2, "0")} · {next.title}
-              </small>
-            </div>
-          </section>
-          <section
-            className="sc-journey-summary"
-            aria-label="Your quest progress"
-          >
+        <button className="sc-button secondary" onClick={onMap}>
+          <Map size={18} /> World map
+        </button>
+      </header>
+      <div className="sc-trail-layout">
+        <ForestTrail onMap={onMap} />
+        <aside className="sc-trail-sidebar">
+          <section className="sc-trail-character-card">
+            <svg viewBox="0 0 56 56" aria-hidden="true">
+              <AvatarGraphic appearance={appearance} x={0} y={0} size={56} />
+            </svg>
             <div>
-              <strong>
-                {completed.length}
-                <span> / 8 quests</span>
-              </strong>
-              <div className="sc-journey-steps" aria-hidden="true">
-                {CODEDEX_LESSONS.map((l) => (
-                  <span
-                    key={l.id}
-                    className={completed.includes(l.id) ? "complete" : ""}
-                  />
-                ))}
-              </div>
+              <strong>Your adventurer</strong>
+              <button onClick={onCharacter}>
+                <Shirt size={14} /> Customize character
+              </button>
             </div>
-            <span className="sc-journey-xp">
-              {completed.length * 150}
-              <small> XP earned</small>
-            </span>
           </section>
-          <div className="sc-home-extras">
+          <section className="sc-trail-quest-card">
+            <span>
+              <BookOpen size={15} /> NEXT QUEST ·{" "}
+              {String(next.id).padStart(2, "0")}
+            </span>
+            <h2>{next.title}</h2>
+            <p>{next.conceptName}</p>
+            <button
+              className="sc-world-primary"
+              onClick={() => {
+                sound.playClick();
+                onQuest(next.id);
+              }}
+            >
+              {completed.length ? "Continue adventure" : "Begin your adventure"}
+              <ArrowRight size={18} />
+            </button>
+          </section>
+          <section className="sc-trail-progress">
+            <strong>
+              {completed.length}{" "}
+              <small>/ {CODEDEX_LESSONS.length} quests</small>
+            </strong>
+            <div aria-hidden="true">
+              {CODEDEX_LESSONS.map((lesson) => (
+                <i
+                  key={lesson.id}
+                  className={completed.includes(lesson.id) ? "done" : ""}
+                />
+              ))}
+            </div>
+          </section>
+          <div className="sc-trail-shortcuts">
             <button onClick={onCompanion}>
-              <img src={AETHER_PORTRAIT} alt="" width={335} height={640} />
-              Meet Aether
+              <BookOpen size={16} /> Aether’s field guide
             </button>
             <button onClick={onTerminal}>
-              <Code2 size={18} />
-              Code playground
+              <Code2 size={16} /> Spell practice
             </button>
           </div>
-        </>
-      )}
-      {user && status.startsWith("Saved on this device.") && (
+        </aside>
+      </div>
+      {status.startsWith("Saved on this device.") && (
         <p className="sc-sync-notice">
-          Progress is saved on this device.{" "}
+          {status}{" "}
           <button className="sc-link" onClick={retry}>
             Retry cloud sync
           </button>

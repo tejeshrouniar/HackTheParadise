@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   LogOut,
   ShieldCheck,
+  Shirt,
   SlidersHorizontal,
   UserRound,
 } from "lucide-react";
@@ -11,7 +12,13 @@ import { ProfileForm } from "../profile/ProfileForm";
 import { usePreferences } from "./PreferencesContext";
 import { ErrorNotice, Loading } from "../../components/ui/Status";
 import { errorMessage } from "../../lib/validation";
-export default function SettingsPage({ onSignIn }: { onSignIn: () => void }) {
+export default function SettingsPage({
+  onSignIn,
+  onCharacter,
+}: {
+  onSignIn: () => void;
+  onCharacter: () => void;
+}) {
   const { user, signOut } = useAuth();
   const { profile, loading, error, refresh } = useProfile();
   const {
@@ -74,6 +81,14 @@ export default function SettingsPage({ onSignIn }: { onSignIn: () => void }) {
           )}
         </section>
         <div>
+          <section className="sc-card sc-settings-card sc-character-settings">
+            <h2>
+              <Shirt size={21} /> Your adventurer
+            </h2>
+            <button className="sc-button secondary" onClick={onCharacter}>
+              Customize character
+            </button>
+          </section>
           <section className="sc-card sc-settings-card">
             <h2>
               <SlidersHorizontal size={21} />

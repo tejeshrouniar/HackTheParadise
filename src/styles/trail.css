@@ -1,0 +1,437 @@
+.sc-trail-home {
+  padding-top: 28px;
+  padding-bottom: 100px;
+}
+.sc-trail-home-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.sc-trail-home-heading span,
+.sc-trail-label span,
+.sc-trail-quest-card > span {
+  color: #ddc58f;
+  letter-spacing: 1.5px;
+  font-weight: 800;
+  font-size: 10px;
+}
+.sc-trail-home-heading h1,
+.sc-trail-label h2,
+.sc-trail-quest-card h2 {
+  font-family: Georgia, serif;
+  color: #f4ecd8;
+}
+.sc-trail-home-heading h1 {
+  font-size: clamp(28px, 3.5vw, 46px);
+  margin-top: 6px;
+}
+.sc-trail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 295px);
+  gap: 20px;
+  align-items: start;
+}
+.sc-trail {
+  min-width: 0;
+  border: 1px solid #657d62;
+  border-radius: 7px;
+  overflow: hidden;
+  background: #152820;
+}
+.sc-trail-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 17px;
+}
+.sc-trail-label span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.sc-trail-label h2 {
+  font-size: 21px;
+}
+.sc-trail-stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  cursor: crosshair;
+  background: #416a4c;
+  overflow: hidden;
+}
+.sc-trail-stage:focus-visible {
+  outline-offset: -3px;
+}
+.sc-trail-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+.sc-trail-marker {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  white-space: nowrap;
+  background: #16291deb;
+  border: 1px solid #f5d795;
+  color: #fff0cb;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: 0 3px 9px #111c11b0;
+}
+.sc-trail-marker:hover {
+  background: #495a30;
+}
+.sc-trail-dialogue {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  max-width: 390px;
+  padding: 12px 40px 12px 14px;
+  border: 1px solid #e6cc8c;
+  background: #15291ff5;
+  border-radius: 5px;
+  cursor: default;
+}
+.sc-trail-dialogue > .sc-icon-button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+.sc-trail-dialogue strong {
+  color: #f6dda2;
+  font-family: Georgia, serif;
+}
+.sc-trail-dialogue p {
+  margin: 4px 0;
+  font-size: 12px;
+  color: #e4e7d6;
+}
+.sc-trail-dialogue .sc-button {
+  margin-top: 7px;
+  min-height: 32px;
+  padding: 5px 9px;
+  font-size: 11px;
+}
+.sc-trail-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+  padding: 10px 13px;
+}
+.sc-trail-controls span {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  color: #d0deca;
+  font-size: 11px;
+}
+.sc-trail-controls span svg {
+  margin-right: 4px;
+}
+.sc-trail-controls kbd {
+  padding: 1px 4px;
+  border: 1px solid #74926d;
+  border-radius: 3px;
+}
+.sc-trail-controls > div {
+  display: flex;
+  gap: 7px;
+}
+.sc-trail-controls button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 38px;
+  justify-content: center;
+  min-height: 37px;
+  padding: 5px 9px;
+  border: 1px solid #7f9a73;
+  border-radius: 4px;
+  color: #e9e9cf;
+  font-size: 12px;
+}
+.sc-trail-controls button:not(:disabled):hover {
+  background: #324b31;
+}
+.sc-trail-controls button:disabled {
+  opacity: 0.42;
+}
+.sc-trail-credit {
+  padding: 0 13px 10px;
+  color: #b6c6ab;
+  font-size: 10px;
+}
+.sc-trail-credit a,
+.sc-character-credit a {
+  color: #f3d795;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.sc-trail-sidebar {
+  display: grid;
+  gap: 13px;
+}
+.sc-trail-sidebar section {
+  border: 1px solid #657d625e;
+  border-radius: 6px;
+  padding: 15px;
+  background: #182c24;
+}
+.sc-trail-sidebar .sc-trail-character-card {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 12px;
+}
+.sc-trail-character-card > svg {
+  width: 64px;
+  height: 64px;
+  flex: none;
+}
+.sc-trail-character-card button,
+.sc-trail-shortcuts button {
+  color: #e9d39b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 7px 0;
+  text-align: left;
+}
+.sc-trail-character-card button:hover,
+.sc-trail-shortcuts button:hover {
+  text-decoration: underline;
+}
+.sc-trail-quest-card > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.sc-trail-quest-card h2 {
+  font-size: 23px;
+  margin: 7px 0 3px;
+}
+.sc-trail-quest-card p {
+  color: #bfccba;
+  font-size: 12px;
+}
+.sc-trail-quest-card .sc-world-primary {
+  margin-top: 13px;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 10px;
+}
+.sc-trail-progress strong {
+  color: #ffe3a8;
+  font-size: 21px;
+}
+.sc-trail-progress small {
+  font-size: 11px;
+  color: #c8d4bc;
+}
+.sc-trail-progress > div {
+  display: flex;
+  gap: 4px;
+  margin-top: 7px;
+}
+.sc-trail-progress i {
+  height: 4px;
+  flex: 1;
+  background: #778668;
+}
+.sc-trail-progress i.done {
+  background: #f4d188;
+}
+.sc-trail-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+}
+.sc-character-settings {
+  margin-bottom: 16px;
+}
+.sc-character-studio {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) minmax(0, 1.35fr);
+  gap: 18px;
+}
+.sc-character-preview {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  border: 1px solid #71936b;
+  border-radius: 5px;
+  padding: 13px;
+  background: radial-gradient(ellipse at 50% 42%, #5c7850, #243e2d 70%);
+  color: #ead39b;
+}
+.sc-character-preview > svg:nth-child(2) {
+  max-width: 150px;
+  width: 100%;
+}
+.sc-character-preview label {
+  width: 100%;
+  max-width: 180px;
+}
+.sc-character-fields {
+  display: grid;
+  gap: 9px;
+}
+.sc-character-studio label {
+  font-size: 12px;
+  color: #e2e8d5;
+  display: grid;
+  gap: 4px;
+}
+.sc-character-studio select {
+  width: 100%;
+  padding: 8px;
+  color: #f7eed7;
+  background: #142921;
+  border: 1px solid #7d9479;
+  border-radius: 4px;
+}
+.sc-character-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+.sc-character-error {
+  color: #fbb7a8;
+  font-size: 13px;
+  margin-top: 12px;
+}
+.sc-character-credit {
+  color: #c4cdbb;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 9px;
+}
+.sc-character-credit img {
+  image-rendering: pixelated;
+}
+@media (max-width: 900px) {
+  .sc-trail-layout {
+    grid-template-columns: 1fr;
+  }
+  .sc-trail-sidebar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .sc-trail-home {
+    padding: 16px 12px 80px;
+  }
+  .sc-trail-home-heading {
+    align-items: start;
+  }
+  .sc-trail-home-heading .sc-button {
+    font-size: 10px;
+    padding: 7px;
+    flex: none;
+  }
+  .sc-trail-label h2 {
+    font-size: 17px;
+  }
+  .sc-trail-sidebar {
+    grid-template-columns: 1fr;
+  }
+  .sc-trail-sidebar .sc-trail-character-card {
+    grid-row: 1;
+  }
+  .sc-trail-marker {
+    padding: 4px 6px;
+    font-size: 9px;
+  }
+  .sc-trail-marker svg {
+    display: none;
+  }
+  .sc-trail-dialogue {
+    top: 7px;
+    left: 7px;
+    right: 7px;
+    padding: 7px 33px 7px 9px;
+  }
+  .sc-trail-dialogue p {
+    font-size: 10px;
+  }
+  .sc-character-studio {
+    grid-template-columns: 1fr;
+  }
+  .sc-character-preview {
+    grid-template-columns: 22px 74px 1fr;
+    gap: 7px;
+  }
+  .sc-character-preview > svg:nth-child(2) {
+    max-width: 74px;
+  }
+  .sc-character-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.sc-trail-home {
+  padding-top: 22px;
+}
+.sc-trail-home-heading {
+  margin-bottom: 14px;
+}
+.sc-trail-home-heading h1 {
+  font-size: clamp(28px, 3vw, 41px);
+}
+.sc-trail-label > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+.sc-trail-label small {
+  color: #d8e2cc;
+  font-size: 11px;
+}
+.sc-trail-stage {
+  aspect-ratio: 640 / 278;
+}
+.sc-modal:has(.sc-character-studio) {
+  background: #162820;
+  border-color: #8f996c;
+}
+@media (max-width: 600px) {
+  .sc-trail-label {
+    padding: 9px 11px;
+  }
+  .sc-trail-label > div {
+    gap: 4px 9px;
+  }
+  .sc-trail-label small {
+    font-size: 9px;
+  }
+  .sc-trail-dialogue .sc-button {
+    font-size: 10px;
+    min-height: 28px;
+    margin-top: 3px;
+  }
+}
+@media (min-width: 901px) {
+  .sc-on-home .sc-mini-player {
+    width: 274px;
+  }
+}

@@ -411,6 +411,31 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
         );
       },
     );
+    await t.test(
+      "forest progress migration preserves older completions and saves new quests",
+      async () => {
+        await db.exec("reset role");
+        const before = (
+          await db.query(
+            "select completed_lessons from public.player_progress where user_id=$1",
+            [A],
+          )
+        ).rows[0].completed_lessons;
+        await db.exec(migration("202611040005_forest_campaign.sql"));
+        await as(A);
+        const result = (
+          await db.query("select merge_player_progress($1) as progress", [
+            [9, 12],
+          ])
+        ).rows[0].progress;
+        assert.ok(before.every((id) => result.includes(id)));
+        assert.ok(result.includes(9) && result.includes(12));
+        await assert.rejects(
+          () => db.query("select merge_player_progress($1)", [[13]]),
+          /Invalid lesson identifiers/,
+        );
+      },
+    );
   } finally {
     await db.close();
   }
