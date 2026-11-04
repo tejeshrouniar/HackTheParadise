@@ -44,9 +44,7 @@ export default function SettingsPage({ onSignIn }: { onSignIn: () => void }) {
     <div className="sc-page">
       <div className="sc-page-heading">
         <div>
-          <span className="sc-eyebrow">MAKE YOURSELF AT HOME</span>
-          <h1>Your space, your way.</h1>
-          <p>A profile that feels like you. A workspace that works for you.</p>
+          <h1>Settings</h1>
         </div>
       </div>
       <div className="sc-settings-grid">

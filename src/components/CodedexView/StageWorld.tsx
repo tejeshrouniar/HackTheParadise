@@ -1,7 +1,11 @@
 import { motion } from "framer-motion";
 import { cn } from "../../lib/utils";
 
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, ArrowRight, Gem, Mountain, Sparkles } from "lucide-react";
+import {
+  AETHER_PORTRAIT,
+  StoryArtwork,
+} from "../../features/story/StoryArtwork";
 
 import type { useQuestEngine } from "../../features/learning/useQuestEngine";
 export function StageWorld({
@@ -30,14 +34,18 @@ export function StageWorld({
   } = state;
   return (
     <>
-      {/* Level 1: Dragon 5x5 Grid */}
+      {/* The internal stage key stays compatible; Aether is the playable character. */}
       {lesson.stageType === "dragon" && (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center gap-3 w-full"
         >
-          <div className="grid grid-cols-5 gap-2.5 p-4 rounded-2xl bg-[#090610] border border-magic/40 w-full max-w-sm aspect-square shadow-2xl">
+          <div
+            className="sc-aether-grid grid grid-cols-5 gap-2.5 p-4 rounded-2xl border border-magic/40 w-full max-w-sm aspect-square shadow-2xl"
+            role="img"
+            aria-label={`Aether at (${dragon.x}, ${dragon.y}), facing ${dragon.direction.toLowerCase()}. ${collectedCrystal ? "Fragment collected." : "Fragment at (2, 2); boulder at (1, 1)."}`}
+          >
             {Array.from({ length: 25 }).map((_, idx) => {
               const x = idx % 5;
               const y = Math.floor(idx / 5);
@@ -74,28 +82,34 @@ export function StageWorld({
                     </div>
                   )}
 
-                  {isTarget && (
-                    <span className="text-2xl filter drop-shadow-[0_0_8px_rgba(255,179,71,0.9)] animate-bounce">
-                      💎
-                    </span>
+                  {isTarget && !collectedCrystal && (
+                    <Gem className="sc-grid-fragment" size={23} />
                   )}
 
-                  {isRock && <span className="text-lg">🪨</span>}
+                  {isRock && <Mountain size={24} className="sc-grid-rock" />}
 
                   {isDragon && (
-                    <div
-                      className={cn(
-                        "text-2xl transition-transform duration-300",
-                        dragon.direction === "RIGHT"
-                          ? "rotate-0"
-                          : dragon.direction === "DOWN"
-                            ? "rotate-90"
-                            : dragon.direction === "LEFT"
-                              ? "rotate-180 -scale-y-100"
-                              : "-rotate-90",
-                      )}
-                    >
-                      🐲
+                    <div className="sc-aether-token">
+                      <img
+                        src={AETHER_PORTRAIT}
+                        alt=""
+                        width={335}
+                        height={640}
+                        style={{
+                          transform:
+                            dragon.direction === "LEFT"
+                              ? "scaleX(-1)"
+                              : undefined,
+                        }}
+                      />
+                      <span
+                        className="sc-facing-arrow"
+                        style={{
+                          transform: `rotate(${{ RIGHT: 0, DOWN: 90, LEFT: 180, UP: 270 }[dragon.direction]}deg)`,
+                        }}
+                      >
+                        <ArrowRight size={10} />
+                      </span>
                     </div>
                   )}
                 </div>
@@ -109,7 +123,7 @@ export function StageWorld({
             </span>
             <span>Facing: {dragon.direction}</span>
             <span className="text-runeAmber font-bold">
-              {collectedCrystal ? "Crystal Collected 💎" : "0/1 Crystal"}
+              {collectedCrystal ? "Fragment recovered" : "0/1 fragment"}
             </span>
           </div>
         </motion.div>
@@ -221,7 +235,13 @@ export function StageWorld({
           className="flex items-center justify-between gap-1 w-full max-w-sm py-4"
         >
           <div className="w-16 h-20 rounded-xl bg-[#2a1d47] border border-magic flex flex-col items-center justify-center text-xs">
-            <span className="text-2xl">🧙‍♂️</span>
+            <img
+              className="sc-bridge-aether"
+              src={AETHER_PORTRAIT}
+              alt="Aether"
+              width={335}
+              height={640}
+            />
             <span className="text-[9px] text-white/60">Cliff</span>
           </div>
 
@@ -414,29 +434,23 @@ export function StageWorld({
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center gap-3 w-full max-w-sm py-2"
         >
-          {/* Glitch Chimera Sprite */}
-          <div className="relative flex flex-col items-center">
-            <div
-              className={cn(
-                "text-6xl transition-all duration-200",
-                bossHitFlash
-                  ? "scale-125 filter drop-shadow-[0_0_25px_#EF4444]"
-                  : "animate-bounce",
-              )}
-              style={{ animationDuration: "2s" }}
-            >
-              👾
-            </div>
-            <div className="font-pixel text-[11px] text-[#F472B6] font-bold mt-1">
-              Glitch Chimera Overlord
-            </div>
+          <div
+            className={`sc-malachar-scene ${bossHitFlash ? "hit" : ""} ${bossHp <= 0 ? "restored" : ""}`}
+          >
+            <StoryArtwork lesson={8} compact />
+            <span>
+              <Sparkles size={14} />
+              {bossHp <= 0
+                ? "The binding is broken"
+                : "Malachar · Keeper of the broken Core"}
+            </span>
           </div>
 
           {/* Boss Health Bar */}
           <div className="w-full space-y-1">
             <div className="flex justify-between text-xs font-code">
-              <span className="text-red-400">Boss HP</span>
-              <span className="font-bold text-red-400">{bossHp} / 100 HP</span>
+              <span className="text-red-400">Malachar’s binding</span>
+              <span className="font-bold text-red-400">{bossHp} / 100</span>
             </div>
             <div className="w-full h-3 bg-black/60 rounded-full overflow-hidden border border-red-500/40">
               <div
@@ -465,11 +479,11 @@ export function StageWorld({
           <div className="text-[11px] font-code text-center">
             {bossHp <= 0 ? (
               <span className="text-emerald-400 font-bold">
-                🏆 VICTORY! ARCHMAGE TITLE CONFERRED!
+                The Core is free of Malachar’s binding.
               </span>
             ) : (
               <span className="text-amber-300">
-                ⚔️ COMBAT ENGAGED: DEFEND & SMITE
+                Protect Aether. Weaken the binding. Restore the Core.
               </span>
             )}
           </div>

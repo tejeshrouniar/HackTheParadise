@@ -7,7 +7,7 @@ export function References() {
       {[
         [
           "Give an instruction",
-          "dragon.move_forward()",
+          "aether.move_forward()",
           "An object, a dot, and an action. Parentheses call the action.",
         ],
         [

@@ -13,11 +13,38 @@ import {
   messageError,
 } from "../src/lib/validation.ts";
 import { CODEDEX_LESSONS } from "../src/data/codedexLessons.ts";
+import { CORE_FRAGMENTS, chapterOutcome } from "../src/content/eldoria.ts";
 
-test("all eight supplied quest solutions compile into real actions", () => {
+test("Aether commands retain the existing movement semantics and old commands remain valid", () => {
+  const solution = CODEDEX_LESSONS[0].solutionCode;
+  assert.match(solution, /aether\.move_forward/);
+  assert.deepEqual(
+    compileQuestCode(solution),
+    compileQuestCode(solution.replaceAll("aether.", "dragon.")),
+  );
+  assert.throws(
+    () => compileQuestCode("aether.fly()"),
+    /Unknown command: aether.fly/,
+  );
+  assert.deepEqual(
+    compileQuestCode("restore_core()"),
+    compileQuestCode("holy_smite()"),
+  );
+});
+test("the final story outcome requires all five fragments, including out-of-order play", () => {
+  assert.equal(CORE_FRAGMENTS.length, 5);
+  assert.match(chapterOutcome(8, [8]), /missing fragments/);
+  assert.match(chapterOutcome(8, [1, 2, 3, 4, 7, 8]), /academy doors/);
+});
+
+test("all eight quest solutions and guide examples compile into real actions", () => {
   for (const lesson of CODEDEX_LESSONS) {
     const instructions = compileQuestCode(lesson.solutionCode);
     assert.ok(instructions.length > 0, lesson.title);
+    assert.ok(
+      compileQuestCode(lesson.codeExample).length > 0,
+      `${lesson.title} guide example`,
+    );
   }
 });
 test("bridge functions only run when invoked and expand their real loop body", () => {
@@ -54,7 +81,7 @@ test("stargate return values are calculated, not assumed to be 200", () => {
 test("boss shield and all loop attacks execute", () => {
   const actions = compileQuestCode(CODEDEX_LESSONS.at(-1).solutionCode);
   assert.deepEqual(actions[0], {
-    line: 1,
+    line: 0,
     name: "assign:mana_shield",
     args: [100],
   });

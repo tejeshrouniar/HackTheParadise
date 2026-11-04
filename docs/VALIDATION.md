@@ -1,4 +1,16 @@
-# Renovation validation — 3 November 2026
+# Eldoria and simplified UI validation — 4 November 2026
+
+- `npm test`: **24 passing tests**, including all eight solutions and guide examples, Aether command compatibility, fragment-dependent endings, and migration 004 preserving reading choices and completion when reapplied.
+- `npm run build`: TypeScript and production build pass. No new dependencies were introduced for this update.
+- Live Supabase checks returned HTTP 200 for **The Fragments of Eldoria**, edition **2**, and all eight revised chapter titles after the user applied migration 004.
+- Browser: completed Aether's first quest using the new commands, then navigated to the next quest and opened its guide. Chapter selection changed the story and illustration correctly.
+- Browser: a shield plus only `restore_core()` left the final binding at 60/100 and did not complete the quest. The full solution completed it. The resulting narrative correctly reported missing fragments when other quests were unfinished.
+- Browser: inspected the simplified home, reader and quest interface on desktop; inspected home and reader at 390×844 and home at 768×1024. No horizontal document overflow appeared in those phone/tablet views. Mobile navigation and the single Tools entry opened and closed successfully.
+- Fixed a React 18 warning from an unsupported image priority prop. Images retain eager loading for the hero and lazy loading elsewhere; the refreshed page produced no new occurrence of that warning.
+- Browser gameplay used the separate localhost guest session, without writing test completions to the user's signed-in Supabase account. Authenticated onboarding, avatar uploads and two-user chat were not revalidated in this update.
+- UI/source changes remain local; no deployment was initiated. The backend story update is verified separately above.
+
+# Earlier renovation validation — 3 November 2026
 
 ## Executed
 

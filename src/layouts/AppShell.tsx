@@ -9,19 +9,14 @@ import {
   LogIn,
   Menu,
   MessageCircle,
-  Pause,
-  Play,
   Search,
   Settings2,
-  Sparkles,
   WandSparkles,
   X,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useProfile } from "../features/profile/ProfileContext";
 import { usePreferences } from "../features/settings/PreferencesContext";
-import { useMusic } from "../features/tools/MusicContext";
-import { useProgress } from "../features/learning/ProgressContext";
 import Dashboard from "../features/learning/Dashboard";
 import { AuthModal } from "../components/Auth/AuthModal";
 import { Modal } from "../components/ui/Modal";
@@ -40,21 +35,17 @@ const Story = lazy(() => import("../features/story/StoryPage"));
 const Chat = lazy(() => import("../features/chat/ChatPage"));
 const Settings = lazy(() => import("../features/settings/SettingsPage"));
 const Tools = lazy(() => import("../features/tools/ToolsDrawer"));
-const Companion = lazy(() =>
-  import("../components/CodedexHome/SparkyCompanionModal").then((m) => ({
-    default: m.SparkyCompanionModal,
-  })),
-);
+const Companion = lazy(() => import("../features/story/AetherGuide"));
 const Playground = lazy(() =>
   import("../components/CodedexHome/ArcaneTerminalModal").then((m) => ({
     default: m.ArcaneTerminalModal,
   })),
 );
 const links = [
-  { id: "home", label: "Overview", Icon: Home },
-  { id: "learn", label: "My adventure", Icon: Compass },
+  { id: "home", label: "Home", Icon: Home },
+  { id: "learn", label: "Quests", Icon: Compass },
   { id: "story", label: "Storybook", Icon: BookOpen },
-  { id: "community", label: "The commons", Icon: MessageCircle },
+  { id: "community", label: "Community", Icon: MessageCircle },
 ];
 const routeFromHash = () =>
   /^#\/(home|learn|story|community|settings|quest\/[1-8])$/.test(location.hash)
@@ -64,8 +55,6 @@ export function AppShell() {
   const { user, isPasswordRecovery, signOut } = useAuth();
   const { profile } = useProfile();
   const { preferences } = usePreferences();
-  const music = useMusic();
-  const { completed } = useProgress();
   const [small, setSmall] = useState(
     () => window.matchMedia("(max-width:760px)").matches,
   );
@@ -185,14 +174,14 @@ export function AppShell() {
           aria-label="Main navigation"
           {...((small && !mobile) || tools ? { inert: "" } : {})}
         >
-          <button className="sc-brand" onClick={() => navigate("home")}>
+          <div className="sc-brand">
             <span>
               <WandSparkles size={23} />
             </span>
             <strong>
               storicode<span>.</span>
             </strong>
-          </button>
+          </div>
           <button
             className="sc-mobile-close sc-icon-button"
             aria-label="Close navigation"
@@ -200,7 +189,7 @@ export function AppShell() {
           >
             <X size={20} />
           </button>
-          <div className="sc-nav-label">YOUR WORKSPACE</div>
+
           <nav>
             {links.map(({ id, label, Icon }) => (
               <button
@@ -219,67 +208,23 @@ export function AppShell() {
               >
                 <Icon size={20} />
                 <span>{label}</span>
-                {id === "learn" && <small>{completed.length}/8</small>}
               </button>
             ))}
           </nav>
-          <div className="sc-sidebar-note">
-            <span className="sc-tiny-stars">✦</span>
-            <strong>
-              Small steps.
-              <br />
-              Real superpowers.
-            </strong>
-            <p>
-              You don’t need to know it all.
-              <br />
-              You just need to begin.
-            </p>
-          </div>
           <div className="sc-sidebar-bottom">
             <button
-              className="sc-sidebar-settings"
-              onClick={() => navigate("settings")}
-            >
-              <Settings2 size={19} />
-              Settings & profile
-            </button>
-            <div className="sc-mini-player">
-              <button
-                className="sc-mini-cover"
-                onClick={openTools}
-                aria-label="Open music library"
-              >
-                <Headphones size={18} />
-              </button>
-              <button className="sc-mini-track" onClick={openTools}>
-                <strong>{music.track.title}</strong>
-                <small>
-                  {music.playing ? "A little focus music" : "Find your focus"}
-                </small>
-              </button>
-              <button
-                className="sc-icon-button"
-                aria-label={music.playing ? "Pause music" : "Play music"}
-                onClick={() =>
-                  music.playing ? music.pause() : void music.play()
-                }
-              >
-                {music.playing ? <Pause size={17} /> : <Play size={17} />}
-              </button>
-            </div>
-            <button
               className="sc-sidebar-profile"
-              onClick={() => (user ? navigate("settings") : setAuth(true))}
+              onClick={() => navigate("settings")}
+              aria-current={route === "settings" ? "page" : undefined}
             >
-              <Avatar name={String(name)} url={avatar} />
+              {user ? (
+                <Avatar name={String(name)} url={avatar} />
+              ) : (
+                <Settings2 size={20} />
+              )}
               <span>
-                <strong>{user ? name : "Your adventure, saved"}</strong>
-                <small>
-                  {user
-                    ? "Your profile & preferences"
-                    : "Sign in to sync your progress"}
-                </small>
+                <strong>{user ? name : "Settings"}</strong>
+                {user && <small>Account & settings</small>}
               </span>
               <ChevronRight size={16} />
             </button>
@@ -300,8 +245,6 @@ export function AppShell() {
                 <Menu size={22} />
               </button>
               <span className="sc-breadcrumb">
-                Workspace
-                <ChevronRight size={14} />
                 <strong>
                   {route.startsWith("quest/")
                     ? "Coding quest"
@@ -318,22 +261,17 @@ export function AppShell() {
                 onClick={() => setSearch(true)}
               >
                 <Search size={17} />
-                <span>Find your next discovery</span>
-                <kbd>⌘ K</kbd>
+                <span>Search</span>
               </button>
-              <button className="sc-tools-trigger" aria-label="My toolkit" onClick={openTools}>
+              <button
+                className="sc-tools-trigger"
+                aria-label="Open tools"
+                onClick={openTools}
+              >
                 <Headphones size={18} />
-                <span>My toolkit</span>
+                <span>Tools</span>
               </button>
-              {user ? (
-                <button
-                  className="sc-icon-button sc-profile-trigger"
-                  onClick={() => navigate("settings")}
-                  aria-label="Open your profile"
-                >
-                  <Avatar name={String(name)} url={avatar} size={34} />
-                </button>
-              ) : (
+              {!user && (
                 <button
                   className="sc-button sc-signin"
                   onClick={() => setAuth(true)}
@@ -363,7 +301,6 @@ export function AppShell() {
                 <Dashboard
                   catalog={route === "learn"}
                   onQuest={openQuest}
-                  onNavigate={navigate}
                   onCompanion={() => setCompanion(true)}
                   onTerminal={() => setPlayground(true)}
                 />
@@ -409,7 +346,7 @@ export function AppShell() {
               aria-label="Search quests"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Try loops, dragon, functions…"
+              placeholder="Try Aether, loops, functions…"
             />
           </label>
           <div className="sc-search-results">
@@ -439,12 +376,7 @@ export function AppShell() {
             <Tools open={tools} onClose={() => setTools(false)} />
           )}{" "}
           {companion && (
-            <Companion
-              isOpen={companion}
-              onClose={() => setCompanion(false)}
-              onOpenQuest={(id) => openQuest(id ?? 1)}
-              isDarkMode
-            />
+            <Companion isOpen={companion} onClose={() => setCompanion(false)} />
           )}
           {playground && (
             <Playground

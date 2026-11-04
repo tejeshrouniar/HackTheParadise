@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, BookOpen, Check, Play } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, Check, Clock3, Play } from "lucide-react";
 import {
   FIRST_LIGHT,
   isStoryChapter,
@@ -10,6 +10,8 @@ import { supabase } from "../../lib/supabase";
 import { errorMessage, readLocal, writeLocal } from "../../lib/validation";
 import { useProgress } from "../learning/ProgressContext";
 import { ErrorNotice, Loading } from "../../components/ui/Status";
+import { StoryArtwork } from "./StoryArtwork";
+import { chapterOutcome } from "../../content/eldoria";
 interface Reading {
   completed: boolean;
   choices: Record<string, string>;
@@ -22,7 +24,10 @@ export default function StoryPage({
   const { user } = useAuth();
   const { completed } = useProgress();
   const key = `storicode_reading_${user?.id ?? "guest"}`;
-  const [metadata, setMetadata] = useState({title:FIRST_LIGHT.title,description:FIRST_LIGHT.description});
+  const [metadata, setMetadata] = useState({
+    title: FIRST_LIGHT.title,
+    description: FIRST_LIGHT.description,
+  });
   const [chapters, setChapters] = useState<StoryChapter[]>(
     FIRST_LIGHT.chapters,
   );
@@ -33,31 +38,67 @@ export default function StoryPage({
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(!!user);
   const [error, setError] = useState("");
-  const [source, setSource] = useState("Included edition");
   const [attempt, setAttempt] = useState(0);
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const chapter = chapters[active] ?? chapters[0];
   const record = progress[chapter.id] ?? { completed: false, choices: {} };
+  const readingMinutes = Math.max(
+    1,
+    Math.ceil(
+      chapter.content
+        .map((s) => s.text)
+        .join(" ")
+        .split(/\s+/).length / 180,
+    ),
+  );
+  function selectChapter(index: number) {
+    if (busy) return;
+    setActive(index);
+    setError("");
+    requestAnimationFrame(() => headingRef.current?.focus());
+  }
   useEffect(() => {
     let cancelled = false;
     if (!supabase) {
       setLoading(false);
       return;
     }
-    void supabase.from('stories').select('title,description').eq('id',FIRST_LIGHT.id).eq('published',true).maybeSingle().then(({data,error})=>{
-      if(!cancelled&&!error&&data) setMetadata(data);
-    });
-    void supabase
-      .from("story_chapters")
-      .select("id,title,subtitle,lesson_id,position,content")
-      .eq("story_id", FIRST_LIGHT.id)
-      .eq("published", true)
-      .order("position")
-      .then(({ data, error }) => {
+    // Fetch one coherent edition. An older database must not replace the new
+    // bundled story with the retired dragon narrative while migration 004 awaits application.
+    void Promise.all([
+      supabase
+        .from("stories")
+        .select("title,description,edition")
+        .eq("id", FIRST_LIGHT.id)
+        .eq("published", true)
+        .maybeSingle(),
+      supabase
+        .from("story_chapters")
+        .select("id,title,subtitle,lesson_id,position,content")
+        .eq("story_id", FIRST_LIGHT.id)
+        .eq("published", true)
+        .order("position"),
+    ])
+      .then(([meta, { data, error }]) => {
         if (cancelled) return;
-        if (!error && data?.length && data.every(isStoryChapter)) {
+        if (
+          !meta.error &&
+          meta.data &&
+          meta.data.edition >= FIRST_LIGHT.edition &&
+          !error &&
+          data?.length &&
+          data.every(isStoryChapter)
+        ) {
+          setMetadata({
+            title: meta.data.title,
+            description: meta.data.description,
+          });
           setChapters(data);
-          setSource("Published edition");
-        } else setSource("Included edition · available offline");
+          setActive((index) => Math.min(index, data.length - 1));
+        }
+      })
+      .catch(() => {
+        /* The bundled edition remains readable. */
       });
     if (user)
       void supabase
@@ -110,52 +151,50 @@ export default function StoryPage({
     }
   }
   return (
-    <div className="sc-page">
+    <div className="sc-page sc-story-page sc-simple-story">
       <div className="sc-page-heading">
         <div>
-          <span className="sc-eyebrow">THE STORY SO FAR</span>
-            <h1>{metadata.title}</h1>
-            <p>{metadata.description}</p>
+          <h1>{metadata.title}</h1>
         </div>
-        <span className="sc-pill">
-          <BookOpen size={14} />
-          {source}
-        </span>
+      </div>
+      <div className="sc-reader-toolbar">
+        <label htmlFor="story-chapter">Chapter</label>
+        <select
+          id="story-chapter"
+          value={active}
+          disabled={busy}
+          onChange={(e) => selectChapter(Number(e.target.value))}
+        >
+          {chapters.map((c, i) => (
+            <option key={c.id} value={i}>
+              {i + 1}. {c.title}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="sc-story-layout">
-        <nav className="sc-card sc-chapter-list" aria-label="Story chapters">
-          {chapters.map((c, i) => (
-            <button
-              key={c.id}
-              className={active === i ? "active" : ""}
-              onClick={() => {
-                setActive(i);
-                setError("");
-              }}
-            >
-              <span>
-                {progress[c.id]?.completed ? (
-                  <Check size={16} />
-                ) : (
-                  String(i + 1).padStart(2, "0")
-                )}
-              </span>
-              <div>
-                {c.title}
-                <small>
-                  {completed.includes(c.lesson_id)
-                    ? "Quest complete"
-                    : "Chapter " + (i + 1)}
-                </small>
-              </div>
-            </button>
-          ))}
-        </nav>
-        <article className="sc-card sc-reading" key={chapter.id}>
-          <span className="sc-eyebrow">
-            CHAPTER {String(active + 1).padStart(2, "0")}
-          </span>
-          <h2>{chapter.title}</h2>
+        <article
+          className="sc-card sc-reading sc-illustrated-reading"
+          key={chapter.id}
+        >
+          <figure className="sc-reading-illustration">
+            <StoryArtwork lesson={chapter.lesson_id} priority />
+            <figcaption>
+              Eldoria · {chapter.subtitle.split(" · ")[0]}
+            </figcaption>
+          </figure>
+          <div className="sc-reading-meta">
+            <span className="sc-eyebrow">
+              CHAPTER {String(active + 1).padStart(2, "0")}
+            </span>
+            <span>
+              <Clock3 size={13} />
+              {readingMinutes} min read
+            </span>
+          </div>
+          <h2 ref={headingRef} tabIndex={-1}>
+            {chapter.title}
+          </h2>
           <p className="sc-reading-subtitle">{chapter.subtitle}</p>
           {loading ? (
             <Loading label="Restoring your place…" />
@@ -217,24 +256,31 @@ export default function StoryPage({
               retry={() => setAttempt((n) => n + 1)}
             />
           )}
+          {completed.includes(chapter.lesson_id) && (
+            <aside className="sc-story-outcome">
+              <span className="sc-eyebrow">
+                <Check size={14} /> QUEST COMPLETE · WHAT HAPPENS NEXT
+              </span>
+              <p>{chapterOutcome(chapter.lesson_id, completed)}</p>
+            </aside>
+          )}
           <div className="sc-reading-action">
             <div>
-              <strong>Your turn to shape the story.</strong>
-              <p>Bring this chapter to life in the coding quest.</p>
+              <strong>Try the spell yourself.</strong>
             </div>
             <button
               className="sc-button"
               onClick={() => onQuest(chapter.lesson_id)}
             >
               <Play size={17} />
-              Open quest
+              Play this chapter
             </button>
           </div>
           <div className="sc-reading-nav">
             <button
               className="sc-button secondary"
-              disabled={active === 0}
-              onClick={() => setActive((n) => n - 1)}
+              disabled={busy || active === 0}
+              onClick={() => selectChapter(active - 1)}
             >
               <ArrowLeft size={16} />
               Previous
@@ -249,8 +295,8 @@ export default function StoryPage({
             </button>
             <button
               className="sc-button secondary"
-              disabled={active === chapters.length - 1}
-              onClick={() => setActive((n) => n + 1)}
+              disabled={busy || active === chapters.length - 1}
+              onClick={() => selectChapter(active + 1)}
             >
               Next
               <ArrowRight size={16} />

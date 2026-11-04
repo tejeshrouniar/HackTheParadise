@@ -13,14 +13,14 @@ interface ErrorPointer {
 }
 
 const stageInfo: Record<string, { emoji: string; name: string }> = {
-  dragon: { emoji: "🐲", name: "Dragon's Lair" },
+  dragon: { emoji: "✦", name: "The Academy Courtyard" },
   potion: { emoji: "⚗️", name: "Alchemist's Cauldron" },
   garden: { emoji: "🌸", name: "Enchanted Garden" },
   bridge: { emoji: "🌉", name: "Crystal Bridge" },
   curse: { emoji: "⚡", name: "Curse Breaker" },
   stargate: { emoji: "🌌", name: "Cosmic Stargate" },
   chrono: { emoji: "⏳", name: "Chrono Matrix" },
-  boss: { emoji: "👾", name: "Boss Arena" },
+  boss: { emoji: "✦", name: "The Ethereal Core" },
 };
 
 export function useQuestEngine(
@@ -242,7 +242,7 @@ export function useQuestEngine(
             case "dragon.collect_crystal":
               if (simDragon.x !== 2 || simDragon.y !== 2)
                 throw new Error(
-                  "Move Sparky to the crystal at (2, 2) before collecting it.",
+                  "Move Aether to the crystal at (2, 2) before collecting it.",
                 );
               simCrystal = true;
               setCollectedCrystal(true);
@@ -299,15 +299,19 @@ export function useQuestEngine(
               sound.playBossHit();
               break;
             case "holy_smite":
-              simHp = 0;
-              setBossHp(0);
+              simHp = Math.max(0, simHp - 40);
+              setBossHp(simHp);
               setBossHitFlash(true);
               sound.playBossHit();
               break;
           }
         logs.push(
           "> " +
-            name +
+            (name.startsWith("dragon.")
+              ? name.replace("dragon.", "aether.")
+              : name === "holy_smite"
+                ? "restore_core"
+                : name) +
             "(" +
             args.map((a) => JSON.stringify(a)).join(", ") +
             ")",
@@ -381,9 +385,9 @@ export function useQuestEngine(
     if (nx < 0 || nx >= 5 || ny < 0 || ny >= 5) {
       const err: ErrorPointer = {
         lineIndex: lineIdx,
-        message: `Out of Bounds! Sparky tried to step off the grid at (${nx}, ${ny}).`,
+        message: `Out of Bounds! Aether tried to step off the grid at (${nx}, ${ny}).`,
         suggestion:
-          "Turn before moving so Sparky stays on the 5x5 stone pathway.",
+          "Turn before moving so Aether stays on the 5x5 stone pathway.",
         tileCoords: { x: d.x, y: d.y },
       };
       setErrorPointer(err);
@@ -394,7 +398,7 @@ export function useQuestEngine(
     if (nx === 1 && ny === 1) {
       const err: ErrorPointer = {
         lineIndex: lineIdx,
-        message: `Collision! Sparky hit a boulder at (1, 1).`,
+        message: `Collision! Aether hit a boulder at (1, 1).`,
         suggestion:
           "Turn right or left before moving forward to walk around the boulder!",
         tileCoords: { x: 1, y: 1 },
@@ -448,7 +452,7 @@ export function useQuestEngine(
           lineIndex: Math.max(0, lines.length - 1),
           message: "Crystal was not collected!",
           suggestion:
-            "Sparky must reach (2, 2) and call dragon.collect_crystal() to finish!",
+            "Aether must reach (2, 2) and call aether.collect_crystal() to finish!",
           tileCoords: { x: 2, y: 2 },
         };
         setErrorPointer(err);
@@ -543,9 +547,9 @@ export function useQuestEngine(
       } else {
         const err: ErrorPointer = {
           lineIndex: 0,
-          message: "Glitch Chimera is still standing!",
+          message: "Malachar’s binding is still intact!",
           suggestion:
-            "Raise mana_shield = 100, barrage with cast_starlight_bolt(), and finish with holy_smite()!",
+            "Raise mana_shield = 100, barrage with cast_starlight_bolt(), and finish with restore_core()!",
         };
         setErrorPointer(err);
         throw new Error(err.message);

@@ -1,234 +1,291 @@
 {
   "id": "first-light",
-  "title": "The First Light",
-  "description": "A sleeping realm. A curious dragon. Eight small spells that can change everything.",
+  "edition": 2,
+  "title": "The Fragments of Eldoria",
+  "description": "One apprentice. Five scattered fragments. A world waiting to be rewritten.",
   "chapters": [
     {
       "id": "the-awakening",
       "position": 1,
-      "title": "The awakening",
-      "subtitle": "Every adventure begins with a single instruction.",
+      "title": "The book that answered",
+      "subtitle": "The Arcane Academy · Objects & movement commands",
       "lesson_id": 1,
       "content": [
         {
           "id": "arrival",
           "type": "narration",
-          "text": "The academy gates open without a sound. Beyond them, the lanterns have gone dark. A small dragon sleeps beside a crystal that pulses like a tiny heartbeat. You unfold the note in your pocket: ‘The realm has forgotten its language. Help it remember.’"
+          "text": "On the morning the last streetlamp goes dark, Aether breaks into the abandoned Wizard Academy. He is looking for a candle. He finds a book that knows his name."
+        },
+        {
+          "id": "eldoria",
+          "type": "narration",
+          "text": "Once, the Ethereal Core carried magic through all of Eldoria: into its forests, its healing potions, the wards around its villages. The old wizards shaped that power with SpellScript, a language of precise instructions. Then Malachar, the Core’s guardian, tried to make every spell answer to him alone. The Core fractured. Five fragments scattered across the kingdom, and magic began to fail."
+        },
+        {
+          "id": "apprentice",
+          "type": "narration",
+          "text": "Aether is only an apprentice. He has never lit a lantern without help. But the marks in this book make sense to him—the first person in a generation able to read the original language. Between the pages, five empty shapes glow like windows."
         },
         {
           "id": "sparky-hello",
           "type": "dialogue",
-          "speaker": "Sparky",
-          "text": "Oh! You can read the symbols? I’m Sparky. I know how to move, but I need someone to tell me where to go. One clear instruction at a time."
+          "speaker": "The spellbook",
+          "text": "You can read me. That is a beginning. Power is not the same as understanding, Aether. Start with one clear instruction."
         },
         {
           "id": "first-response",
           "type": "choice",
-          "text": "How do you greet your new companion?",
+          "text": "Aether rests a hand on the page. What does he say?",
           "options": [
             {
               "id": "careful",
-              "label": "Let’s take this one step at a time.",
-              "response": "Sparky nods. ‘A good plan starts small.’ He points his tail toward the crystal."
+              "label": "One step at a time.",
+              "response": "The ink settles into a neat line. “A sensible place to begin,” the book replies."
             },
             {
               "id": "curious",
-              "label": "What happens if we reach that crystal?",
-              "response": "‘Only one way to find out!’ Sparky’s wings shimmer with anticipation."
+              "label": "Show me what these symbols can do.",
+              "response": "A point of gold lights up across the courtyard. “Then let us make a little light.”"
             }
           ]
         },
         {
           "id": "first-task",
           "type": "narration",
-          "text": "Guide Sparky across the grid and collect the crystal. The academy’s first lantern is waiting for you."
+          "text": "A fragment gleams beyond the cracked courtyard tiles. Aether must move two steps east, turn right, take two steps south, and collect it. The book calls him an object: something with a name and actions. He calls it a rather strange introduction. Either way, the first command is aether.move_forward()."
         }
       ]
     },
     {
       "id": "a-little-alchemy",
       "position": 2,
-      "title": "A little alchemy",
-      "subtitle": "Give something a name, and you can begin to change it.",
+      "title": "Something worth keeping",
+      "subtitle": "Alchemical Storage · Variables & assignment",
       "lesson_id": 2,
       "content": [
         {
           "id": "laboratory",
           "type": "narration",
-          "text": "The first lantern reveals a crooked door marked ALCHEMY. Inside, empty bottles crowd a workbench. A cauldron waits beneath a recipe covered in unfamiliar names."
+          "text": "The first fragment leads Aether into the academy’s alchemy room. Its shelves still smell of rain and burnt sugar. Here, a second fragment is sealed inside a bottle of cloudy glass. The label reads: FOR WHEN THE WORLD NEEDS MENDING."
+        },
+        {
+          "id": "recipe",
+          "type": "narration",
+          "text": "Aether finds star dew, an empty mana flask, and a recipe written in the same small script as the book. He reaches for the ingredients, then stops. Three drops is not the same as thirty. A name is useful only if he remembers what it holds."
         },
         {
           "id": "keeper",
           "type": "dialogue",
-          "speaker": "The keeper",
-          "text": "Names are how we keep track of things. Call a bottle mana, give it a value, and the recipe becomes much easier to follow."
+          "speaker": "The spellbook",
+          "text": "A variable keeps a value under a name. Give mana_flask the value 100. Give star_dew the value 3. The cauldron cannot follow a recipe you have not prepared."
         },
         {
           "id": "brew",
           "type": "narration",
-          "text": "Use variables to measure your ingredients. Then bring the cauldron back to life."
+          "text": "Aether writes the two assignments and calls cauldron.brew_elixir(). If the measures are right, the restoration elixir will clear the glass and release the second fragment. For the first time, the recipe feels less like a secret and more like something he can learn."
         }
       ]
     },
     {
       "id": "the-patient-garden",
       "position": 3,
-      "title": "The patient garden",
-      "subtitle": "Small actions become powerful when you repeat them.",
+      "title": "The patient work of growing",
+      "subtitle": "The Repeating Grove · For-loops & iteration",
       "lesson_id": 3,
       "content": [
         {
           "id": "garden",
           "type": "narration",
-          "text": "Outside the laboratory lies a garden of sleeping flowers. Each one needs exactly the same spell. Your notebook is almost full before you reach the second row."
+          "text": "Beyond the academy, the Repeating Grove has fallen silent. Six stone beds line the old path. Nothing grows in them. In the heart of the oldest tree, the third fragment shines behind a cage of roots."
+        },
+        {
+          "id": "repetition",
+          "type": "narration",
+          "text": "Aether kneels at the first bed and copies the growth spell. At the second, he writes it again. By the third, he has smudged the page and misplaced a bracket. The book gently turns back to the first line."
         },
         {
           "id": "loop",
           "type": "dialogue",
-          "speaker": "Sparky",
-          "text": "What if we could tell the garden to repeat a spell? Like walking in a circle, but with a clear place to stop."
+          "speaker": "The spellbook",
+          "text": "The task is the same each time. Tell me how many times to repeat it, and which instruction belongs inside the loop. Remember the stopping point. Even a good spell needs an end."
         },
         {
           "id": "bloom",
           "type": "narration",
-          "text": "A loop will do the patient work for you. Help the garden bloom, one repetition at a time."
+          "text": "Six repetitions. One grow_flower() inside an indented block. Aether begins to understand why the old wizards wrote so little to accomplish so much. When all six beds bloom, their roots will carry light back to the tree and loosen its grip on the fragment."
         }
       ]
     },
     {
       "id": "across-the-quiet",
       "position": 4,
-      "title": "Across the quiet",
-      "subtitle": "Build a tool once. Use it wherever you need it.",
+      "title": "A way across",
+      "subtitle": "The Sky Citadel · Functions & invocation",
       "lesson_id": 4,
       "content": [
         {
           "id": "river",
           "type": "narration",
-          "text": "A silver river divides the academy. The old bridge has dissolved into scattered tiles. An inscription on the bank describes a spell that can build a section of it."
+          "text": "The path ends at open sky. Across a gulf of clouds, the Sky Citadel hangs beneath a pale moon. Its bridge has broken into four missing spans. On the far side waits the fourth fragment, too far to reach and too bright to ignore."
+        },
+        {
+          "id": "library",
+          "type": "narration",
+          "text": "A weathered inscription describes how to place a starlight tile. Aether could write the instructions again each time. Instead, he gathers them under one name: build_bridge. The book glows approvingly. Nothing else happens."
         },
         {
           "id": "bridge-talk",
           "type": "dialogue",
-          "speaker": "Sparky",
-          "text": "That’s a function! Give the spell a name, teach it what to do, and call it when you need another piece."
+          "speaker": "The spellbook",
+          "text": "You have defined a function. That tells me how the spell works. Now invoke it. A recipe on a shelf does not make supper."
         },
         {
           "id": "build",
           "type": "narration",
-          "text": "Complete the bridge function and make a path to the other side."
+          "text": "Aether puts a four-step loop inside build_bridge(), then calls the function by name. A reusable spell: not just an answer for this crossing, but a tool for the next. Beyond the bridge, the citadel’s bell waits to ring again."
         }
       ]
     },
     {
       "id": "a-different-path",
       "position": 5,
-      "title": "A different path",
-      "subtitle": "The right action depends on what you find.",
+      "title": "The mistake in the stone",
+      "subtitle": "The Obsidian Crypt · Debugging & index errors",
       "lesson_id": 5,
       "content": [
         {
           "id": "runes",
           "type": "narration",
-          "text": "On the far bank, runes float in the air. Some glow warmly. Others flicker with the curse that silenced the realm. Casting the same spell at every rune would only make things worse."
+          "text": "With four fragments tucked safely into the spellbook, Aether descends into the Obsidian Crypt. The final fragment lies beyond it, in the Chrono Vault. Three numbered runes seal the passage. Malachar has left a spell beside them, almost correct."
+        },
+        {
+          "id": "wrong-number",
+          "type": "narration",
+          "text": "The first instruction names rune 1. The second names rune 2. The last points to rune 9. Aether searches the wall again. There are only three runes. For a moment he thinks he has failed to understand something grand. Then he notices the simpler truth: the instruction is wrong."
         },
         {
           "id": "decision",
           "type": "dialogue",
-          "speaker": "The keeper",
-          "text": "Mistakes leave clues. Read the error, find the wrong rune number, then repair that instruction. That is debugging."
+          "speaker": "The spellbook",
+          "text": "An error is information. Read what it tells you, compare it with the world, and change the part that does not fit. Do not throw away the whole spell."
         },
         {
           "id": "cleanse",
           "type": "narration",
-          "text": "Check the runes and choose the right action to lift the curse."
+          "text": "Repair the last command so it names rune 3, then purify all three runes. This is debugging: a careful correction, not a louder incantation. Somewhere beneath the stone, the way forward begins to stir."
         }
       ]
     },
     {
       "id": "the-sky-door",
       "position": 6,
-      "title": "The sky door",
-      "subtitle": "A few well-ordered steps can open a world.",
+      "title": "What a spell gives back",
+      "subtitle": "The Celestial Stargate · Parameters & returns",
       "lesson_id": 6,
       "content": [
         {
           "id": "observatory",
           "type": "narration",
-          "text": "The observatory roof opens onto a sky full of sleeping constellations. In its centre, great rings turn around an unlit gate."
+          "text": "The crypt opens into an observatory. Brass rings circle an empty doorway, and the Chrono Vault is visible through it like a reflection in dark water. A dial reads: REQUIRED FLUX — 200. Aether’s flask holds only 100 units of mana."
+        },
+        {
+          "id": "calculation",
+          "type": "narration",
+          "text": "An old conversion spell can double an input. But the spell must receive a value, calculate a result, and return it. Aether names the parameter mana and writes return mana * 2. He has not made power from nothing; he has translated the flask’s stored mana into the gate’s measure of flux."
         },
         {
           "id": "gate-talk",
           "type": "dialogue",
-          "speaker": "Sparky",
-          "text": "First align the rings. Then charge the gate. Even powerful spells need the right order."
+          "speaker": "The spellbook",
+          "text": "A parameter is what a function receives. A return value is what it gives back. Store the result of calculate_flux(100), align the rings, then use that result to charge the gate."
         },
         {
           "id": "gate",
           "type": "narration",
-          "text": "Combine what you know to awaken the stargate and discover where it leads."
+          "text": "The order matters. Aether steadies the brass rings before sending the calculated flux through them. If the conversion is right, the doorway will hold long enough to cross. On the other side, a clock is ticking backwards."
         }
       ]
     },
     {
       "id": "pieces-of-time",
       "position": 7,
-      "title": "Pieces of time",
-      "subtitle": "Find the pattern hiding in the collection.",
+      "title": "The order of things",
+      "subtitle": "The Chrono Vault · Lists, indices & sorting",
       "lesson_id": 7,
       "content": [
         {
           "id": "time",
           "type": "narration",
-          "text": "Beyond the gate, moments drift like leaves. Four crystals hold the academy’s timeline, but their order has been scrambled. A morning follows a midnight. A door closes before it opens."
+          "text": "Inside the vault, rain rises toward the ceiling. An hourglass fills from below. Four numbered control crystals orbit a sealed chamber in the order 4, 1, 3, 2. Beyond the chamber’s glass rests the fifth and final Core fragment."
+        },
+        {
+          "id": "inventory",
+          "type": "narration",
+          "text": "These four crystals are the vault’s controls, not pieces of the Core. Their values tell the machine when to act; their indices tell Aether where each sits in the list. The first position is index 0. Position and value, he discovers, are different things."
         },
         {
           "id": "sort",
           "type": "dialogue",
-          "speaker": "Sparky",
-          "text": "A list keeps things together. Sorting helps us put them where they belong."
+          "speaker": "The spellbook",
+          "text": "Keep the crystals together in one list. Sort their values into ascending order, then pass the sorted list to stabilize_vortex. The machine needs the result, not merely the promise that you sorted it."
         },
         {
           "id": "stabilize",
           "type": "narration",
-          "text": "Put the crystals in order and stabilize the time vortex."
+          "text": "Aether writes crystals = [4, 1, 3, 2]. With the controls restored to 1, 2, 3, 4, the vault can release its hold on time—and its final fragment. Five lights will fill the book. One broken Core remains to be mended."
         }
       ]
     },
     {
       "id": "first-light-restored",
       "position": 8,
-      "title": "First light, restored",
-      "subtitle": "You already have the pieces. Now bring them together.",
+      "title": "A light that belongs to everyone",
+      "subtitle": "The Ethereal Core · Bringing it all together",
       "lesson_id": 8,
       "content": [
         {
           "id": "chimera",
           "type": "narration",
-          "text": "At the heart of the academy, the Glitch Chimera guards the last lantern. It is made of forgotten instructions and unfinished ideas. Sparky lands beside you. This time, you know how to begin."
+          "text": "Malachar waits beside the fractured Core. His spell has wrapped it in a lattice of violet light, a hundred points of corruption holding the pieces apart. The five fragments in Aether’s book pull toward their old places."
+        },
+        {
+          "id": "malachar",
+          "type": "dialogue",
+          "speaker": "Malachar",
+          "text": "I could have kept Eldoria safe. One will. One perfect spell. No mistakes."
+        },
+        {
+          "id": "answer",
+          "type": "narration",
+          "text": "Aether thinks of the smudged page in the grove, the bridge he forgot to invoke, the wrong number on the crypt wall. Every mistake taught him something. A world that can never change can never mend."
         },
         {
           "id": "last-choice",
           "type": "choice",
-          "text": "What will you remember about this journey?",
+          "text": "Before he opens the book, what does Aether choose to remember?",
           "options": [
             {
               "id": "persistence",
-              "label": "A mistake is a clue to the next step.",
-              "response": "Sparky smiles. ‘Then nothing here can stop us for long.’"
+              "label": "A mistake can show us the next step.",
+              "response": "Aether turns to the page he once crossed out. This time, he knows why the spell will work."
             },
             {
               "id": "together",
-              "label": "Learning is better with a companion.",
-              "response": "‘And now you can be that companion for someone else,’ Sparky says."
+              "label": "Magic belongs to everyone who learns it.",
+              "response": "Aether imagines the academy with its doors open, its tables crowded, and enough books for everyone."
             }
           ]
         },
         {
           "id": "finish",
           "type": "dialogue",
-          "speaker": "Sparky",
-          "text": "Raise your shield. Cast your spells. The first light is ours to bring back."
+          "speaker": "The spellbook",
+          "text": "Protect yourself first: mana_shield = 100. Repeat the starlight bolt three times to weaken the lattice. Then call restore_core() to break the last binding. You have learned every part of this spell."
+        },
+        {
+          "id": "final-task",
+          "type": "narration",
+          "text": "Aether lifts the book. He is still an apprentice. He is still afraid. But he no longer needs to know everything before he can begin. One clear instruction. Then the next."
         }
       ]
     }

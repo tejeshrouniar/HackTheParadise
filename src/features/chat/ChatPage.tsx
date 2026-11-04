@@ -222,13 +222,11 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
     if (!report || !user || !supabase) return;
     setReportBusy(true);
     setReportError("");
-    const { error } = await supabase
-      .from("chat_reports")
-      .insert({
-        message_id: report.id,
-        reporter_id: user.id,
-        reason: reason.trim(),
-      });
+    const { error } = await supabase.from("chat_reports").insert({
+      message_id: report.id,
+      reporter_id: user.id,
+      reason: reason.trim(),
+    });
     if (error)
       setReportError(
         error.code === "23505"
@@ -261,11 +259,8 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
       <div className="sc-page">
         <div className="sc-empty sc-card">
           <MessageCircle size={42} />
-          <h1>Good questions belong here.</h1>
-          <p>
-            Join the commons to ask for help, celebrate a small win, or help
-            another learner.
-          </p>
+          <h1>Community</h1>
+          <p>Ask a question, share a win, or help another learner.</p>
           <button className="sc-button" onClick={onSignIn}>
             Sign in to join
           </button>
@@ -280,9 +275,7 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
     <div className="sc-page">
       <div className="sc-page-heading">
         <div>
-          <span className="sc-eyebrow">BETTER TOGETHER</span>
-          <h1>The commons</h1>
-          <p>A little help can go a long way.</p>
+          <h1>Community</h1>
         </div>
         <span className={`sc-pill ${connection === "Live" ? "mint" : ""}`}>
           <span className="sc-dot" />
@@ -306,11 +299,10 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
             </button>
           ))}
           <div className="sc-community-guide">
-            <strong>Be someone’s good moment.</strong>
+            <strong>Keep it kind.</strong>
             <p>
-              Share ideas, explain your thinking, and be kind. Never share
-              passwords or personal contact details. Use Report when something
-              feels wrong.
+              Keep personal details private. Report messages that cross the
+              line.
             </p>
           </div>
         </aside>
@@ -366,7 +358,11 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
                   />
                   <div>
                     <div className="sc-message-meta">
-                      <button className="sc-member-name" onClick={() => setMember(message.profiles)} aria-label={`View ${message.profiles?.display_name ?? 'learner'} profile`}>
+                      <button
+                        className="sc-member-name"
+                        onClick={() => setMember(message.profiles)}
+                        aria-label={`View ${message.profiles?.display_name ?? "learner"} profile`}
+                      >
                         {message.profiles?.display_name ?? "Learner"}
                       </button>
                       <time
@@ -453,7 +449,21 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
           </small>
         </section>
       </div>
-      <Modal open={!!member} onClose={()=>setMember(null)} title={member?.display_name??'Learner'} description={member?'@'+member.username:undefined}><div className="sc-member-profile"><Avatar name={member?.display_name??'Learner'} url={member?.avatar_url} size={72}/><p>{member?.bio||'Still writing their story.'}</p></div></Modal>
+      <Modal
+        open={!!member}
+        onClose={() => setMember(null)}
+        title={member?.display_name ?? "Learner"}
+        description={member ? "@" + member.username : undefined}
+      >
+        <div className="sc-member-profile">
+          <Avatar
+            name={member?.display_name ?? "Learner"}
+            url={member?.avatar_url}
+            size={72}
+          />
+          <p>{member?.bio || "Still writing their story."}</p>
+        </div>
+      </Modal>
       <Modal
         open={!!report}
         onClose={() => setReport(null)}

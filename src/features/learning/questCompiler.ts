@@ -24,6 +24,11 @@ export class QuestCodeError extends Error {
   }
 }
 const actions: Record<string, number> = {
+  "aether.move_forward": 0,
+  "aether.turn_right": 0,
+  "aether.turn_left": 0,
+  "aether.collect_crystal": 0,
+  restore_core: 0,
   "dragon.move_forward": 0,
   "dragon.turn_right": 0,
   "dragon.turn_left": 0,
@@ -218,7 +223,15 @@ export function compileQuestCode(code: string): QuestInstruction[] {
         fail("Define the crystals list before sorting it.", line);
       env.crystals = [...(env.crystals as number[])].sort((a, b) => a - b);
       emit({ line: line.number, name, args: [env.crystals] });
-    } else emit({ line: line.number, name, args });
+    } else {
+      // Keep old saved/copied dragon commands compatible with the existing simulation.
+      const action = name.startsWith("aether.")
+        ? name.replace("aether.", "dragon.")
+        : name === "restore_core"
+          ? "holy_smite"
+          : name;
+      emit({ line: line.number, name: action, args });
+    }
     return undefined;
   }
   function execute(

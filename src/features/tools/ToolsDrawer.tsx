@@ -91,8 +91,10 @@ export default function ToolsDrawer({
       >
         <header>
           <div>
-            <h2 id="tools-title">Your little toolkit</h2>
-            <p id="tools-description">Make this space work for you.</p>
+            <h2 id="tools-title">Tools</h2>
+            <p id="tools-description" className="sr-only">
+              Music, timer, notes, snippets and coding references.
+            </p>
           </div>
           <button
             onClick={onClose}

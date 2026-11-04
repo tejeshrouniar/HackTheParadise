@@ -40,6 +40,43 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
     );
     await db.exec(migration("202611030002_storicode_platform.sql"));
     await db.exec(migration("202611030003_first_light_content.sql"));
+    await db.query(
+      "insert into public.story_progress(user_id,chapter_id,completed,choices) values($1,'the-awakening',true,$2)",
+      [A, JSON.stringify({ "first-response": "careful" })],
+    );
+    await db.exec(migration("202611030004_eldoria_story.sql"));
+    await t.test(
+      "Eldoria replaces the published story without losing reading choices or completion",
+      async () => {
+        const before = await db.query(
+          "select completed,choices from public.story_progress where user_id=$1 and chapter_id='the-awakening'",
+          [A],
+        );
+        assert.equal(before.rows[0].completed, true);
+        assert.equal(before.rows[0].choices["first-response"], "careful");
+        const story = await db.query(
+          "select title,edition from public.stories where id='first-light'",
+        );
+        assert.equal(story.rows[0].title, "The Fragments of Eldoria");
+        assert.equal(story.rows[0].edition, 2);
+        const chapters = await db.query(
+          "select id,content from public.story_chapters where story_id='first-light'",
+        );
+        assert.equal(chapters.rows.length, 8);
+        assert.ok(JSON.stringify(chapters.rows).includes("Aether"));
+        assert.ok(
+          !JSON.stringify(chapters.rows.map((c) => c.content)).includes(
+            "Sparky",
+          ),
+        );
+        await db.exec(migration("202611030004_eldoria_story.sql"));
+        const after = await db.query(
+          "select completed,choices from public.story_progress where user_id=$1 and chapter_id='the-awakening'",
+          [A],
+        );
+        assert.deepEqual(after.rows, before.rows);
+      },
+    );
     const as = async (id) => {
       await db.exec("reset role");
       await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
@@ -212,7 +249,7 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
         );
         await db.query(
           "insert into story_progress(user_id,chapter_id,completed) values($1,$2,true)",
-          [A, "the-awakening"],
+          [A, "a-little-alchemy"],
         );
         await as(B);
         assert.equal(
