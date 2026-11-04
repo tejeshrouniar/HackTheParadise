@@ -76,3 +76,8 @@ npm run build
 ```
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+
+### Art sources
+
+- Character template: [Eris Esra](https://erisesra.itch.io/character-templates-pack).
+- Ancient Forest artwork: [Sismodyn](https://sismodyn.itch.io/ancientforest).

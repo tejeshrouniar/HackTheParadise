@@ -4,11 +4,28 @@
   margin: 0;
   min-width: 0;
 }
-.sc-world svg {
+.sc-world > svg {
   display: block;
   width: 100%;
   height: auto;
   overflow: hidden;
+}
+.world-pixel-backdrop {
+  image-rendering: pixelated;
+}
+.world-victory {
+  animation: world-victory 850ms steps(7, end) both;
+}
+@keyframes world-victory {
+  from { transform: translateY(16px); opacity: 0; }
+  45% { opacity: 1; }
+  to { transform: translateY(0); opacity: 1; }
+}
+:root[data-reduce-motion="true"] .world-victory {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .world-victory { animation: none; }
 }
 .sc-world text {
   font:
@@ -174,4 +191,8 @@
     animation: none !important;
     transition: none !important;
   }
+}
+
+.sc-page.sc-simple-quest {
+  padding-bottom: 108px;
 }

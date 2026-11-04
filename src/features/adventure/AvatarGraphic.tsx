@@ -155,6 +155,7 @@ export function AvatarGraphic({
   size = 32,
   playId = 0,
   loop = false,
+  directControl = false,
 }: {
   appearance: Appearance;
   action?: SpriteAction;
@@ -164,6 +165,7 @@ export function AvatarGraphic({
   size?: number;
   playId?: number;
   loop?: boolean;
+  directControl?: boolean;
 }) {
   const { preferences } = usePreferences();
   const key = JSON.stringify(appearance);
@@ -209,9 +211,9 @@ export function AvatarGraphic({
     function resume() {
       cancelAnimationFrame(request);
       previous = performance.now();
-      image!.setAttribute("data-motion", preferences.reduced_motion || media.matches
+      image!.setAttribute("data-motion", preferences.reduced_motion || (media.matches && !directControl)
         ? "reduced" : document.hidden ? "paused" : "playing");
-      if (preferences.reduced_motion || media.matches) {
+      if (preferences.reduced_motion || (media.matches && !directControl)) {
         playback.current.frame = 0;
         playback.current.elapsed = 0;
       } else if (!document.hidden) {
@@ -227,7 +229,7 @@ export function AvatarGraphic({
       media.removeEventListener("change", resume);
       document.removeEventListener("visibilitychange", resume);
     };
-  }, [action, playId, loop, ready, preferences.reduced_motion]);
+  }, [action, playId, loop, directControl, ready, preferences.reduced_motion]);
   const row = bands.indexOf(action) * 5 + rows[direction];
   return (
     <svg

@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { JOURNEY } from "../../content/journey";
 import { ArrowRight, BookOpen, Code2, Map, Shirt } from "lucide-react";
 import { WorldMap } from "./WorldMap";
 import { useProgress } from "./ProgressContext";
@@ -24,9 +26,12 @@ export default function Dashboard({
 }) {
   const { completed, status, retry } = useProgress();
   const { appearance } = useAppearance();
-  const next =
+  const nextOverall =
     CODEDEX_LESSONS.find((lesson) => !completed.includes(lesson.id)) ??
     CODEDEX_LESSONS[0];
+  const [chapter, setChapter] = useState(() => Math.min(3, Math.floor((nextOverall.id - 1) / 3)));
+  const nextId = JOURNEY[chapter].levels.find(id => !completed.includes(id)) ?? JOURNEY[chapter].levels[0];
+  const next = CODEDEX_LESSONS.find(lesson => lesson.id === nextId)!;
   if (catalog)
     return (
       <div className="sc-page">
@@ -37,15 +42,16 @@ export default function Dashboard({
     <div className="sc-page sc-trail-home">
       <header className="sc-trail-home-heading">
         <div>
-          <span>THE FRAGMENTS OF ELDORIA</span>
-          <h1>Welcome to the trail</h1>
+          <span>YOUR JOURNEY</span>
+          <h1>{JOURNEY[chapter].title}</h1>
         </div>
         <button className="sc-button secondary" onClick={onMap}>
           <Map size={18} /> World map
         </button>
       </header>
+      <nav className="sc-chapter-tabs" aria-label="Explore a chapter">{JOURNEY.map((realm, i) => <button key={realm.title} aria-pressed={chapter === i} onClick={() => setChapter(i)}>{i + 1}. {realm.place}</button>)}</nav>
       <div className="sc-trail-layout">
-        <ForestTrail onMap={onMap} />
+        <ForestTrail key={chapter} chapter={chapter} onQuest={onQuest} completed={completed} />
         <aside className="sc-trail-sidebar">
           <section className="sc-trail-character-card">
             <svg viewBox="0 0 56 56" aria-hidden="true">
@@ -92,7 +98,7 @@ export default function Dashboard({
           </section>
           <div className="sc-trail-shortcuts">
             <button onClick={onCompanion}>
-              <BookOpen size={16} /> Aether’s field guide
+              <BookOpen size={16} /> Your journal
             </button>
             <button onClick={onTerminal}>
               <Code2 size={16} /> Spell practice

@@ -4,9 +4,7 @@ import {
   ArrowRight,
   Footprints,
   Hand,
-  Map,
   Sparkles,
-  X,
 } from "lucide-react";
 import {
   AvatarGraphic,
@@ -15,6 +13,7 @@ import {
 } from "./AvatarGraphic";
 import { useAppearance } from "./AppearanceContext";
 import { interactionDuration, spriteClips } from "./spriteAnimation";
+import { JOURNEY } from "../../content/journey";
 import { sound } from "../../utils/sound";
 import sky from "../../assets/trail/sky.png";
 import far from "../../assets/trail/far.png";
@@ -48,7 +47,6 @@ const landmarks = [
     width: 40,
     height: 108,
     name: "Trail lantern",
-    note: "The lantern hums with a small spell. Someone left it here for travelers learning their first commands.",
   },
   {
     x: 610,
@@ -56,7 +54,6 @@ const landmarks = [
     width: 57,
     height: 104,
     name: "Old watcher",
-    note: "The carving reads: ‘When a spell repeats, look for the pattern.’ Aether marked a lesson about loops in the journal.",
   },
   {
     x: 1040,
@@ -64,7 +61,6 @@ const landmarks = [
     width: 167,
     height: 110,
     name: "Academy gate",
-    note: "A path winds through the old gate. The world map shows the quests waiting beyond it.",
   },
 ];
 type Landmark = (typeof landmarks)[number];
@@ -73,13 +69,15 @@ function bound(value: number, min = 46, max = trailWidth - 46) {
   return Math.max(min, Math.min(max, value));
 }
 
-export function ForestTrail({ onMap }: { onMap: () => void }) {
+export function ForestTrail({ chapter, onQuest, completed }: { chapter: number; onQuest: (id: number) => void; completed: number[] }) {
+  const realm = JOURNEY[chapter];
   const { appearance } = useAppearance();
   const [position, setPosition] = useState(160);
   const [action, setAction] = useState<SpriteAction>("idle");
   const [direction, setDirection] = useState<SpriteDirection>("right");
   const [interactionId, setInteractionId] = useState(0);
-  const [message, setMessage] = useState<Landmark | null>(null);
+  const [lanternLit, setLanternLit] = useState(false);
+  const [destination, setDestination] = useState<Landmark | null>(null);
   const [discovered, setDiscovered] = useState<string[]>([]);
   const glowId = useId();
   const x = useRef(160);
@@ -102,7 +100,9 @@ export function ForestTrail({ onMap }: { onMap: () => void }) {
     playing.current = "interact";
     setAction("interact");
     setInteractionId((value) => value + 1);
-    setMessage(landmark);
+    setDirection(landmark.x < x.current ? "left" : "right");
+    setLanternLit(true);
+    setDestination(landmark);
     setDiscovered((previous) =>
       previous.includes(landmark.name)
         ? previous
@@ -180,13 +180,22 @@ export function ForestTrail({ onMap }: { onMap: () => void }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!destination) return;
+    const timer = window.setTimeout(
+      () => onQuest(realm.levels[landmarks.indexOf(destination)]),
+      interactionDuration,
+    );
+    return () => window.clearTimeout(timer);
+  }, [destination, onQuest, realm]);
+
   const renderPosition = Math.round(position);
   const camera = Math.round(bound(position - viewWidth / 2, 0, trailWidth - viewWidth));
   const nearby = landmarks.find(
     (landmark) => Math.abs(landmark.x - position) <= 86,
   );
   function goTo(destination: number, landmark?: Landmark) {
-    setMessage(null);
+    setDestination(null);
     interactUntil.current = 0;
     pending.current = landmark ?? null;
     target.current = bound(destination);
@@ -211,7 +220,7 @@ export function ForestTrail({ onMap }: { onMap: () => void }) {
         target.current = null;
         pending.current = null;
         interactUntil.current = 0;
-        setMessage(null);
+        setDestination(null);
       }
     } else if (down && key === "e" && nearby && !event.repeat) {
       event.preventDefault();
@@ -220,30 +229,30 @@ export function ForestTrail({ onMap }: { onMap: () => void }) {
   }
 
   return (
-    <section className="sc-trail" aria-label="Explore the Ancient Forest">
+    <section className={`sc-trail realm-${realm.theme}`} aria-label={`Explore ${realm.place}`}>
       <div className="sc-trail-label">
         <div>
           <span>
-            <Sparkles size={14} /> FREE ROAM
+            <Sparkles size={14} /> CHAPTER {chapter + 1}
           </span>
-          <h2>Ancient Forest</h2>
+          <h2>{realm.place}</h2>
         </div>
         <small>
-          {discovered.length} / {landmarks.length} landmarks found
+          {realm.levels.filter(id => completed.includes(id)).length} / 3 spells learned
         </small>
       </div>
       <div
         className="sc-trail-stage"
         ref={stage}
         tabIndex={0}
-        aria-label="Forest trail. Arrow keys to walk, Shift to run, E to interact."
+        aria-label="Chapter trail. Arrow keys to walk, Shift to run, E to enter a level."
         onKeyDown={(event) => onKey(event, true)}
         onKeyUp={(event) => onKey(event, false)}
         onBlur={() => {
           keys.current = { left: false, right: false, sprint: false };
         }}
         onClick={(event) => {
-          if ((event.target as Element).closest("button, .sc-trail-dialogue"))
+          if ((event.target as Element).closest("button"))
             return;
           const bounds = event.currentTarget.getBoundingClientRect();
           goTo(
@@ -286,7 +295,7 @@ export function ForestTrail({ onMap }: { onMap: () => void }) {
                 width={landmark.width}
                 height={landmark.height}
               />
-              {discovered.includes(landmark.name) && (
+              {(landmark.image === lamp ? lanternLit : discovered.includes(landmark.name)) && (
                 <circle
                   cx={landmark.x - camera + (landmark.image === lamp ? 10 : 0)}
                   cy={groundLine - landmark.height + 30}
@@ -322,6 +331,7 @@ export function ForestTrail({ onMap }: { onMap: () => void }) {
             appearance={appearance}
             action={action}
             playId={interactionId}
+            directControl={action === "walk" || action === "run"}
             direction={direction}
             size={64}
             x={renderPosition - camera - 32}
@@ -341,31 +351,13 @@ export function ForestTrail({ onMap }: { onMap: () => void }) {
               }}
               onClick={() => {
                 if (Math.abs(landmark.x - position) <= 86) interact(landmark);
-                else goTo(landmark.x - 36, landmark);
+                else goTo(landmark.x + (x.current < landmark.x ? -36 : 36), landmark);
               }}
             >
-              <Hand size={13} /> {landmark.name}
+              <Hand size={13} /> {completed.includes(realm.levels[landmarks.indexOf(landmark)]) ? "✓ " : ""}{realm.stops[landmarks.indexOf(landmark)]}
             </button>
           ))}
-        {message && (
-          <div className="sc-trail-dialogue" role="status">
-            <button
-              type="button"
-              className="sc-icon-button"
-              aria-label="Dismiss trail message"
-              onClick={() => setMessage(null)}
-            >
-              <X size={16} />
-            </button>
-            <strong>{message.name}</strong>
-            <p>{message.note}</p>
-            {message.image === arch && (
-              <button type="button" className="sc-button mint" onClick={onMap}>
-                <Map size={16} /> Open world map
-              </button>
-            )}
-          </div>
-        )}
+
       </div>
       <div className="sc-trail-controls">
         <span>
@@ -398,24 +390,7 @@ export function ForestTrail({ onMap }: { onMap: () => void }) {
           </button>
         </div>
       </div>
-      <p className="sc-trail-credit">
-        Forest artwork by{" "}
-        <a
-          href="https://sismodyn.itch.io/ancientforest"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Sismodyn
-        </a>{" "}
-        · Character template by{" "}
-        <a
-          href="https://erisesra.itch.io/character-templates-pack"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Eris Esra
-        </a>
-      </p>
+
     </section>
   );
 }

@@ -15,12 +15,12 @@ import {
 import { CODEDEX_LESSONS } from "../src/data/codedexLessons.ts";
 import { CORE_FRAGMENTS, chapterOutcome } from "../src/content/eldoria.ts";
 
-test("Aether commands retain the existing movement semantics and old commands remain valid", () => {
+test("Player commands retain the existing movement semantics and old commands remain valid", () => {
   const solution = CODEDEX_LESSONS[0].solutionCode;
-  assert.match(solution, /aether\.move_forward/);
+  assert.match(solution, /player\.move_forward/);
   assert.deepEqual(
     compileQuestCode(solution),
-    compileQuestCode(solution.replaceAll("aether.", "dragon.")),
+    compileQuestCode(solution.replaceAll("player.", "dragon.")),
   );
   assert.throws(
     () => compileQuestCode("aether.fly()"),

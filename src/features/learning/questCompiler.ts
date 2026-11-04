@@ -24,6 +24,10 @@ export class QuestCodeError extends Error {
   }
 }
 const actions: Record<string, number> = {
+  "player.move_forward": 0,
+  "player.turn_right": 0,
+  "player.turn_left": 0,
+  "player.collect_crystal": 0,
   "aether.move_forward": 0,
   "aether.turn_right": 0,
   "aether.turn_left": 0,
@@ -225,7 +229,7 @@ export function compileQuestCode(code: string): QuestInstruction[] {
       emit({ line: line.number, name, args: [env.crystals] });
     } else {
       // Keep old saved/copied dragon commands compatible with the existing simulation.
-      const action = name.startsWith("aether.")
+      const action = name.startsWith("player.") ? name.replace("player.", "dragon.") : name.startsWith("aether.")
         ? name.replace("aether.", "dragon.")
         : name === "restore_core"
           ? "holy_smite"

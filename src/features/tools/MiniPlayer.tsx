@@ -14,8 +14,8 @@ export function MiniPlayer({ onOpen }: { onOpen: () => void }) {
       >
         <Headphones size={17} />
         <span>
-          <strong>{track.title}</strong>
-          <small>{track.artist}</small>
+          <strong>{playing ? track.title : "Soundtrack"}</strong>
+
         </span>
       </button>
       <button

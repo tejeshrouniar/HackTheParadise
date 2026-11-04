@@ -1,5 +1,5 @@
 import { useId, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, MotionConfig } from "framer-motion";
 import {
   AvatarGraphic,
   type SpriteAction,
@@ -9,9 +9,10 @@ import { useAppearance } from "../../features/adventure/AppearanceContext";
 import { spriteClips } from "../../features/adventure/spriteAnimation";
 import type { useQuestEngine } from "../../features/learning/useQuestEngine";
 import "../../styles/worlds.css";
-import forestWorld from "../../assets/eldoria/forest-world-small.webp";
-import coreWorld from "../../assets/eldoria/core-small.webp";
-
+import forestSky from "../../assets/trail/sky.png";
+import forestFar from "../../assets/trail/far.png";
+import forestMiddle from "../../assets/trail/middle.png";
+import forestNear from "../../assets/trail/near.png";
 type Engine = ReturnType<typeof useQuestEngine>;
 function Crystal({
   x = 0,
@@ -76,6 +77,7 @@ function QuestAvatar({
         action={action}
         direction={direction}
         playId={playId}
+        directControl={action === "walk"}
       />
     </g>
   );
@@ -137,7 +139,19 @@ function Flower({ bloomed, index }: { bloomed: boolean; index: number }) {
   );
 }
 
-export function StageWorld({ state: s }: { state: Engine }) {
+const victoryAnchors = {
+  dragon: [650, 110], potion: [403, 270], garden: [410, 205],
+  bridge: [706, 242], curse: [400, 207], stargate: [440, 200],
+  chrono: [420, 180], boss: [528, 223],
+} as const;
+
+export function StageWorld({ state: s, bridgeCrossed, onBridgeCrossed }: {
+  state: Engine;
+  bridgeCrossed: boolean;
+  onBridgeCrossed: () => void;
+}) {
+  const reduceMotion = s.preferences.reduced_motion;
+  const crossing = s.lesson.stageType === "bridge" && s.questSuccess && !bridgeCrossed;
   const [walking, setWalking] = useState(false);
   const id = useId().replace(/:/g, "");
   const ref = (name: string) => `url(#${id}-${name})`;
@@ -154,7 +168,7 @@ export function StageWorld({ state: s }: { state: Engine }) {
         : kind === "garden"
           ? `${s.bloomedFlowers} of ${s.lesson.stageConfig?.target ?? 6} flowers awake`
           : kind === "bridge"
-            ? `${s.bridgeTiles} of ${s.lesson.stageConfig?.target ?? 4} bridge stones restored`
+            ? bridgeCrossed ? "Far bank reached" : crossing ? "Crossing the bridge" : `${s.bridgeTiles} of ${s.lesson.stageConfig?.target ?? 4} bridge stones restored`
             : kind === "curse"
               ? `${s.purifiedRunes.length} runes released`
               : kind === "stargate"
@@ -199,13 +213,13 @@ export function StageWorld({ state: s }: { state: Engine }) {
           </radialGradient>
         </defs>
         <rect width="800" height="490" fill={ref("sky")} />
-        <image
-          href={s.lesson.id <= 4 || s.lesson.id >= 9 ? forestWorld : coreWorld}
-          width="800"
-          height="490"
-          preserveAspectRatio="xMidYMid slice"
-        />
-        <rect width="800" height="490" fill="#071b1b" opacity=".67" />
+        <g className="world-pixel-backdrop" aria-hidden="true">
+          {[forestSky, forestFar, forestMiddle, forestNear].map((layer) => (
+            <image key={layer} href={layer} width="800" height="490"
+              preserveAspectRatio="xMidYMax slice" />
+          ))}
+        </g>
+        <rect width="800" height="490" fill={s.lesson.id >= 5 && s.lesson.id <= 8 ? "#161832" : "#071b1b"} opacity=".60" />
         <circle cx="620" cy="100" r="160" fill={ref("halo")} opacity=".35" />
         {Array.from({ length: 25 }, (_, i) => (
           <circle
@@ -476,48 +490,53 @@ export function StageWorld({ state: s }: { state: Engine }) {
               d="m0 294 153-38 60 44-79 34Z M610 298l81-41 109 22-89 57Z"
               fill="#758b8e"
             />
-            <QuestAvatar
-              action={spellAction}
-              playId={s.executionStep.current}
-              direction="right"
-              x={125}
-              y={302}
-              size={112}
-            />
-            {[0, 1, 2, 3].map((i) => (
-              <g
-                key={i}
-                transform={`translate(${242 + i * 96} ${303 - Math.sin((i / 3) * Math.PI) * 20})`}
-              >
-                <path
-                  d="M-36 0 0-12 36 0 0 13Z"
-                  fill="none"
-                  stroke="#9cacb4"
-                  strokeDasharray="4 6"
-                  opacity=".4"
-                />
-                {i < s.bridgeTiles && (
-                  <g className="world-build">
-                    <path
-                      d="M-40 0 0-15 40 0 40 27 0 45 -40 27Z"
-                      fill="#475e72"
-                      stroke="#afc8c8"
-                    />
-                    <path d="M-40 0 0-15 40 0 0 17Z" fill="#b6d9ce" />
-                    <path d="M-23 2 0-6 23 2 0 10Z" fill="#eed998" />
-                    <path d="M0 17v28" stroke="#7899a2" />
-                  </g>
-                )}
-              </g>
-            ))}
+            {Array.from({ length: s.lesson.stageConfig?.target ?? 4 }, (_, i) => {
+              const width = 420 / (s.lesson.stageConfig?.target ?? 4);
+              return (
+                <g key={i} transform={`translate(${199 + i * width} 292)`}>
+                  {i < s.bridgeTiles ? (
+                    <g className="world-build" shapeRendering="crispEdges">
+                      <rect width={width} height="23" fill="#476765" />
+                      <rect width={width - 2} height="9" fill="#b6d9ce" />
+                      <rect x={width / 2 - 8} y="2" width="16" height="5" fill="#eed998" />
+                      <rect x="2" y="17" width={width - 4} height="4" fill="#294748" />
+                    </g>
+                  ) : (
+                    <path d={`M0 5h${width - 3}`} stroke="#9cacb4" strokeDasharray="4 6" />
+                  )}
+                </g>
+              );
+            })}
             <path
-              d="M671 284V149h71v135M658 149l48-59 49 59Z"
+              d="M671 284V149h71v135ZM658 149v-10h10v-12h12v-12h12v-12h28v12h12v12h12v12h11v10Z"
               fill="#687a8d"
               stroke="#b3b6af"
               strokeWidth="2"
             />
-            <path d="M693 284v-48q13-24 26 0v48" fill="#ccebc0" />
+            <path d="M693 284v-52h5v-8h16v8h5v52Z" fill="#ccebc0" />
             <path d="M697 176h17v30h-17Z" fill="#e4cc95" />
+            <MotionConfig reducedMotion={reduceMotion ? "always" : "never"}>
+              <motion.g
+                initial={false}
+                animate={{ x: s.questSuccess ? 580 : 0 }}
+                transition={{
+                  duration: crossing && !reduceMotion ? 3.7 : 0,
+                  ease: "linear",
+                }}
+                onAnimationComplete={() => {
+                  if (crossing) onBridgeCrossed();
+                }}
+              >
+                <QuestAvatar
+                  action={crossing && !reduceMotion ? "walk" : spellAction}
+                  playId={s.executionStep.current}
+                  direction="right"
+                  x={125}
+                  y={297}
+                  size={96}
+                />
+              </motion.g>
+            </MotionConfig>
           </>
         )}
 
@@ -841,6 +860,16 @@ export function StageWorld({ state: s }: { state: Engine }) {
               {s.bossHp <= 0 ? "The Core is free" : "Break Malachar’s binding"}
             </text>
           </>
+        )}
+        {s.questSuccess && (kind !== "bridge" || bridgeCrossed) && (
+          <g transform={`translate(${victoryAnchors[kind].join(" ")})`} pointerEvents="none" aria-hidden="true">
+            <g className="world-victory" shapeRendering="crispEdges">
+              <path d="M-3-29h6v8h8v6H3v8h-6v-8h-8v-6h8z" fill="#fff0af" />
+              <rect x="-28" y="-36" width="5" height="5" fill="#aaf1d1" />
+              <rect x="24" y="-39" width="5" height="5" fill="#aaf1d1" />
+              <rect x="16" y="2" width="4" height="4" fill="#e9c889" />
+            </g>
+          </g>
         )}
       </svg>
       <figcaption>{caption}</figcaption>

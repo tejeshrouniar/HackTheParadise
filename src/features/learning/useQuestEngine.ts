@@ -237,7 +237,7 @@ export function useQuestEngine(
         setActiveLine(currentLine);
         const { name, args } = instruction;
         const labels: Record<string, string> = {
-          "dragon.move_forward": "Aether takes a step",
+          "dragon.move_forward": "You take a step",
           "dragon.turn_right": "Turn right",
           "dragon.turn_left": "Turn left",
           "dragon.collect_crystal": "Recover the fragment",
@@ -294,7 +294,7 @@ export function useQuestEngine(
             case "dragon.collect_crystal":
               if (simDragon.x !== 2 || simDragon.y !== 2)
                 throw new Error(
-                  "Move Aether to the crystal at (2, 2) before collecting it.",
+                  "Move you to the crystal at (2, 2) before collecting it.",
                 );
               simCrystal = true;
               setCollectedCrystal(true);
@@ -433,9 +433,9 @@ export function useQuestEngine(
     if (nx < 0 || nx >= 5 || ny < 0 || ny >= 5) {
       const err: ErrorPointer = {
         lineIndex: lineIdx,
-        message: `Out of Bounds! Aether tried to step off the grid at (${nx}, ${ny}).`,
+        message: `Out of Bounds! you tried to step off the grid at (${nx}, ${ny}).`,
         suggestion:
-          "Turn before moving so Aether stays on the 5x5 stone pathway.",
+          "Turn before moving so you stays on the 5x5 stone pathway.",
         tileCoords: { x: d.x, y: d.y },
       };
       setErrorPointer(err);
@@ -446,7 +446,7 @@ export function useQuestEngine(
     if (nx === 1 && ny === 1) {
       const err: ErrorPointer = {
         lineIndex: lineIdx,
-        message: `Collision! Aether hit a boulder at (1, 1).`,
+        message: `Collision! you hit a boulder at (1, 1).`,
         suggestion:
           "Turn right or left before moving forward to walk around the boulder!",
         tileCoords: { x: 1, y: 1 },
@@ -500,7 +500,7 @@ export function useQuestEngine(
           lineIndex: Math.max(0, lines.length - 1),
           message: "Crystal was not collected!",
           suggestion:
-            "Aether must reach (2, 2) and call aether.collect_crystal() to finish!",
+            "you must reach (2, 2) and call aether.collect_crystal() to finish!",
           tileCoords: { x: 2, y: 2 },
         };
         setErrorPointer(err);

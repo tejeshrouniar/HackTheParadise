@@ -325,6 +325,7 @@ export function AppShell() {
               )}
             </Suspense>
           </main>
+          <footer className="sc-site-footer"><strong>Storicode</strong><span>© 2026 Storicode</span><a href="https://github.com/tejeshrouniar/StoriCode" target="_blank" rel="noreferrer">Repository</a><a href="https://github.com/tejeshrouniar/StoriCode/issues" target="_blank" rel="noreferrer">Contact / feedback</a></footer>
         </div>
         <AuthModal
           isOpen={auth}
@@ -371,7 +372,7 @@ export function AppShell() {
               aria-label="Search quests"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Try Aether, loops, functions…"
+              placeholder="Try movement, loops, functions…"
             />
           </label>
           <div className="sc-search-results">

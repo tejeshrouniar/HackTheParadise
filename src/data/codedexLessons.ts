@@ -1,3 +1,4 @@
+import { JOURNEY } from "../content/journey.ts";
 import { forestLessons } from "./forestLessons.ts";
 export interface CodedexTask {
   id: string;
@@ -53,66 +54,66 @@ export const CODEDEX_LESSONS: CodedexLesson[] = [
   {
     id: 1,
     chapter: "Chapter 1: The Arcane Academy",
-    title: "Aether’s first spell",
+    title: "Your first spark",
     conceptName: "Objects & Movement Commands",
 
     whatIsThisTitle: "What is an object?",
     whatIsThisBody:
-      "In programming, **aether** is an *object*—the apprentice you guide through Eldoria! An object groups a name, a state, and actions you can call. He can't move unless you tell him exactly how many steps to take and which way to turn.",
+      "In programming, **player** is an *object*—your character in the world! An object groups a name, a state, and actions you can call. Your avatar moves when you specify exactly how many steps to take and which way to turn.",
     whatIsThisCallout:
       "Computers do not guess what you want. They obey your commands in the exact order you write them!",
 
-    howToWriteTitle: "⌨️ How do I give commands to Aether?",
+    howToWriteTitle: "⌨️ How do I give commands to your avatar?",
     howToWriteBody:
-      "To make Aether act, write the object name `aether`, a dot `.` and the action with parentheses `()`:",
-    codeExample: `# Make Aether step forward 1 tile:
-aether.move_forward()
+      "To make your avatar act, write the object name `player`, a dot `.` and the action with parentheses `()`:",
+    codeExample: `# Make your avatar step forward 1 tile:
+player.move_forward()
 
 # Turn 90 degrees to the right:
-aether.turn_right()
+player.turn_right()
 
 # Turn 90 degrees to the left:
-aether.turn_left()
+player.turn_left()
 
 # Pick up a crystal on his tile:
-aether.collect_crystal()`,
+player.collect_crystal()`,
 
     taskObjective:
-      "Guide Aether from his starting tile at (0, 0) to collect the Core fragment at (2, 2)!",
+      "Move from your starting tile at (0, 0) to collect the Core fragment at (2, 2)!",
     tasks: [
       {
         id: "t1",
         description: "Move forward 2 times to reach the intersection.",
-        codeKeyword: "aether.move_forward()",
+        codeKeyword: "player.move_forward()",
       },
       {
         id: "t2",
         description: "Turn right to face down.",
-        codeKeyword: "aether.turn_right()",
+        codeKeyword: "player.turn_right()",
       },
       {
         id: "t3",
         description: "Move forward 2 times towards the crystal.",
-        codeKeyword: "aether.move_forward()",
+        codeKeyword: "player.move_forward()",
       },
       {
         id: "t4",
-        description: "Collect the crystal with aether.collect_crystal().",
-        codeKeyword: "aether.collect_crystal()",
+        description: "Collect the crystal with player.collect_crystal().",
+        codeKeyword: "player.collect_crystal()",
       },
     ],
 
-    initialCode: `# Type your spell instructions below to guide Aether!
+    initialCode: `# Type your spell instructions below to guide your avatar!
 
 `,
 
-    hint: "Aether starts at (0, 0) facing RIGHT. Write aether.move_forward() twice, aether.turn_right(), aether.move_forward() twice, and finish with aether.collect_crystal()!",
-    solutionCode: `aether.move_forward()
-aether.move_forward()
-aether.turn_right()
-aether.move_forward()
-aether.move_forward()
-aether.collect_crystal()`,
+    hint: "your avatar starts at (0, 0) facing RIGHT. Write player.move_forward() twice, player.turn_right(), player.move_forward() twice, and finish with player.collect_crystal()!",
+    solutionCode: `player.move_forward()
+player.move_forward()
+player.turn_right()
+player.move_forward()
+player.move_forward()
+player.collect_crystal()`,
 
     stageType: "dragon",
     stageConfig: {
@@ -551,3 +552,11 @@ restore_core()`,
 ];
 
 CODEDEX_LESSONS.push(...forestLessons(CODEDEX_LESSONS));
+
+for (const realm of JOURNEY) {
+  realm.levels.forEach((id, index) => {
+    const lesson = CODEDEX_LESSONS.find(item => item.id === id)!;
+    lesson.title = realm.stops[index];
+    lesson.chapter = realm.title + " · " + realm.place;
+  });
+}

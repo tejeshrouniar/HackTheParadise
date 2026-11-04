@@ -10,7 +10,6 @@ import {
   type Appearance,
 } from "./appearance";
 import { AvatarGraphic, type SpriteAction } from "./AvatarGraphic";
-import expression from "../../assets/trail/expression.png";
 
 const labels: Record<keyof Appearance, string> = {
   skin: "Skin tone",
@@ -65,6 +64,7 @@ export function CharacterStudio({ onClose }: { onClose: () => void }) {
             <AvatarGraphic
               appearance={draft}
               action={action}
+              directControl={action !== "idle"}
               loop
               direction={action === "idle" ? "down" : "right"}
               x={6}
@@ -131,18 +131,7 @@ export function CharacterStudio({ onClose }: { onClose: () => void }) {
           {saving ? "Saving…" : "Save character"}
         </button>
       </div>
-      <p className="sc-character-credit">
-        <img src={expression} alt="" width="28" height="28" />
-        Original character template created by{" "}
-        <a
-          href="https://erisesra.itch.io/character-templates-pack"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Eris Esra
-        </a>
-        .
-      </p>
+
     </Modal>
   );
 }

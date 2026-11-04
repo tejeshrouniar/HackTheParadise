@@ -1,3 +1,4 @@
+import "./styles/journey.css";
 import React from "react";
 import { useAuth } from "./contexts/AuthContext";
 import { ProfileProvider } from "./features/profile/ProfileContext";

@@ -1,5 +1,6 @@
+import { realmForLesson } from "../../content/journey";
 import toast from "react-hot-toast";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -15,7 +16,6 @@ import {
 import { StageWorld } from "./StageWorld";
 import { QuestDialogs } from "../../features/learning/QuestDialogs";
 import { useQuestEngine } from "../../features/learning/useQuestEngine";
-import { StoryArtwork } from "../../features/story/StoryArtwork";
 import { chapterOutcome } from "../../content/eldoria";
 import { FOREST_CHAPTERS, FOREST_OUTCOMES } from "../../content/forestCampaign";
 import { CODEDEX_LESSONS } from "../../data/codedexLessons";
@@ -52,6 +52,12 @@ export const CodedexApp = ({
     handleNextQuest,
     currentStageInfo,
   } = state;
+  const [bridgeCrossed, setBridgeCrossed] = useState(false);
+  useEffect(() => {
+    if (!questSuccess) setBridgeCrossed(false);
+  }, [questSuccess, lesson.id]);
+  const crossing = lesson.stageType === "bridge" && questSuccess && !bridgeCrossed;
+
   async function copyCode() {
     try {
       await navigator.clipboard.writeText(code);
@@ -261,21 +267,18 @@ export const CodedexApp = ({
             </label>
           </div>
           <div className="sc-stage-canvas">
-            {lesson.stageType !== "boss" && (
-              <div className="sc-stage-backdrop">
-                <StoryArtwork lesson={lesson.id} decorative compact />
-              </div>
-            )}
+
             <div className="sc-stage-content">
-              <StageWorld state={state} />
+              <StageWorld key={lesson.id} state={state} bridgeCrossed={bridgeCrossed}
+                onBridgeCrossed={() => setBridgeCrossed(true)} />
             </div>
           </div>
           <p className="sc-action-caption" role="status">
             {questSuccess
-              ? "Beautifully done. Your spell worked."
+              ? crossing ? "Crossing the bridge…" : "Quest complete"
               : state.executionStep.label}
           </p>
-          {questSuccess && (
+          {questSuccess && !crossing && (
             <div className="sc-quest-result" role="status">
               <div>
                 <Check size={18} />
@@ -295,9 +298,7 @@ export const CodedexApp = ({
               <details>
                 <summary>What happens next?</summary>
                 <p>
-                  {lesson.id <= 8
-                    ? chapterOutcome(lesson.id, state.completedLessons)
-                    : FOREST_OUTCOMES[lesson.id]}
+                  {realmForLesson(lesson.id).lines[2]}
                 </p>
               </details>
             </div>
