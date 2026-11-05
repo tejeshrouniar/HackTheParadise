@@ -37,6 +37,10 @@ await save('dawnreach',layers);
 for(const name of ['lantern','resin_bottle','healing_herb','gold_key','soul_stone','treasure_chest','hammer','scroll','wood_log','magic_staff']) await fs.copyFile(`${icons}/${name}.png`,`${out}/${name}.png`);
 for(const name of ['sun_disc','clay_pot','obelisk','wooden_sign'])await sharp(await tile('desert/'+name)).toFile(`${out}/${name}.png`);
 await sharp(`${moon}/Tiles.png`).extract({left:64,top:248,width:32,height:32}).png().toFile(`${out}/bridge.png`);
+// One raster strip avoids independently sampled tile seams during camera movement.
+await sharp({create:{width:1280,height:32,channels:4,background:'#182820'}})
+  .composite(Array.from({length:40},(_,i)=>({input:`${out}/bridge.png`,left:i*32,top:0})))
+  .png().toFile(`${out}/walkway.png`);
 for(const name of ['oasis_top_a','oasis_top_b','oasis_fill'])await sharp(await tile('liquid/'+name)).toFile(`${out}/${name}.png`);
 await sharp(autumn).toFile(`${out}/autumn-tree.png`);
 await sharp(summer).toFile(`${out}/summer-tree.png`);

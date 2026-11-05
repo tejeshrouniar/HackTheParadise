@@ -193,14 +193,14 @@ export function AppShell() {
           aria-label="Main navigation"
           {...((small && !mobile) || tools ? { inert: "" } : {})}
         >
-          <div className="sc-brand">
+          <button className="sc-brand" aria-label="Storicode home" onClick={() => navigate("home")}>
             <span>
               <WandSparkles size={23} />
             </span>
             <strong>
               storicode<span>.</span>
             </strong>
-          </div>
+          </button>
           <button
             className="sc-mobile-close sc-icon-button"
             aria-label="Close navigation"

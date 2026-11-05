@@ -45,6 +45,9 @@ export function JourneyTrail({completed,onQuest,onLocation}:{completed:number[];
   const state = useRef({completed,onQuest,onLocation});
   state.current={completed,onQuest,onLocation};
   const chapter = Math.min(3,Math.floor(position/WIDTH));
+  const previousChapter=useRef(chapter);
+  const [arrival,setArrival]=useState<number|null>(null);
+  useEffect(()=>{if(previousChapter.current===chapter)return;previousChapter.current=chapter;setArrival(chapter);sound.playWandCast();const timer=setTimeout(()=>setArrival(null),1400);return()=>clearTimeout(timer);},[chapter]);
   const [pixelScale,setPixelScale] = useState(1);
   useEffect(()=>{
     const element=stage.current;
@@ -100,6 +103,7 @@ export function JourneyTrail({completed,onQuest,onLocation}:{completed:number[];
   return <section className="sc-walking-world" aria-label="Walk between chapters">
     <div className="sc-trail-label"><h2>{JOURNEY[chapter].place}</h2><small>{JOURNEY[chapter].levels.filter(id=>id<=progress.cleared).length}/3 spells restored</small></div>
     <div className="sc-walking-stage" ref={stage} tabIndex={0} aria-label="Journey path. Left and right to walk, Shift to run, E to enter a spell." onKeyDown={e=>key(e,true)} onKeyUp={e=>key(e,false)} onBlur={()=>{input.current={left:false,right:false,run:false};}} onClick={e=>{if((e.target as Element).closest("button"))return;const rect=e.currentTarget.getBoundingClientRect();target.current=Math.max(40,Math.min(maxX,camera+(e.clientX-rect.left)/rect.width*VIEW));pending.current=null;stage.current?.focus();}}>
+      {arrival!==null&&<animated.div className="sc-chapter-arrival" role="status" initial={{opacity:0}} animate={{opacity:[0,1,1,0]}} transition={{duration:1.4}}><small>CHAPTER {arrival+1}</small><strong>{JOURNEY[arrival].place}</strong></animated.div>}
       <svg viewBox="0 52 480 300" aria-hidden="true" className="sc-journey-scene">
         <defs><linearGradient id={mistId}><stop stopColor="#becdc8" stopOpacity="0"/><stop offset=".35" stopColor="#c8d7d1" stopOpacity=".92"/><stop offset=".5" stopColor="#d6dfd6"/><stop offset=".65" stopColor="#c8d7d1" stopOpacity=".92"/><stop offset="1" stopColor="#becdc8" stopOpacity="0"/></linearGradient></defs>
         <g transform={`translate(${-camera} 0)`}>
@@ -122,13 +126,13 @@ export function JourneyTrail({completed,onQuest,onLocation}:{completed:number[];
             <defs>
               <linearGradient id={`${mistId}-veil`}><stop stopColor="#bbc9c7" stopOpacity="0"/><stop offset=".55" stopColor="#bbc9c7" stopOpacity=".96"/><stop offset="1" stopColor="#bbc9c7"/></linearGradient>
               <filter id={`${mistId}-fog`} x="-20%" y="-20%" width="140%" height="140%">
-                <feTurbulence type="fractalNoise" baseFrequency=".014 .028" numOctaves="3" seed="8" result="noise"/>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="45" xChannelSelector="R" yChannelSelector="G"/>
-                <feGaussianBlur stdDeviation="6"/>
+                <feTurbulence type="fractalNoise" baseFrequency=".025 .018" numOctaves="3" seed="8" result="noise"/>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="85" xChannelSelector="R" yChannelSelector="G"/>
+                <feGaussianBlur stdDeviation="3"/>
               </filter>
             </defs>
-            <rect x={(progress.chapter+1)*WIDTH} y="0" width={WIDTH*3} height="352" fill="#bbc9c7"/>
-            <animated.rect x={(progress.chapter+1)*WIDTH-150} y="-30" width="290" height="412" fill={`url(#${mistId}-veil)`} filter={`url(#${mistId}-fog)`} animate={reduced?{x:0}:{x:[-8,8,-8]}} transition={{duration:14,repeat:Infinity,ease:"easeInOut"}}/>
+            <rect x={(progress.chapter+1)*WIDTH} y="0" width={WIDTH*3} height="352" fill="#6c8485"/>
+            <animated.rect x={(progress.chapter+1)*WIDTH-150} y="-30" width="340" height="412" fill={`url(#${mistId}-veil)`} filter={`url(#${mistId}-fog)`} animate={reduced?{x:0}:{x:[-8,8,-8]}} transition={{duration:14,repeat:Infinity,ease:"easeInOut"}}/>
           </g>}
         </g>
         <AvatarGraphic appearance={appearance} action={motion} directControl={motion!=="idle"} direction={direction} x={snap(position-camera-48)} y={208} size={96}/>

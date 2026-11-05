@@ -1,3 +1,5 @@
+import { SparkUnlock } from "../../features/learning/SparkUnlock";
+import { QuestAftermath } from "../../features/learning/QuestAftermath";
 import { realmForLesson } from "../../content/journey";
 import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
@@ -67,6 +69,8 @@ export const CodedexApp = ({
       toast.error("Copy was blocked. Select and copy the code instead.");
     }
   }
+  if (questSuccess && !crossing) return <QuestAftermath key={lesson.id} id={lesson.id} code={code} solution={lesson.solutionCode} logs={terminalLogs} onContinue={lesson.id < CODEDEX_LESSONS.length ? handleNextQuest : onExit}/>;
+
   return (
     <div className="sc-page sc-simple-quest">
       <div className="sc-quest-topline">
@@ -212,10 +216,11 @@ export const CodedexApp = ({
             </button>
           </div>
           <details className="sc-quest-disclosure">
-            <summary>Need a hint?</summary>
-            <p>{lesson.hint}</p>
+            <summary>Hints and solution</summary>
+            <SparkUnlock id={lesson.id} kind="hint"><p>{lesson.hint}</p></SparkUnlock>
             <details>
               <summary>Show solution</summary>
+              <SparkUnlock id={lesson.id} kind="solution">
               <pre>
                 <code>{lesson.solutionCode}</code>
               </pre>
@@ -230,6 +235,7 @@ export const CodedexApp = ({
                 Use this code
                 <ArrowRight size={14} />
               </button>
+              </SparkUnlock>
             </details>
           </details>
           <details className="sc-quest-disclosure">
@@ -278,31 +284,7 @@ export const CodedexApp = ({
               ? crossing ? "Crossing the bridge…" : "Quest complete"
               : state.executionStep.label}
           </p>
-          {questSuccess && !crossing && (
-            <div className="sc-quest-result" role="status">
-              <div>
-                <Check size={18} />
-                <strong>Quest complete</strong>
-              </div>
-              <button
-                className="sc-button mint"
-                onClick={
-                  lesson.id < CODEDEX_LESSONS.length ? handleNextQuest : onExit
-                }
-              >
-                {lesson.id < CODEDEX_LESSONS.length
-                  ? "Next quest"
-                  : "Back to quests"}
-                <ArrowRight size={16} />
-              </button>
-              <details>
-                <summary>What happens next?</summary>
-                <p>
-                  {realmForLesson(lesson.id).lines[2]}
-                </p>
-              </details>
-            </div>
-          )}
+
         </section>
       </div>
       <QuestDialogs state={state} />

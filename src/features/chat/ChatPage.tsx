@@ -1,3 +1,4 @@
+import { Suggestions } from "./Suggestions";
 import {
   useCallback,
   useEffect,
@@ -256,7 +257,7 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
   }
   if (!user)
     return (
-      <div className="sc-page">
+      <div className="sc-page"><Suggestions />
         <div className="sc-empty sc-card">
           <MessageCircle size={42} />
           <h1>Community</h1>
@@ -272,7 +273,7 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
       </div>
     );
   return (
-    <div className="sc-page">
+    <div className="sc-page"><Suggestions />
       <div className="sc-page-heading">
         <div>
           <h1>Community</h1>

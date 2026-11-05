@@ -491,3 +491,24 @@
 .sc-accessible-route button:disabled { opacity:.6; cursor:not-allowed; }
 @media(prefers-reduced-motion:reduce) { .sc-border-mist { animation:none; } }
 @media(max-width:600px) { .sc-walking-stage .sc-trail-marker { font-size:10px; padding:6px; min-height:44px; } .sc-walking-world .sc-trail-controls { gap:12px; } }
+.sc-chapter-arrival { position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; background:#10241ff2; pointer-events:none; color:#f3dfab; }
+.sc-chapter-arrival strong { font:32px Georgia,serif; }
+.sc-chapter-arrival small { letter-spacing:3px; }
+.sc-suggestions { padding:22px; margin-bottom:20px; display:grid; gap:12px; }
+.sc-suggestions textarea { padding:12px; background:#10241f; color:#f5efdb; border:1px solid #7a907e; border-radius:4px; width:100%; }
+.sc-suggestions p { color:#bdcebf; font-size:12px; }
+.sc-quest-aftermath { padding:18px; display:grid; gap:14px; }
+.sc-quest-aftermath p { line-height:1.7; }
+.sc-quest-aftermath pre { overflow:auto; max-height:240px; padding:12px; background:#10241f; }
+.sc-quest-aftermath li { padding:4px 0; font-size:12px; }
+.sc-brand:focus-visible { outline:3px solid #efd99b; outline-offset:-4px; }
+.sc-completion-page { max-width:1060px; margin:0 auto; padding:32px 24px 110px; gap:16px; }
+.sc-completion-page h1 { font:clamp(28px,4vw,42px) Georgia,serif; margin:8px 0; }
+.sc-completion-page > .sc-journey-scene { max-height:380px; border:1px solid #718771; }
+.sc-completion-page > button { justify-self:start; min-height:44px; }
+.sc-completion-page > p { font-size:17px; max-width:850px; }
+.sc-completion-code { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.sc-completion-code section { min-width:0; }
+.sc-completion-code pre { border:1px solid #50694f; max-height:320px; font-size:13px; line-height:1.7; }
+@media(max-width:650px){ .sc-completion-code { grid-template-columns:1fr; } .sc-completion-page { padding:20px 16px 110px; } }
+.sc-completion-page { scroll-margin-top:80px; }
