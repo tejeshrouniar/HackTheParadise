@@ -69,7 +69,7 @@ export const CodedexApp = ({
       toast.error("Copy was blocked. Select and copy the code instead.");
     }
   }
-  if (questSuccess && !crossing) return <QuestAftermath key={lesson.id} id={lesson.id} code={code} solution={lesson.solutionCode} logs={terminalLogs} onContinue={lesson.id < CODEDEX_LESSONS.length ? handleNextQuest : onExit}/>;
+  if (questSuccess && !crossing) return <QuestAftermath key={lesson.id} id={lesson.id} code={code} logs={terminalLogs} onContinue={lesson.id < CODEDEX_LESSONS.length ? handleNextQuest : onExit}/>;
 
   return (
     <div className="sc-page sc-simple-quest">
@@ -217,25 +217,10 @@ export const CodedexApp = ({
           </div>
           <details className="sc-quest-disclosure">
             <summary>Hints and solution</summary>
-            <SparkUnlock id={lesson.id} kind="hint"><p>{lesson.hint}</p></SparkUnlock>
+            <SparkUnlock id={lesson.id} kind="hint" />
             <details>
               <summary>Show solution</summary>
-              <SparkUnlock id={lesson.id} kind="solution">
-              <pre>
-                <code>{lesson.solutionCode}</code>
-              </pre>
-              <button
-                className="sc-link"
-                disabled={isExecuting}
-                onClick={() => {
-                  setCode(lesson.solutionCode);
-                  setErrorPointer(null);
-                }}
-              >
-                Use this code
-                <ArrowRight size={14} />
-              </button>
-              </SparkUnlock>
+              <SparkUnlock id={lesson.id} kind="solution" onUse={isExecuting?undefined:(code)=>{setCode(code);setErrorPointer(null);}} />
             </details>
           </details>
           <details className="sc-quest-disclosure">

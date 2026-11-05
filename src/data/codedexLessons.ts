@@ -33,10 +33,6 @@ export interface CodedexLesson {
   // Editor initial code (clean with "type code here")
   initialCode: string;
 
-  // Hint & Solution
-  hint: string;
-  solutionCode: string;
-
   // Stage configuration
   stageType:
     | "dragon"
@@ -66,17 +62,7 @@ export const CODEDEX_LESSONS: CodedexLesson[] = [
     howToWriteTitle: "⌨️ How do I give commands to your avatar?",
     howToWriteBody:
       "To make your avatar act, write the object name `player`, a dot `.` and the action with parentheses `()`:",
-    codeExample: `# Make your avatar step forward 1 tile:
-player.move_forward()
-
-# Turn 90 degrees to the right:
-player.turn_right()
-
-# Turn 90 degrees to the left:
-player.turn_left()
-
-# Pick up a crystal on his tile:
-player.collect_crystal()`,
+    codeExample: "player.move_forward()\nplayer.turn_left()",
 
     taskObjective:
       "Move from your starting tile at (0, 0) to collect the Core fragment at (2, 2)!",
@@ -107,14 +93,6 @@ player.collect_crystal()`,
 
 `,
 
-    hint: "your avatar starts at (0, 0) facing RIGHT. Write player.move_forward() twice, player.turn_right(), player.move_forward() twice, and finish with player.collect_crystal()!",
-    solutionCode: `player.move_forward()
-player.move_forward()
-player.turn_right()
-player.move_forward()
-player.move_forward()
-player.collect_crystal()`,
-
     stageType: "dragon",
     stageConfig: {
       gridSize: 5,
@@ -142,14 +120,7 @@ player.collect_crystal()`,
     howToWriteTitle: "🍾 How do I give a variable?",
     howToWriteBody:
       "To create a variable, write the name of your magic bottle on the left, an equal sign `=` in the middle, and the value on the right:",
-    codeExample: `# Create a bottle for mana power:
-mana_flask = 100
-
-# Store the number of star drops:
-star_dew = 3
-
-# Another named quantity:
-moon_dust = 2`,
+    codeExample: "mana_flask = 20\nstar_dew = 1",
 
     taskObjective:
       "Assign 100 power to mana_flask, store 3 drops of star_dew, and call cauldron.brew_elixir() to brew the potion!",
@@ -175,11 +146,6 @@ moon_dust = 2`,
 
 `,
 
-    hint: "Type: mana_flask = 100, on the next line write: star_dew = 3, and on the third line write: cauldron.brew_elixir()",
-    solutionCode: `mana_flask = 100
-star_dew = 3
-cauldron.brew_elixir()`,
-
     stageType: "potion",
     stageConfig: {
       targetVariables: { mana_flask: 100, star_dew: 3 },
@@ -201,9 +167,7 @@ cauldron.brew_elixir()`,
     howToWriteTitle: "🔁 How do I write a loop in Python?",
     howToWriteBody:
       "In Python, we use a `for` loop with `range(number):`. Notice the colon `:` at the end and the 4 spaces of indentation inside:",
-    codeExample: `# Repeat an action 6 times:
-for step in range(6):
-    grow_flower()  # 4 spaces indentation!`,
+    codeExample: "for step in range(2):\n    grow_flower()",
 
     taskObjective:
       "Write a loop that repeats 6 times to cultivate 6 enchanted flowers across the meadow path!",
@@ -223,10 +187,6 @@ for step in range(6):
     initialCode: `# Write a repeat loop to bloom 6 flowers!
 
 `,
-
-    hint: "Write: for step in range(6): and on the next line indent 4 spaces and write: grow_flower()",
-    solutionCode: `for step in range(6):
-    grow_flower()`,
 
     stageType: "garden",
     stageConfig: {
@@ -249,13 +209,7 @@ for step in range(6):
     howToWriteTitle: "📜 How do I define and call a function?",
     howToWriteBody:
       "Use the `def` keyword (short for define), write your function name with `():`, and call it at the bottom:",
-    codeExample: `# 1. Define the reusable spell scroll:
-def build_bridge():
-    for step in range(4):
-        place_starlight_tile()
-
-# 2. Call the function to cast it:
-build_bridge()`,
+    codeExample: "def practice_bridge():\n    place_starlight_tile()\n\npractice_bridge()",
 
     taskObjective:
       "Define function build_bridge() with 4 starlight tiles, then call build_bridge() to cross the astral chasm!",
@@ -281,13 +235,6 @@ build_bridge()`,
 
 `,
 
-    hint: "Define: def build_bridge(): with place_starlight_tile() inside, and at the bottom call: build_bridge()",
-    solutionCode: `def build_bridge():
-    for step in range(4):
-        place_starlight_tile()
-
-build_bridge()`,
-
     stageType: "bridge",
     stageConfig: {
       targetBridge: 4,
@@ -309,15 +256,7 @@ build_bridge()`,
     howToWriteTitle: "🔍 How do I find and fix the curse?",
     howToWriteBody:
       "The dungeon altar has 3 ancient runes (#1, #2, #3). But someone chanted `purify_rune(9)`! Rune #9 does not exist—trying to touch an item that isn't there causes an **Index Error**.",
-    codeExample: `# Buggy Spell:
-purify_rune(1)
-purify_rune(2)
-purify_rune(9)  # ❌ Error! Only 3 runes exist!
-
-# Fixed Spell:
-purify_rune(1)
-purify_rune(2)
-purify_rune(3)  # ✅ Cleanses the 3rd rune!`,
+    codeExample: "purify_rune(1)  # Select one valid rune by its number",
 
     taskObjective:
       "Purify all three runes (1, 2, 3) to break the chains and unlock the dungeon vault door!",
@@ -345,11 +284,6 @@ purify_rune(2)
 purify_rune(9)  # ⚠️ Bug: Change 9 to 3!
 `,
 
-    hint: "Change purify_rune(9) on line 4 to purify_rune(3). Then click Cast Spell!",
-    solutionCode: `purify_rune(1)
-purify_rune(2)
-purify_rune(3)`,
-
     stageType: "curse",
     stageConfig: {
       targetRunes: [1, 2, 3],
@@ -371,14 +305,7 @@ purify_rune(3)`,
     howToWriteTitle: "⚙️ How do I write a function with parameters & return?",
     howToWriteBody:
       "Define the function with parameters in the parentheses, perform the calculation, and return the result:",
-    codeExample: `# Define a spell that doubles power:
-def calculate_flux(core_power):
-    return core_power * 2
-
-# Align rings and charge the gate:
-align_gate_rings()
-total_flux = calculate_flux(100)
-charge_stargate(total_flux)`,
+    codeExample: "def double_energy(value):\n    return value * 2\n\nenergy = double_energy(15)",
 
     taskObjective:
       "Align the celestial rings, define calculate_flux(core_power) to return core_power * 2, and charge the stargate to 200 Flux!",
@@ -409,14 +336,6 @@ charge_stargate(total_flux)`,
 
 `,
 
-    hint: "Call align_gate_rings(), define def calculate_flux(core_power): with return core_power * 2, then call charge_stargate(200)!",
-    solutionCode: `align_gate_rings()
-
-def calculate_flux(core_power):
-    return core_power * 2
-
-charge_stargate(calculate_flux(100))`,
-
     stageType: "stargate",
     stageConfig: {
       targetFlux: 200,
@@ -438,14 +357,7 @@ charge_stargate(calculate_flux(100))`,
     howToWriteTitle: "💎 How do I create and sort a list?",
     howToWriteBody:
       "Create a list of numbers or items, then use .sort() to order them from lowest to highest:",
-    codeExample: `# A fractured list of time crystals:
-crystals = [4, 1, 3, 2]
-
-# Sort the crystals in ascending order:
-crystals.sort()
-
-# Stabilize the timeline:
-stabilize_vortex(crystals)`,
+    codeExample: "crystals = [8, 2, 5]\ncrystals.sort()",
 
     taskObjective:
       "Store fractured crystals [4, 1, 3, 2], sort them with crystals.sort(), and stabilize the chrono vortex!",
@@ -472,11 +384,6 @@ crystals = [4, 1, 3, 2]
 
 `,
 
-    hint: "Add crystals.sort() and stabilize_vortex(crystals) below the list declaration!",
-    solutionCode: `crystals = [4, 1, 3, 2]
-crystals.sort()
-stabilize_vortex(crystals)`,
-
     stageType: "chrono",
     stageConfig: {
       targetOrder: [1, 2, 3, 4],
@@ -497,16 +404,8 @@ stabilize_vortex(crystals)`,
 
     howToWriteTitle: "⚔️ How do I assemble the Master Spell?",
     howToWriteBody:
-      "1. Set mana_shield = 100. 2. Loop cast_starlight_bolt() 3 times. 3. Call restore_core() for the finishing blow:",
-    codeExample: `# 1. Shield up:
-mana_shield = 100
-
-# 2. 3-round bolt barrage (deals 60 dmg):
-for bolt in range(3):
-    cast_starlight_bolt()
-
-# 3. Break the last binding (deals 40 dmg):
-restore_core()`,
+      "Store shield energy in a variable, use an indented loop for repeated actions, and finish with a separate function call. Choose the values required by your mission.",
+    codeExample: "mana_shield = 25\nfor bolt in range(1):\n    cast_starlight_bolt()",
 
     taskObjective:
       "Assemble the master spell: raise mana_shield = 100, cast 3 starlight bolts with a loop, and finish with restore_core()!",
@@ -537,12 +436,6 @@ restore_core()`,
     initialCode: `# Assemble your grand master spell to break Malachar’s binding!
 
 `,
-
-    hint: "Write mana_shield = 100, then for bolt in range(3): cast_starlight_bolt(), and finally restore_core()!",
-    solutionCode: `mana_shield = 100
-for bolt in range(3):
-    cast_starlight_bolt()
-restore_core()`,
 
     stageType: "boss",
     stageConfig: {

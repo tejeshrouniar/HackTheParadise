@@ -30,25 +30,17 @@ const outcomes = [
 "You send the last light home. The mist lifts, and your village returns."
 ];
 export function QuestAftermath({id,code,solution,logs,onContinue}:{id:number;code:string;solution:string;logs:string[];onContinue:()=>void}) {
+  const audio=useRef<HTMLAudioElement>(null);
   const [speaking,setSpeaking]=useState(false);
   const [voiceNotice,setVoiceNotice]=useState("");
-  const voiceTimer=useRef<ReturnType<typeof setTimeout>>();
-  const supported=typeof window!=="undefined" && "speechSynthesis" in window;
-  useEffect(()=>()=>{clearTimeout(voiceTimer.current);if(supported)window.speechSynthesis.cancel();},[supported]);
   function readAloud(){
-    if(!supported){setVoiceNotice("Narration is unavailable in this browser. The full text is below.");return;}
-    clearTimeout(voiceTimer.current);window.speechSynthesis.cancel();
-    if(speaking){setSpeaking(false);return;}
-    const speech=new SpeechSynthesisUtterance(outcomes[id-1]+" "+explanations[id-1]);
-    speech.lang="en-US";speech.rate=.92;
-    const voice=window.speechSynthesis.getVoices().find(item=>item.lang.startsWith("en"));
-    if(voice)speech.voice=voice;
-    setVoiceNotice("");setSpeaking(true);
-    speech.onstart=()=>clearTimeout(voiceTimer.current);
-    speech.onend=()=>setSpeaking(false);
-    speech.onerror=()=>{clearTimeout(voiceTimer.current);setSpeaking(false);setVoiceNotice("Voice could not play. Try Read aloud again or use the text below.");};
-    voiceTimer.current=setTimeout(()=>{window.speechSynthesis.cancel();setSpeaking(false);setVoiceNotice("Your browser did not start a voice. Try Read aloud again.");},6000);
-    window.speechSynthesis.resume();window.speechSynthesis.speak(speech);
+    const player=audio.current;
+    if(!player)return;
+    if(!player.paused){player.pause();return;}
+    if(player.ended)player.currentTime=0;
+    setVoiceNotice("");
+    // Invoke directly from the click: mobile browsers require a user gesture.
+    void player.play().catch(()=>setVoiceNotice("Press play in the audio controls to hear the narration. Captions remain below."));
   }
   const section=useRef<HTMLElement>(null);
   const [snapshot]=useState(()=>({code,logs:[...logs]}));
@@ -58,8 +50,9 @@ export function QuestAftermath({id,code,solution,logs,onContinue}:{id:number;cod
   return <section ref={section} tabIndex={-1} className="sc-quest-aftermath sc-completion-page" aria-label="Your spell changed the story">
     <header><span className="sc-eyebrow">SPELL COMPLETE · CHAPTER {chapter+1}</span><h1>{JOURNEY[chapter].stops[beat]}</h1></header>
     <JourneyScene chapter={chapter} beat={beat} playing={!ready}/>
-    <button className="sc-button secondary" onClick={readAloud} disabled={!supported}>{speaking?"Stop narration":"Read aloud"}</button>
-    <small role="status">{supported?voiceNotice:"Voice unavailable in this browser; read the story below."}</small>
+    <button className="sc-button secondary" onClick={readAloud}>{speaking?"Pause narration":"Read aloud"}</button>
+    <audio ref={audio} controls preload="metadata" aria-label="Completion narration" style={{width:"100%",maxWidth:480}} src={import.meta.env.BASE_URL+"narration/quest-"+id+".wav"} onPlay={()=>{setSpeaking(true);setVoiceNotice("");}} onPause={()=>setSpeaking(false)} onEnded={()=>setSpeaking(false)} onError={()=>{setSpeaking(false);setVoiceNotice("Narration could not load. Check your connection and reload; the full text is below.");}} />
+    {voiceNotice&&<small role="status">{voiceNotice}</small>}
     <p aria-live="polite">{outcomes[id-1]}</p>
     <h3>How your spell worked</h3>
     <p>{explanations[id-1]}</p>

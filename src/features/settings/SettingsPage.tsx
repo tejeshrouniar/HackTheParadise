@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SparkWalletCard } from "../learning/SparkWalletCard";
 import {
   LogOut,
   ShieldCheck,
@@ -55,6 +56,7 @@ export default function SettingsPage({
         </div>
       </div>
       <div className="sc-settings-grid">
+        <SparkWalletCard onSignIn={onSignIn} />
         <section className="sc-card sc-settings-card">
           <h2>
             <UserRound size={21} />

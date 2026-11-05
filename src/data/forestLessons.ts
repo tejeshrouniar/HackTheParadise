@@ -11,20 +11,18 @@ export function forestLessons(base: CodedexLesson[]): CodedexLesson[] {
       conceptName: chapter.conceptName,
       whatIsThisTitle: chapter.conceptName,
       whatIsThisBody: chapter.story,
-      howToWriteTitle: "Try this spell",
-      howToWriteBody: chapter.hint,
-      codeExample: chapter.solution,
+      howToWriteTitle: "Practice the idea",
+      howToWriteBody: "Try the small example below, then adapt the values and actions to your mission. The example demonstrates syntax; it does not finish the level.",
+      codeExample: example.codeExample,
       taskObjective: chapter.objective,
       tasks: [
         {
           id: `forest-${chapter.id}`,
           description: chapter.objective,
-          codeKeyword: chapter.solution.split("\n")[0],
+          codeKeyword: example.tasks[0].codeKeyword,
         },
       ],
       initialCode: "# Write your spell below\n",
-      hint: chapter.hint,
-      solutionCode: chapter.solution,
       stageConfig: { ...example.stageConfig, target: chapter.target },
     };
   });

@@ -512,3 +512,14 @@
 .sc-completion-code pre { border:1px solid #50694f; max-height:320px; font-size:13px; line-height:1.7; }
 @media(max-width:650px){ .sc-completion-code { grid-template-columns:1fr; } .sc-completion-page { padding:20px 16px 110px; } }
 .sc-completion-page { scroll-margin-top:80px; }
+.sc-spark-unlock { display:grid; gap:12px; padding:16px 0; }
+.sc-spark-unlock p { margin:0; }
+.sc-spark-unlock .sc-button,.sc-spark-unlock .sc-link { justify-self:start; min-height:44px; }
+.sc-spark-unlock small { color:#bdcebf; }
+.sc-wallet-balance { font-size:36px; color:#efd99b; margin:12px 0; }
+.sc-wallet-balance span { font-size:16px; }
+.sc-wallet-card details { margin-top:20px; }
+.sc-wallet-card summary { cursor:pointer; min-height:44px; padding:12px 0; }
+.sc-wallet-card ul { list-style:none; padding:0; }
+.sc-wallet-card li { display:flex; flex-wrap:wrap; gap:8px; justify-content:space-between; padding:12px 0; border-top:1px solid #50694f; }
+.sc-completion-page audio { width:min(100%,460px); }

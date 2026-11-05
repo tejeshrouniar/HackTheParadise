@@ -541,7 +541,7 @@ export function useQuestEngine(
         const err: ErrorPointer = {
           lineIndex: Math.max(0, lines.length - 1),
           message: "Bridge incomplete!",
-          suggestion: lesson.hint,
+          suggestion: "Check your mission's required actions and values. The quest guide explains the syntax.",
         };
         setErrorPointer(err);
         throw new Error(err.message);
@@ -557,7 +557,7 @@ export function useQuestEngine(
         const err: ErrorPointer = {
           lineIndex: 2,
           message: "The required runes are still sealed!",
-          suggestion: lesson.hint,
+          suggestion: "Check your mission's required actions and values. The quest guide explains the syntax.",
         };
         setErrorPointer(err);
         throw new Error(err.message);
@@ -569,7 +569,7 @@ export function useQuestEngine(
         const err: ErrorPointer = {
           lineIndex: 0,
           message: "Stargate not fully powered!",
-          suggestion: lesson.hint,
+          suggestion: "Check your mission's required actions and values. The quest guide explains the syntax.",
         };
         setErrorPointer(err);
         throw new Error(err.message);

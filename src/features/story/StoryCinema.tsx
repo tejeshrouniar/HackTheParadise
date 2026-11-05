@@ -1,5 +1,5 @@
 import { journeyProgress } from "../learning/journeyProgress";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AvatarGraphic } from "../adventure/AvatarGraphic";
 import { useAppearance } from "../adventure/AppearanceContext";
 import { JOURNEY } from "../../content/journey";
@@ -63,66 +63,59 @@ export function StoryCinema({ chapter, onQuest }: { chapter: number; onQuest: (i
   const [notice, setNotice] = useState("");
   const music = useMusic();
   const { preferences, update } = usePreferences();
-  const supported = typeof window !== "undefined" && "speechSynthesis" in window;
+  const audio = useRef<HTMLAudioElement>(null);
+  const advance = useRef(false);
+  const source = import.meta.env.BASE_URL+"narration/story-"+chapter+"-"+beat+".wav";
+  function playAudio() {
+    const player=audio.current;
+    if(!player)return;
+    setNotice("");
+    if(player.ended)player.currentTime=0;
+    void player.play().catch(()=>{
+      setPlaying(false);
+      setNotice("Press Play scene or use the audio controls to start narration.");
+    });
+  }
+  function nextScene() {
+    if(beat===2 || !nextUnlocked){setPlaying(false);return;}
+    advance.current=true;
+    setBeat(value=>value+1);
+  }
+  function selectScene(value:number) {
+    advance.current=false;
+    audio.current?.pause();
+    setPlaying(false);setNotice("");setBeat(value);
+  }
+  // Keep the same audio element across scenes, so an unlocked playback session
+  // can continue. A rejected play still leaves a visible manual control.
+  useEffect(()=>{
+    if(advance.current){
+      advance.current=false;
+      if(narrate)playAudio();else setPlaying(true);
+    }
+  },[source]);
   useEffect(() => {
     if (!playing || !unlocked) return;
-    let active = true;
-    let timer: ReturnType<typeof setTimeout>;
-    const started = Date.now();
-    const next = () => {
-      if (!active) return;
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        if (!active) return;
-        if (beat === 2 || !nextUnlocked) setPlaying(false);
-        else setBeat(value => value + 1);
-      }, Math.max(0, 5500 - (Date.now() - started)));
-    };
-    const fallback = () => {
-      if (!active) return;
-      clearTimeout(timer);
-      setNotice("Voice unavailable. Captions are playing.");
-      timer = setTimeout(next, Math.max(5500, realm.lines[beat].length * 55));
-    };
     sound.playWandCast();
-    if (narrate && supported) {
-      const utterance = new SpeechSynthesisUtterance(realm.lines[beat]);
-      utterance.lang = "en-US";
-      utterance.rate = 0.94;
-      utterance.volume = 0.85;
-      utterance.onend = next;
-      utterance.onerror = fallback;
-      // A browser may expose speech synthesis before any voices are ready.
-      timer = setTimeout(() => {
-        utterance.onerror = null;
-        utterance.onend = null;
-        window.speechSynthesis.cancel();
-        fallback();
-      }, 5000);
-      utterance.onstart = () => clearTimeout(timer);
-      window.speechSynthesis.speak(utterance);
-    } else timer = setTimeout(next, Math.max(5500, realm.lines[beat].length * 55));
-    return () => {
-      active = false;
-      clearTimeout(timer);
-      if (supported) window.speechSynthesis.cancel();
-    };
+    if(narrate)return; // Narrated scenes advance on the actual audio's end.
+    const timer=setTimeout(nextScene,Math.max(5500,realm.lines[beat].length*55));
+    return()=>clearTimeout(timer);
   }, [playing, beat, narrate, chapter, unlocked, nextUnlocked]);
   if (!unlocked) return <section className="sc-cinema sc-locked-scene"><h3>Scene {beat + 1} is locked</h3><p>Complete “{realm.stops[beat]}” to reveal this part of your story.</p><button className="sc-button mint" onClick={() => onQuest(realm.levels[beat])}>Play level {realm.levels[beat]}</button>{beat > 0 && <button className="sc-button secondary" onClick={() => setBeat(beat - 1)}>Previous scene</button>}{beat < 2 && <button className="sc-button secondary" onClick={() => setBeat(beat + 1)}>Next scene</button>}</section>;
   return <section className="sc-cinema" aria-label="Story cutscene">
     <JourneyScene chapter={chapter} beat={beat} playing={playing} />
     <p className="sc-cinema-caption" aria-live="polite">{realm.lines[beat]}</p>
+    <audio ref={audio} controls={narrate} preload="metadata" aria-label="Story narration" style={{width:"100%",maxWidth:480,display:narrate?"block":"none"}} src={source} onPlay={()=>{setPlaying(true);setNotice("");}} onPause={()=>setPlaying(false)} onEnded={nextScene} onError={()=>{setPlaying(false);setNotice("Narration could not load. You can turn narration off to play with captions.");}} />
     <div className="sc-cinema-controls">
-      <button className="sc-button mint" onClick={() => { if (!playing && beat === 2 && completed.includes(realm.levels[0])) setBeat(0); setPlaying(!playing); }}>{playing ? "Pause" : "Play scene"}</button>
-      <button className="sc-button secondary" disabled={beat === 0} onClick={() => setBeat(beat - 1)}>Previous</button>
+      <button className="sc-button mint" onClick={() => {if(playing){audio.current?.pause();setPlaying(false);}else if(narrate)playAudio();else setPlaying(true);}}>{playing ? "Pause" : "Play scene"}</button>
+      <button className="sc-button secondary" disabled={beat === 0} onClick={() => selectScene(beat - 1)}>Previous</button>
       <span>{beat + 1} / 3</span>
-      <button className="sc-button secondary" disabled={beat === 2} onClick={() => setBeat(beat + 1)}>{nextUnlocked ? "Next" : "Next · locked"}</button>
+      <button className="sc-button secondary" disabled={beat === 2} onClick={() => selectScene(beat + 1)}>{nextUnlocked ? "Next" : "Next · locked"}</button>
       <label><input type="checkbox" checked={preferences.sound_effects} onChange={e=>void update({sound_effects:e.target.checked}).catch(()=>setNotice("Sound preference could not be saved."))}/> Effects</label>
-      <label><input type="checkbox" checked={narrate} disabled={!supported} onChange={e=>setNarrate(e.target.checked)} /> Narration</label>
+      <label><input type="checkbox" checked={narrate} onChange={e=>{audio.current?.pause();setPlaying(false);setNarrate(e.target.checked);setNotice("");}} /> Narration</label>
       <button className="sc-button secondary" onClick={()=>music.playing ? music.pause() : void music.play()}>{music.playing ? "Music off" : "Music on"}</button>
     </div>
     {notice && <small role="status">{notice}</small>}
-    {!supported && <small>Speech is unavailable in this browser. Captions remain available.</small>}
   </section>;
 }
 
