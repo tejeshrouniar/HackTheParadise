@@ -29,8 +29,15 @@
 .sc-cinema small { display:block; padding:10px 16px; }
 .sc-chapter-missions { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:20px 0; }
 .sc-chapter-missions button { display:grid; gap:10px; text-align:left; padding:18px; border:1px solid #526e60; background:#142b24; border-radius:4px; }
+.sc-chapter-missions button:disabled { opacity:.48; cursor:not-allowed; }
+.sc-saga-archive { margin:28px 38px 110px; border:1px solid #385548; border-radius:5px; background:#10271f; }
+.sc-saga-archive > summary { padding:16px 20px; cursor:pointer; color:#e5cc90; font-weight:600; }
+.sc-saga-archive > summary:focus-visible { outline:2px solid #e5cc90; outline-offset:3px; }
+.sc-saga-archive[open] > summary { border-bottom:1px solid #385548; }
+.sc-saga-archive > p { padding:0 20px; color:#b7cabb; }
+.sc-saga-archive > .sc-page { padding:20px; }
 .sc-journey-reader h2 { font:30px Georgia,serif; }
-@media(max-width:700px) { .sc-realm-grid,.sc-chapter-missions { grid-template-columns:1fr; } .sc-site-footer { margin:15px 16px 90px; } .sc-cinema-caption { font-size:14px; padding:14px; } }
+@media(max-width:700px) { .sc-realm-grid,.sc-chapter-missions { grid-template-columns:1fr; } .sc-site-footer { margin:15px 16px 90px; } .sc-cinema-caption { font-size:14px; padding:14px; } .sc-saga-archive { margin:24px 20px 100px; } .sc-saga-archive > .sc-page { padding:16px; } }
 
 .sc-locked-scene { padding:32px; min-height:220px; display:flex; flex-wrap:wrap; align-content:center; gap:18px; }
 .sc-locked-scene h3,.sc-locked-scene p { width:100%; }

@@ -3,8 +3,8 @@
  * 📖 STORICODE GRAND STORY SAGAS ARCHIVE
  * ═════════════════════════════════════════════════════════════════════════════
  * 
- * This file serves as the definitive lore encyclopedia, cinematic script repository,
- * and curriculum database for Storicode's 5 Epic Fantasy Sagas across 5 Programming Languages:
+ * This file contains the browser-safe lore and cinematic scripts for five story sagas.
+ * Playable lesson instructions stay in the lesson catalog; Spark-gated answers stay server-side.
  * 
  * 1. 🐍 SAGA I: "The Chronicles of Eldoria: The Archmage's Starlight Core" (Python)
  *    - Hogwarts & Kingkiller Chronicle style Arcane Wizard Academy
@@ -17,8 +17,7 @@
  * 5. 🌊 SAGA V: "The Sunken Archive: The Lost Tomes of Atlantis" (SQL)
  *    - Atlantis / Library of Alexandria mystical relational queries & abyssal vaults
  * 
- * Designed to be modular, strictly typed, and easily consumed by both human developers
- * and AI systems (such as ChatGPT, Claude, and Gemini) for seamless extension and joining.
+ * Keep this archive focused on narrative and scene presentation data.
  */
 
 export interface StoryChoice {
@@ -61,7 +60,7 @@ export interface StoryChapterData {
   themeColor: string;
   loreIntro: string;
   beats: StoryBeat[];
-  // Level & Quest Data
+  // Link to the playable lesson catalog. Unavailable links remain sealed in Storybook.
   questLevelId: number;
   stageType:
     | "dragon"
@@ -72,17 +71,6 @@ export interface StoryChapterData {
     | "stargate"
     | "chrono"
     | "boss";
-  taskObjective: string;
-  tasks: Array<{
-    id: string;
-    description: string;
-    codeKeyword: string;
-  }>;
-  initialCode: string;
-  hint: string;
-  solutionCode: string;
-  codeExample: string;
-  stageConfig: any;
   outcomeText: string;
 }
 
@@ -177,18 +165,6 @@ export const SAGA_ELDORIA: MagicalSaga = {
       ],
       questLevelId: 1,
       stageType: "dragon",
-      taskObjective: "Move from (0, 0) to collect the Core fragment at (2, 2)!",
-      tasks: [
-        { id: "t1", description: "Move forward 2 times.", codeKeyword: "player.move_forward()" },
-        { id: "t2", description: "Turn right.", codeKeyword: "player.turn_right()" },
-        { id: "t3", description: "Move forward 2 times.", codeKeyword: "player.move_forward()" },
-        { id: "t4", description: "Collect crystal.", codeKeyword: "player.collect_crystal()" },
-      ],
-      initialCode: "# Guide your avatar with commands:\nplayer.move_forward()\n",
-      hint: "Call player.move_forward() twice, then player.turn_right(), then player.move_forward() twice, and finally player.collect_crystal()!",
-      solutionCode: "player.move_forward()\nplayer.move_forward()\nplayer.turn_right()\nplayer.move_forward()\nplayer.move_forward()\nplayer.collect_crystal()",
-      codeExample: "player.move_forward()\nplayer.turn_right()\nplayer.collect_crystal()",
-      stageConfig: { gridSize: 5, startX: 0, startY: 0, startDir: "RIGHT", targetX: 2, targetY: 2, obstacles: [{ x: 1, y: 1 }] },
       outcomeText: "The golden crystal resonates in your palms. The dormant torches of the Academy burst into sapphire flame!",
     },
     {
@@ -227,17 +203,6 @@ export const SAGA_ELDORIA: MagicalSaga = {
       ],
       questLevelId: 2,
       stageType: "potion",
-      taskObjective: "Store 100 in mana_flask, 3 in star_dew, and call cauldron.brew_elixir()!",
-      tasks: [
-        { id: "t1", description: "Set mana_flask = 100", codeKeyword: "mana_flask = 100" },
-        { id: "t2", description: "Set star_dew = 3", codeKeyword: "star_dew = 3" },
-        { id: "t3", description: "Call cauldron.brew_elixir()", codeKeyword: "cauldron.brew_elixir()" },
-      ],
-      initialCode: "# Assign your ingredients:\nmana_flask = \nstar_dew = \n\n",
-      hint: "Write: mana_flask = 100, then star_dew = 3, then cauldron.brew_elixir()",
-      solutionCode: "mana_flask = 100\nstar_dew = 3\ncauldron.brew_elixir()",
-      codeExample: "mana_flask = 100\nstar_dew = 3\ncauldron.brew_elixir()",
-      stageConfig: { targetVariables: { mana_flask: 100, star_dew: 3 } },
       outcomeText: "A column of glowing cyan steam erupts! The Potion of Luminescence cures the poisoned vines suffocating the garden gate.",
     },
     {
@@ -273,16 +238,6 @@ export const SAGA_ELDORIA: MagicalSaga = {
       ],
       questLevelId: 3,
       stageType: "garden",
-      taskObjective: "Write a loop that repeats 6 times to cultivate 6 enchanted lotus flowers!",
-      tasks: [
-        { id: "t1", description: "Loop 6 times with for step in range(6):", codeKeyword: "for step in range(6):" },
-        { id: "t2", description: "Call grow_flower() inside the loop", codeKeyword: "grow_flower()" },
-      ],
-      initialCode: "# Cultivate the blooming path:\nfor step in range(6):\n    ",
-      hint: "Indent 4 spaces and write: grow_flower() under the for loop header.",
-      solutionCode: "for step in range(6):\n    grow_flower()",
-      codeExample: "for step in range(6):\n    grow_flower()",
-      stageConfig: { targetFlowers: 6 },
       outcomeText: "Six radiant lotus blossoms unfurl in rhythmic harmony! Their petals release a warm floral chime as the path clears.",
     },
     {
@@ -318,17 +273,6 @@ export const SAGA_ELDORIA: MagicalSaga = {
       ],
       questLevelId: 4,
       stageType: "bridge",
-      taskObjective: "Define build_bridge() with 4 tiles and call build_bridge() to span the rift!",
-      tasks: [
-        { id: "t1", description: "Define function build_bridge():", codeKeyword: "def build_bridge():" },
-        { id: "t2", description: "Loop 4 times with place_starlight_tile()", codeKeyword: "place_starlight_tile()" },
-        { id: "t3", description: "Call build_bridge()", codeKeyword: "build_bridge()" },
-      ],
-      initialCode: "# Define and invoke your bridge spell:\ndef build_bridge():\n    for step in range(4):\n        place_starlight_tile()\n\n",
-      hint: "Ensure you call build_bridge() at the root indentation level after defining it!",
-      solutionCode: "def build_bridge():\n    for step in range(4):\n        place_starlight_tile()\n\nbuild_bridge()",
-      codeExample: "def build_bridge():\n    for step in range(4):\n        place_starlight_tile()\n\nbuild_bridge()",
-      stageConfig: { targetBridge: 4 },
       outcomeText: "Four crystalline arches of solid starlight coalesce over the abyss! The bridge rings with celestial harmonics.",
     },
     {
@@ -364,17 +308,6 @@ export const SAGA_ELDORIA: MagicalSaga = {
       ],
       questLevelId: 5,
       stageType: "curse",
-      taskObjective: "Fix the bug: purify valid runes 1, 2, and 3 to shatter the dark curse!",
-      tasks: [
-        { id: "t1", description: "Purify rune 1", codeKeyword: "purify_rune(1)" },
-        { id: "t2", description: "Purify rune 2", codeKeyword: "purify_rune(2)" },
-        { id: "t3", description: "Fix bug to purify rune 3", codeKeyword: "purify_rune(3)" },
-      ],
-      initialCode: "# Fix the bug on line 3:\npurify_rune(1)\npurify_rune(2)\npurify_rune(9)  # ⚠️ Bug: Rune 9 does not exist!\n",
-      hint: "Change purify_rune(9) to purify_rune(3) to cleanse the third altar rune.",
-      solutionCode: "purify_rune(1)\npurify_rune(2)\npurify_rune(3)",
-      codeExample: "purify_rune(1)\npurify_rune(2)\npurify_rune(3)",
-      stageConfig: { targetRunes: [1, 2, 3] },
       outcomeText: "The obsidian chains shatter like brittle glass! A wave of pure white light dispels the miasma from the crypt.",
     },
     {
@@ -410,17 +343,6 @@ export const SAGA_ELDORIA: MagicalSaga = {
       ],
       questLevelId: 6,
       stageType: "stargate",
-      taskObjective: "Align rings, define calculate_flux(core_power) returning core_power * 2, and charge gate to 200 Flux!",
-      tasks: [
-        { id: "t1", description: "Align the gate rings", codeKeyword: "align_gate_rings()" },
-        { id: "t2", description: "Define calculate_flux(core_power)", codeKeyword: "def calculate_flux" },
-        { id: "t3", description: "Charge gate with return value", codeKeyword: "charge_stargate" },
-      ],
-      initialCode: "# Align rings and charge the gate to 200 Flux:\nalign_gate_rings()\n\ndef calculate_flux(core_power):\n    return core_power * 2\n\n",
-      hint: "Call charge_stargate(calculate_flux(100)) to deliver 200 units of celestial flux.",
-      solutionCode: "align_gate_rings()\n\ndef calculate_flux(core_power):\n    return core_power * 2\n\ncharge_stargate(calculate_flux(100))",
-      codeExample: "align_gate_rings()\ndef calculate_flux(core_power):\n    return core_power * 2\ncharge_stargate(calculate_flux(100))",
-      stageConfig: { targetFlux: 200 },
       outcomeText: "The concentric bronze rings spin with a deep hum! A shimmering wormhole opens directly into the Chrono Vault.",
     },
     {
@@ -456,17 +378,6 @@ export const SAGA_ELDORIA: MagicalSaga = {
       ],
       questLevelId: 7,
       stageType: "chrono",
-      taskObjective: "Declare crystals = [4, 1, 3, 2], sort them with crystals.sort(), and stabilize the vortex!",
-      tasks: [
-        { id: "t1", description: "Declare crystals = [4, 1, 3, 2]", codeKeyword: "crystals = [4, 1, 3, 2]" },
-        { id: "t2", description: "Sort list in ascending order", codeKeyword: "crystals.sort()" },
-        { id: "t3", description: "Call stabilize_vortex(crystals)", codeKeyword: "stabilize_vortex(crystals)" },
-      ],
-      initialCode: "crystals = [4, 1, 3, 2]\n# Sort the crystals and stabilize the vortex:\n",
-      hint: "Write crystals.sort() on line 2 and stabilize_vortex(crystals) on line 3.",
-      solutionCode: "crystals = [4, 1, 3, 2]\ncrystals.sort()\nstabilize_vortex(crystals)",
-      codeExample: "crystals = [4, 1, 3, 2]\ncrystals.sort()\nstabilize_vortex(crystals)",
-      stageConfig: { targetOrder: [1, 2, 3, 4] },
       outcomeText: "The crystals lock into numerical harmony [1, 2, 3, 4]! Time rushes forward, and the vault doors slide open.",
     },
     {
@@ -502,17 +413,6 @@ export const SAGA_ELDORIA: MagicalSaga = {
       ],
       questLevelId: 8,
       stageType: "dragon",
-      taskObjective: "Guide Sparky through the hazards to collect the Celestial Ember!",
-      tasks: [
-        { id: "t1", description: "Step forward into the safe corridor", codeKeyword: "player.move_forward()" },
-        { id: "t2", description: "Navigate turns around the braziers", codeKeyword: "player.turn_left()" },
-        { id: "t3", description: "Collect the ember with player.collect_crystal()", codeKeyword: "player.collect_crystal()" },
-      ],
-      initialCode: "# Plan Sparky's flight path:\nplayer.move_forward()\n",
-      hint: "Trace the path tile-by-tile, turn left or right, advance forward, and collect the crystal.",
-      solutionCode: "player.move_forward()\nplayer.move_forward()\nplayer.turn_right()\nplayer.move_forward()\nplayer.move_forward()\nplayer.collect_crystal()",
-      codeExample: "player.move_forward()\nplayer.turn_right()\nplayer.collect_crystal()",
-      stageConfig: { gridSize: 5, startX: 0, startY: 0, startDir: "RIGHT", targetX: 2, targetY: 2, obstacles: [{ x: 1, y: 1 }] },
       outcomeText: "Sparky leaps into your arms with a joyful roar! A burst of harmless starlight flames illuminates the path to the Core.",
     },
     {
@@ -548,16 +448,6 @@ export const SAGA_ELDORIA: MagicalSaga = {
       ],
       questLevelId: 9,
       stageType: "garden",
-      taskObjective: "Wake three seeds using a loop with range(3)!",
-      tasks: [
-        { id: "t1", description: "Loop 3 times with range(3)", codeKeyword: "range(3)" },
-        { id: "t2", description: "Grow flower inside the loop", codeKeyword: "grow_flower()" },
-      ],
-      initialCode: "# Wake the three seeds:\nfor seed in range(3):\n    grow_flower()\n",
-      hint: "Write: for seed in range(3): and on the next line indent and write grow_flower()",
-      solutionCode: "for seed in range(3):\n    grow_flower()",
-      codeExample: "for seed in range(3):\n    grow_flower()",
-      stageConfig: { target: 3 },
       outcomeText: "Three colossal ancient willows shoot upward in seconds! Emerald leaves unfurl, bathing the forest in brilliant jade light.",
     },
     {
@@ -593,18 +483,6 @@ export const SAGA_ELDORIA: MagicalSaga = {
       ],
       questLevelId: 10,
       stageType: "boss",
-      taskObjective: "Charge mana_shield = 100, loop 3 cast_starlight_bolt() attacks, and cast restore_core()!",
-      tasks: [
-        { id: "t1", description: "Raise mana_shield = 100", codeKeyword: "mana_shield = 100" },
-        { id: "t2", description: "Barrage with loop: for bolt in range(3):", codeKeyword: "for bolt in range(3):" },
-        { id: "t3", description: "Cast bolt inside loop", codeKeyword: "cast_starlight_bolt()" },
-        { id: "t4", description: "Finish boss with restore_core()", codeKeyword: "restore_core()" },
-      ],
-      initialCode: "# Master Spell: Shield, Barrage, and Core Restoration:\nmana_shield = 100\nfor bolt in range(3):\n    cast_starlight_bolt()\nrestore_core()\n",
-      hint: "Set mana_shield = 100, loop 3 cast_starlight_bolt(), and call restore_core() at the root indentation.",
-      solutionCode: "mana_shield = 100\nfor bolt in range(3):\n    cast_starlight_bolt()\nrestore_core()",
-      codeExample: "mana_shield = 100\nfor bolt in range(3):\n    cast_starlight_bolt()\nrestore_core()",
-      stageConfig: { bossHp: 100 },
       outcomeText: "Malachar's dark armor disintegrates into stardust! The five fragments snap into the Core, bathing all Eldoria in eternal dawn!",
     },
   ],
@@ -662,16 +540,6 @@ export const SAGA_CHRONOS: MagicalSaga = {
       ],
       questLevelId: 13,
       stageType: "potion",
-      taskObjective: "Declare const brassKey = 'golden_cog' and let steamPressure = 45 to calibrate the valve!",
-      tasks: [
-        { id: "t1", description: "Store key in brassKey", codeKeyword: "const brassKey" },
-        { id: "t2", description: "Set steamPressure = 45", codeKeyword: "steamPressure" },
-      ],
-      initialCode: "// Initialize brass gear constants:\nconst brassKey = 'golden_cog';\nlet steamPressure = 45;\ncauldron.brew_elixir();\n",
-      hint: "Use const brassKey = 'golden_cog'; and let steamPressure = 45; then trigger the valve.",
-      solutionCode: "const brassKey = 'golden_cog';\nlet steamPressure = 45;\ncauldron.brew_elixir();",
-      codeExample: "const brassKey = 'golden_cog';\nlet steamPressure = 45;",
-      stageConfig: { targetVariables: { steamPressure: 45 } },
       outcomeText: "Steam vents hiss softly with lavender-scented vapor! The brass gates swing wide with a smooth hydraulic chime.",
     },
     {
@@ -698,16 +566,6 @@ export const SAGA_CHRONOS: MagicalSaga = {
       ],
       questLevelId: 14,
       stageType: "bridge",
-      taskObjective: "Define an arrow function to place 4 magnetic bridge segments!",
-      tasks: [
-        { id: "t1", description: "Define arrow function const deployBridge = () => { ... }", codeKeyword: "const deployBridge" },
-        { id: "t2", description: "Call deployBridge()", codeKeyword: "deployBridge()" },
-      ],
-      initialCode: "// Define arrow function to deploy bridge:\nconst deployBridge = () => {\n  for (let i = 0; i < 4; i++) {\n    place_starlight_tile();\n  }\n};\ndeployBridge();\n",
-      hint: "Wrap the tile placement loop in an arrow function and call deployBridge() at the end.",
-      solutionCode: "const deployBridge = () => {\n  for (let i = 0; i < 4; i++) {\n    place_starlight_tile();\n  }\n};\ndeployBridge();",
-      codeExample: "const deployBridge = () => { place_starlight_tile(); };",
-      stageConfig: { targetBridge: 4 },
       outcomeText: "Magnetic bronze pylons rise from the abyss, snapping into a seamless suspended bridge walkway!",
     },
     {
@@ -734,16 +592,6 @@ export const SAGA_CHRONOS: MagicalSaga = {
       ],
       questLevelId: 15,
       stageType: "garden",
-      taskObjective: "Loop 6 times to deploy 6 gear flowers across the parade path!",
-      tasks: [
-        { id: "t1", description: "Loop 6 times with for (let i = 0; i < 6; i++)", codeKeyword: "for (let i = 0; i < 6; i++)" },
-        { id: "t2", description: "Call grow_flower()", codeKeyword: "grow_flower()" },
-      ],
-      initialCode: "// March the automatons across the lane:\nfor (let i = 0; i < 6; i++) {\n  grow_flower();\n}\n",
-      hint: "Use standard JavaScript for loop syntax: for (let i = 0; i < 6; i++) { grow_flower(); }",
-      solutionCode: "for (let i = 0; i < 6; i++) {\n  grow_flower();\n}",
-      codeExample: "for (let i = 0; i < 6; i++) {\n  grow_flower();\n}",
-      stageConfig: { targetFlowers: 6 },
       outcomeText: "Six brass lotus gears bloom in exact sequence, ticking in perfect 4/4 waltz rhythm!",
     },
     {
@@ -770,17 +618,6 @@ export const SAGA_CHRONOS: MagicalSaga = {
       ],
       questLevelId: 16,
       stageType: "curse",
-      taskObjective: "Purify runes 1, 2, and 3 through calibrated event callbacks!",
-      tasks: [
-        { id: "t1", description: "Purify rune 1", codeKeyword: "purify_rune(1)" },
-        { id: "t2", description: "Purify rune 2", codeKeyword: "purify_rune(2)" },
-        { id: "t3", description: "Purify rune 3", codeKeyword: "purify_rune(3)" },
-      ],
-      initialCode: "// Register rune purification handlers:\npurify_rune(1);\npurify_rune(2);\npurify_rune(3);\n",
-      hint: "Invoke purify_rune(1), purify_rune(2), and purify_rune(3) to silence the rogue feedback loops.",
-      solutionCode: "purify_rune(1);\npurify_rune(2);\npurify_rune(3);",
-      codeExample: "purify_rune(1);\npurify_rune(2);\npurify_rune(3);",
-      stageConfig: { targetRunes: [1, 2, 3] },
       outcomeText: "The resonant hum settles into a pure sine wave. The acoustic barriers lower silently into the floor.",
     },
     {
@@ -807,17 +644,6 @@ export const SAGA_CHRONOS: MagicalSaga = {
       ],
       questLevelId: 17,
       stageType: "stargate",
-      taskObjective: "Calculate flux with typed function calculate_flux(core_power: number) returning 200 flux!",
-      tasks: [
-        { id: "t1", description: "Align gate rings", codeKeyword: "align_gate_rings()" },
-        { id: "t2", description: "Calculate typed flux", codeKeyword: "calculate_flux" },
-        { id: "t3", description: "Charge gate to 200", codeKeyword: "charge_stargate" },
-      ],
-      initialCode: "// Typed flux calculation:\nalign_gate_rings();\nfunction calculate_flux(core_power: number): number {\n  return core_power * 2;\n}\ncharge_stargate(calculate_flux(100));\n",
-      hint: "Call align_gate_rings(), define calculate_flux, and charge the stargate with calculate_flux(100).",
-      solutionCode: "align_gate_rings();\nfunction calculate_flux(core_power: number): number {\n  return core_power * 2;\n}\ncharge_stargate(calculate_flux(100));",
-      codeExample: "function calculate_flux(core_power: number): number { return core_power * 2; }",
-      stageConfig: { targetFlux: 200 },
       outcomeText: "A beam of crystalline violet light refracts through the prism! The TypeScript ward locks out all runtime corruptions.",
     },
     {
@@ -844,17 +670,6 @@ export const SAGA_CHRONOS: MagicalSaga = {
       ],
       questLevelId: 18,
       stageType: "potion",
-      taskObjective: "Set mana_flask = 100, star_dew = 3, and resolve cauldron.brew_elixir()!",
-      tasks: [
-        { id: "t1", description: "Set mana_flask = 100", codeKeyword: "mana_flask = 100" },
-        { id: "t2", description: "Set star_dew = 3", codeKeyword: "star_dew = 3" },
-        { id: "t3", description: "Brew elixir", codeKeyword: "cauldron.brew_elixir()" },
-      ],
-      initialCode: "// Resolve the async brewing flow:\nmana_flask = 100;\nstar_dew = 3;\ncauldron.brew_elixir();\n",
-      hint: "Assign mana_flask = 100, star_dew = 3, and trigger the brewing cycle.",
-      solutionCode: "mana_flask = 100;\nstar_dew = 3;\ncauldron.brew_elixir();",
-      codeExample: "mana_flask = 100;\nstar_dew = 3;\ncauldron.brew_elixir();",
-      stageConfig: { targetVariables: { mana_flask: 100, star_dew: 3 } },
       outcomeText: "A bubbling elixir of liquid sapphire condenses in the glass flask! The aqueduct gates slide smoothly open.",
     },
     {
@@ -881,17 +696,6 @@ export const SAGA_CHRONOS: MagicalSaga = {
       ],
       questLevelId: 19,
       stageType: "chrono",
-      taskObjective: "Sort the island crystals array and stabilize the gravitational vortex!",
-      tasks: [
-        { id: "t1", description: "Declare crystals = [4, 1, 3, 2]", codeKeyword: "crystals = [4, 1, 3, 2]" },
-        { id: "t2", description: "Sort crystals array", codeKeyword: "crystals.sort()" },
-        { id: "t3", description: "Stabilize vortex", codeKeyword: "stabilize_vortex(crystals)" },
-      ],
-      initialCode: "const crystals = [4, 1, 3, 2];\n// Sort and stabilize:\ncrystals.sort();\nstabilize_vortex(crystals);\n",
-      hint: "Call crystals.sort() and stabilize_vortex(crystals) to restore the orbital order.",
-      solutionCode: "const crystals = [4, 1, 3, 2];\ncrystals.sort();\nstabilize_vortex(crystals);",
-      codeExample: "crystals.sort();\nstabilize_vortex(crystals);",
-      stageConfig: { targetOrder: [1, 2, 3, 4] },
       outcomeText: "The islands slide into harmonic alignment [1, 2, 3, 4]! Massive magnetic chains link them into a stable sky bridge.",
     },
     {
@@ -918,17 +722,6 @@ export const SAGA_CHRONOS: MagicalSaga = {
       ],
       questLevelId: 20,
       stageType: "dragon",
-      taskObjective: "Navigate Barnaby through the cloud spires to collect the beacon!",
-      tasks: [
-        { id: "t1", description: "Move forward 2 times", codeKeyword: "player.move_forward()" },
-        { id: "t2", description: "Turn right", codeKeyword: "player.turn_right()" },
-        { id: "t3", description: "Collect crystal", codeKeyword: "player.collect_crystal()" },
-      ],
-      initialCode: "// Navigate Barnaby:\nplayer.move_forward();\nplayer.move_forward();\nplayer.turn_right();\nplayer.move_forward();\nplayer.move_forward();\nplayer.collect_crystal();\n",
-      hint: "Advance 2 steps, turn right, advance 2 steps, and collect the crystal.",
-      solutionCode: "player.move_forward();\nplayer.move_forward();\nplayer.turn_right();\nplayer.move_forward();\nplayer.move_forward();\nplayer.collect_crystal();",
-      codeExample: "player.move_forward();\nplayer.turn_right();\nplayer.collect_crystal();",
-      stageConfig: { gridSize: 5, startX: 0, startY: 0, startDir: "RIGHT", targetX: 2, targetY: 2, obstacles: [{ x: 1, y: 1 }] },
       outcomeText: "Barnaby banks gracefully through the fog, claws grasping the glowing beacon with triumphant steam whistles!",
     },
     {
@@ -955,16 +748,6 @@ export const SAGA_CHRONOS: MagicalSaga = {
       ],
       questLevelId: 21,
       stageType: "garden",
-      taskObjective: "Use a loop of 3 repetitions to bloom the 3 clockwork saplings!",
-      tasks: [
-        { id: "t1", description: "Loop 3 times", codeKeyword: "for (let i = 0; i < 3; i++)" },
-        { id: "t2", description: "Grow flower inside loop", codeKeyword: "grow_flower()" },
-      ],
-      initialCode: "// Bloom the 3 clockwork saplings:\nfor (let i = 0; i < 3; i++) {\n  grow_flower();\n}\n",
-      hint: "Use for (let i = 0; i < 3; i++) { grow_flower(); }",
-      solutionCode: "for (let i = 0; i < 3; i++) {\n  grow_flower();\n}",
-      codeExample: "for (let i = 0; i < 3; i++) {\n  grow_flower();\n}",
-      stageConfig: { target: 3 },
       outcomeText: "Three golden flowers with delicate spinning brass petals unfurl! Solar power floods the palace generators.",
     },
     {
@@ -1000,18 +783,6 @@ export const SAGA_CHRONOS: MagicalSaga = {
       ],
       questLevelId: 22,
       stageType: "boss",
-      taskObjective: "Raise mana_shield = 100, barrage 3 times with cast_starlight_bolt(), and finish with restore_core()!",
-      tasks: [
-        { id: "t1", description: "Raise mana_shield = 100", codeKeyword: "mana_shield = 100" },
-        { id: "t2", description: "Loop 3 bolt strikes", codeKeyword: "for (let i = 0; i < 3; i++)" },
-        { id: "t3", description: "Cast bolt inside loop", codeKeyword: "cast_starlight_bolt()" },
-        { id: "t4", description: "Call restore_core()", codeKeyword: "restore_core()" },
-      ],
-      initialCode: "// Final Battle: Shield, Barrage, and Clockwork Reset:\nlet mana_shield = 100;\nfor (let i = 0; i < 3; i++) {\n  cast_starlight_bolt();\n}\nrestore_core();\n",
-      hint: "Set mana_shield = 100, loop 3 bolt attacks, and call restore_core().",
-      solutionCode: "mana_shield = 100;\nfor (let i = 0; i < 3; i++) {\n  cast_starlight_bolt();\n}\nrestore_core();",
-      codeExample: "mana_shield = 100;\nfor (let i = 0; i < 3; i++) { cast_starlight_bolt(); }\nrestore_core();",
-      stageConfig: { bossHp: 100 },
       outcomeText: "The Entropy Kraken dissolves into gleaming gear oil and silver steam! The Great Pendulum swings, and the entire kingdom of Chronos starts ticking in joyous unison!",
     },
   ],
@@ -1069,17 +840,6 @@ export const SAGA_SYLVA: MagicalSaga = {
       ],
       questLevelId: 23,
       stageType: "dragon",
-      taskObjective: "Move Sylas through the clearing to collect the Emerald Sprout!",
-      tasks: [
-        { id: "t1", description: "Advance 2 steps", codeKeyword: "player.move_forward()" },
-        { id: "t2", description: "Turn right", codeKeyword: "player.turn_right()" },
-        { id: "t3", description: "Collect crystal", codeKeyword: "player.collect_crystal()" },
-      ],
-      initialCode: "-- Guide Sylas with gentle footsteps:\nplayer.move_forward()\nplayer.move_forward()\nplayer.turn_right()\nplayer.move_forward()\nplayer.move_forward()\nplayer.collect_crystal()\n",
-      hint: "Move forward twice, turn right, move forward twice, and collect the crystal.",
-      solutionCode: "player.move_forward()\nplayer.move_forward()\nplayer.turn_right()\nplayer.move_forward()\nplayer.move_forward()\nplayer.collect_crystal()",
-      codeExample: "player.move_forward()\nplayer.turn_right()\nplayer.collect_crystal()",
-      stageConfig: { gridSize: 5, startX: 0, startY: 0, startDir: "RIGHT", targetX: 2, targetY: 2, obstacles: [{ x: 1, y: 1 }] },
       outcomeText: "The stone shrine glows with soft clover-green light. Little kodama nod their heads in grateful approval!",
     },
     {
@@ -1106,17 +866,6 @@ export const SAGA_SYLVA: MagicalSaga = {
       ],
       questLevelId: 24,
       stageType: "potion",
-      taskObjective: "Assign mana_flask = 100, star_dew = 3, and brew the Elixir of the Glade!",
-      tasks: [
-        { id: "t1", description: "Set mana_flask = 100", codeKeyword: "mana_flask = 100" },
-        { id: "t2", description: "Set star_dew = 3", codeKeyword: "star_dew = 3" },
-        { id: "t3", description: "Brew elixir", codeKeyword: "cauldron.brew_elixir()" },
-      ],
-      initialCode: "-- Store ingredients in the glade vessel:\nmana_flask = 100\nstar_dew = 3\ncauldron.brew_elixir()\n",
-      hint: "Assign mana_flask = 100, star_dew = 3, and call cauldron.brew_elixir()",
-      solutionCode: "mana_flask = 100\nstar_dew = 3\ncauldron.brew_elixir()",
-      codeExample: "mana_flask = 100\nstar_dew = 3\ncauldron.brew_elixir()",
-      stageConfig: { targetVariables: { mana_flask: 100, star_dew: 3 } },
       outcomeText: "A fragrant vapor smelling of pine needles and wild mint rises, awakening the dormant forest flora!",
     },
     {
@@ -1143,16 +892,6 @@ export const SAGA_SYLVA: MagicalSaga = {
       ],
       questLevelId: 25,
       stageType: "garden",
-      taskObjective: "Call grow_flower() 6 times inside a Lua loop to illuminate the creek!",
-      tasks: [
-        { id: "t1", description: "Loop from 1 to 6 with for step = 1, 6 do", codeKeyword: "for step = 1, 6 do" },
-        { id: "t2", description: "Call grow_flower() inside the loop", codeKeyword: "grow_flower()" },
-      ],
-      initialCode: "-- Summon the firefly blooms:\nfor step = 1, 6 do\n  grow_flower()\nend\n",
-      hint: "Use for step = 1, 6 do, then grow_flower(), and finish with end.",
-      solutionCode: "for step = 1, 6 do\n  grow_flower()\nend",
-      codeExample: "for step = 1, 6 do\n  grow_flower()\nend",
-      stageConfig: { targetFlowers: 6 },
       outcomeText: "Six emerald water lilies burst into bloom along the riverbank, floating like glowing stepping stones!",
     },
     {
@@ -1179,17 +918,6 @@ export const SAGA_SYLVA: MagicalSaga = {
       ],
       questLevelId: 26,
       stageType: "bridge",
-      taskObjective: "Define build_bridge() placing 4 tiles and call build_bridge()!",
-      tasks: [
-        { id: "t1", description: "Define function build_bridge()", codeKeyword: "function build_bridge()" },
-        { id: "t2", description: "Place 4 tiles inside loop", codeKeyword: "place_starlight_tile()" },
-        { id: "t3", description: "Call build_bridge()", codeKeyword: "build_bridge()" },
-      ],
-      initialCode: "-- Weave the living vine bridge:\nfunction build_bridge()\n  for i = 1, 4 do\n    place_starlight_tile()\n  end\nend\n\nbuild_bridge()\n",
-      hint: "Define the function with function build_bridge(), loop 4 times, close with end, and call it.",
-      solutionCode: "function build_bridge()\n  for i = 1, 4 do\n    place_starlight_tile()\n  end\nend\n\nbuild_bridge()",
-      codeExample: "function build_bridge()\n  place_starlight_tile()\nend\nbuild_bridge()",
-      stageConfig: { targetBridge: 4 },
       outcomeText: "Massive flowering vines shoot across the mist, tangling into a secure rope bridge capable of bearing a titan!",
     },
     {
@@ -1216,17 +944,6 @@ export const SAGA_SYLVA: MagicalSaga = {
       ],
       questLevelId: 27,
       stageType: "curse",
-      taskObjective: "Purify runes 1, 2, and 3 to dissolve the black petrifying thorns!",
-      tasks: [
-        { id: "t1", description: "Purify rune 1", codeKeyword: "purify_rune(1)" },
-        { id: "t2", description: "Purify rune 2", codeKeyword: "purify_rune(2)" },
-        { id: "t3", description: "Purify rune 3", codeKeyword: "purify_rune(3)" },
-      ],
-      initialCode: "-- Cleanse the standing stones starting from 1:\npurify_rune(1)\npurify_rune(2)\npurify_rune(3)\n",
-      hint: "Call purify_rune(1), purify_rune(2), and purify_rune(3).",
-      solutionCode: "purify_rune(1)\npurify_rune(2)\npurify_rune(3)",
-      codeExample: "purify_rune(1)\npurify_rune(2)\npurify_rune(3)",
-      stageConfig: { targetRunes: [1, 2, 3] },
       outcomeText: "The black thorns dissolve into harmless gray ash! Lush green clover immediately carpets the petrified clearing.",
     },
     {
@@ -1253,17 +970,6 @@ export const SAGA_SYLVA: MagicalSaga = {
       ],
       questLevelId: 28,
       stageType: "stargate",
-      taskObjective: "Align gate rings and charge the spring stargate to 200 Flux!",
-      tasks: [
-        { id: "t1", description: "Align the gate rings", codeKeyword: "align_gate_rings()" },
-        { id: "t2", description: "Calculate flux", codeKeyword: "calculate_flux" },
-        { id: "t3", description: "Charge gate to 200", codeKeyword: "charge_stargate" },
-      ],
-      initialCode: "-- Align the subterranean spring rings:\nalign_gate_rings()\n\nfunction calculate_flux(core_power)\n  return core_power * 2\nend\n\ncharge_stargate(calculate_flux(100))\n",
-      hint: "Use align_gate_rings(), calculate_flux returning core_power * 2, and charge_stargate(calculate_flux(100)).",
-      solutionCode: "align_gate_rings()\n\nfunction calculate_flux(core_power)\n  return core_power * 2\nend\n\ncharge_stargate(calculate_flux(100))",
-      codeExample: "align_gate_rings()\nfunction calculate_flux(p) return p * 2 end\ncharge_stargate(calculate_flux(100))",
-      stageConfig: { targetFlux: 200 },
       outcomeText: "A magnificent geyser of clear starlight spring water shoots through the ceiling into the forest above!",
     },
     {
@@ -1290,17 +996,6 @@ export const SAGA_SYLVA: MagicalSaga = {
       ],
       questLevelId: 29,
       stageType: "chrono",
-      taskObjective: "Sort the chime frequencies and harmonize the wind vortex!",
-      tasks: [
-        { id: "t1", description: "Declare crystals = [4, 1, 3, 2]", codeKeyword: "crystals = [4, 1, 3, 2]" },
-        { id: "t2", description: "Sort crystals", codeKeyword: "crystals.sort()" },
-        { id: "t3", description: "Stabilize vortex", codeKeyword: "stabilize_vortex(crystals)" },
-      ],
-      initialCode: "crystals = [4, 1, 3, 2]\n-- Sort the canopy chimes:\ncrystals.sort()\nstabilize_vortex(crystals)\n",
-      hint: "Call crystals.sort() and stabilize_vortex(crystals) to calm the canopy winds.",
-      solutionCode: "crystals = [4, 1, 3, 2]\ncrystals.sort()\nstabilize_vortex(crystals)",
-      codeExample: "crystals.sort()\nstabilize_vortex(crystals)",
-      stageConfig: { targetOrder: [1, 2, 3, 4] },
       outcomeText: "The wind softens into an ethereal pentatonic lullaby, guiding migratory starlight songbirds back to the canopy.",
     },
     {
@@ -1327,17 +1022,6 @@ export const SAGA_SYLVA: MagicalSaga = {
       ],
       questLevelId: 30,
       stageType: "dragon",
-      taskObjective: "Guide the wolf pup safely to collect the Spirit Blossom!",
-      tasks: [
-        { id: "t1", description: "Move forward 2 steps", codeKeyword: "player.move_forward()" },
-        { id: "t2", description: "Turn right", codeKeyword: "player.turn_right()" },
-        { id: "t3", description: "Collect crystal", codeKeyword: "player.collect_crystal()" },
-      ],
-      initialCode: "-- Guide the spirit wolf:\nplayer.move_forward()\nplayer.move_forward()\nplayer.turn_right()\nplayer.move_forward()\nplayer.move_forward()\nplayer.collect_crystal()\n",
-      hint: "Advance 2 steps, turn right, advance 2 steps, and collect the crystal.",
-      solutionCode: "player.move_forward()\nplayer.move_forward()\nplayer.turn_right()\nplayer.move_forward()\nplayer.move_forward()\nplayer.collect_crystal()",
-      codeExample: "player.move_forward()\nplayer.turn_right()\nplayer.collect_crystal()",
-      stageConfig: { gridSize: 5, startX: 0, startY: 0, startDir: "RIGHT", targetX: 2, targetY: 2, obstacles: [{ x: 1, y: 1 }] },
       outcomeText: "The wolf pup bounds into your arms, tail wagging eagerly as it transforms into a loyal guardian spirit!",
     },
     {
@@ -1364,16 +1048,6 @@ export const SAGA_SYLVA: MagicalSaga = {
       ],
       questLevelId: 31,
       stageType: "garden",
-      taskObjective: "Loop 3 times with grow_flower() to awaken Mother Willow's roots!",
-      tasks: [
-        { id: "t1", description: "Loop 3 times", codeKeyword: "for i = 1, 3 do" },
-        { id: "t2", description: "Grow flower", codeKeyword: "grow_flower()" },
-      ],
-      initialCode: "-- Wake the Mother Willow's three roots:\nfor i = 1, 3 do\n  grow_flower()\nend\n",
-      hint: "Use for i = 1, 3 do grow_flower() end.",
-      solutionCode: "for i = 1, 3 do\n  grow_flower()\nend",
-      codeExample: "for i = 1, 3 do\n  grow_flower()\nend",
-      stageConfig: { target: 3 },
       outcomeText: "Mother Willow's ancient bark breathes a deep sigh of relief! Luminescent emerald leaves cascade across the entire valley.",
     },
     {
@@ -1409,18 +1083,6 @@ export const SAGA_SYLVA: MagicalSaga = {
       ],
       questLevelId: 32,
       stageType: "boss",
-      taskObjective: "Raise mana_shield = 100, barrage 3 times with cast_starlight_bolt(), and finish with restore_core()!",
-      tasks: [
-        { id: "t1", description: "Raise mana_shield = 100", codeKeyword: "mana_shield = 100" },
-        { id: "t2", description: "Loop 3 strikes", codeKeyword: "for i = 1, 3 do" },
-        { id: "t3", description: "Cast bolt inside loop", codeKeyword: "cast_starlight_bolt()" },
-        { id: "t4", description: "Call restore_core()", codeKeyword: "restore_core()" },
-      ],
-      initialCode: "-- Final Druidic Spell: Shield, Sunbeam Barrage, and Root Cleanse:\nmana_shield = 100\nfor i = 1, 3 do\n  cast_starlight_bolt()\nend\nrestore_core()\n",
-      hint: "Set mana_shield = 100, loop 3 bolt attacks, and invoke restore_core().",
-      solutionCode: "mana_shield = 100\nfor i = 1, 3 do\n  cast_starlight_bolt()\nend\nrestore_core()",
-      codeExample: "mana_shield = 100\nfor i = 1, 3 do cast_starlight_bolt() end\nrestore_core()",
-      stageConfig: { bossHp: 100 },
       outcomeText: "The Blight Titan shudders and turns to fertile black soil from which thousands of white starlight orchids sprout! Sylva is saved!",
     },
   ],
@@ -1478,17 +1140,6 @@ export const SAGA_FORGE: MagicalSaga = {
       ],
       questLevelId: 33,
       stageType: "dragon",
-      taskObjective: "Move the golem along the forge floor to claim the Ancestral Mithril Ingot!",
-      tasks: [
-        { id: "t1", description: "Advance 2 steps", codeKeyword: "player.move_forward()" },
-        { id: "t2", description: "Turn right", codeKeyword: "player.turn_right()" },
-        { id: "t3", description: "Collect crystal", codeKeyword: "player.collect_crystal()" },
-      ],
-      initialCode: "// Forge instructions for Borek the Golem:\nplayer.move_forward();\nplayer.move_forward();\nplayer.turn_right();\nplayer.move_forward();\nplayer.move_forward();\nplayer.collect_crystal();\n",
-      hint: "Walk forward 2 tiles, turn right, walk forward 2 tiles, and collect the ingot.",
-      solutionCode: "player.move_forward();\nplayer.move_forward();\nplayer.turn_right();\nplayer.move_forward();\nplayer.move_forward();\nplayer.collect_crystal();",
-      codeExample: "player.move_forward();\nplayer.turn_right();\nplayer.collect_crystal();",
-      stageConfig: { gridSize: 5, startX: 0, startY: 0, startDir: "RIGHT", targetX: 2, targetY: 2, obstacles: [{ x: 1, y: 1 }] },
       outcomeText: "Borek's basalt fingers wrap securely around the glowing ingot. The forge anvil rings with a deep, echoing gong!",
     },
     {
@@ -1515,17 +1166,6 @@ export const SAGA_FORGE: MagicalSaga = {
       ],
       questLevelId: 34,
       stageType: "potion",
-      taskObjective: "Set mana_flask = 100, star_dew = 3, and call cauldron.brew_elixir() to temper the metal!",
-      tasks: [
-        { id: "t1", description: "Set mana_flask = 100", codeKeyword: "mana_flask = 100" },
-        { id: "t2", description: "Set star_dew = 3", codeKeyword: "star_dew = 3" },
-        { id: "t3", description: "Brew elixir", codeKeyword: "cauldron.brew_elixir()" },
-      ],
-      initialCode: "// Temper the molten mithril:\nint mana_flask = 100;\nint star_dew = 3;\ncauldron.brew_elixir();\n",
-      hint: "Assign mana_flask = 100, star_dew = 3, and call cauldron.brew_elixir();",
-      solutionCode: "int mana_flask = 100;\nint star_dew = 3;\ncauldron.brew_elixir();",
-      codeExample: "int mana_flask = 100;\nint star_dew = 3;\ncauldron.brew_elixir();",
-      stageConfig: { targetVariables: { mana_flask: 100, star_dew: 3 } },
       outcomeText: "The crucible blazes brilliant incandescent gold! Slag vaporizes, leaving pure liquid mithril glowing in the trough.",
     },
     {
@@ -1552,16 +1192,6 @@ export const SAGA_FORGE: MagicalSaga = {
       ],
       questLevelId: 35,
       stageType: "garden",
-      taskObjective: "Execute 6 hammer strikes with grow_flower() inside a C++ for loop!",
-      tasks: [
-        { id: "t1", description: "Loop 6 times", codeKeyword: "for (int i = 0; i < 6; i++)" },
-        { id: "t2", description: "Call grow_flower()", codeKeyword: "grow_flower()" },
-      ],
-      initialCode: "// Strike the anvil 6 times:\nfor (int i = 0; i < 6; i++) {\n  grow_flower();\n}\n",
-      hint: "Use for (int i = 0; i < 6; i++) { grow_flower(); }",
-      solutionCode: "for (int i = 0; i < 6; i++) {\n  grow_flower();\n}",
-      codeExample: "for (int i = 0; i < 6; i++) {\n  grow_flower();\n}",
-      stageConfig: { targetFlowers: 6 },
       outcomeText: "CLANG! CLANG! Six thunderous strikes shape the ingot into a flawless dwarven rune blade that glimmers with fiery runes!",
     },
     {
@@ -1588,17 +1218,6 @@ export const SAGA_FORGE: MagicalSaga = {
       ],
       questLevelId: 36,
       stageType: "bridge",
-      taskObjective: "Declare void build_bridge() with 4 tiles and call build_bridge()!",
-      tasks: [
-        { id: "t1", description: "Declare void build_bridge()", codeKeyword: "void build_bridge()" },
-        { id: "t2", description: "Place 4 tiles", codeKeyword: "place_starlight_tile()" },
-        { id: "t3", description: "Call build_bridge()", codeKeyword: "build_bridge()" },
-      ],
-      initialCode: "// Build the basalt causeway:\nvoid build_bridge() {\n  for (int i = 0; i < 4; i++) {\n    place_starlight_tile();\n  }\n}\n\nbuild_bridge();\n",
-      hint: "Declare void build_bridge() containing the loop and invoke build_bridge();",
-      solutionCode: "void build_bridge() {\n  for (int i = 0; i < 4; i++) {\n    place_starlight_tile();\n  }\n}\n\nbuild_bridge();",
-      codeExample: "void build_bridge() { place_starlight_tile(); } build_bridge();",
-      stageConfig: { targetBridge: 4 },
       outcomeText: "Four massive slabs of obsidian rise from the magma with hydraulic groans, locking into an indestructible causeway!",
     },
     {
@@ -1625,17 +1244,6 @@ export const SAGA_FORGE: MagicalSaga = {
       ],
       questLevelId: 37,
       stageType: "curse",
-      taskObjective: "Purify runes 1, 2, and 3 to safely retarget the memory pointers!",
-      tasks: [
-        { id: "t1", description: "Purify rune 1", codeKeyword: "purify_rune(1)" },
-        { id: "t2", description: "Purify rune 2", codeKeyword: "purify_rune(2)" },
-        { id: "t3", description: "Purify rune 3", codeKeyword: "purify_rune(3)" },
-      ],
-      initialCode: "// Retarget the dangling rune pointers:\npurify_rune(1);\npurify_rune(2);\npurify_rune(3);\n",
-      hint: "Invoke purify_rune(1), purify_rune(2), and purify_rune(3) to clear the memory fault.",
-      solutionCode: "purify_rune(1);\npurify_rune(2);\npurify_rune(3);",
-      codeExample: "purify_rune(1);\npurify_rune(2);\npurify_rune(3);",
-      stageConfig: { targetRunes: [1, 2, 3] },
       outcomeText: "The red warning glyphs turn soothing cool emerald. The vault's memory leylines stabilize with zero segmentation faults!",
     },
     {
@@ -1662,17 +1270,6 @@ export const SAGA_FORGE: MagicalSaga = {
       ],
       questLevelId: 38,
       stageType: "stargate",
-      taskObjective: "Align gate rings and charge geothermal stargate to 200 Flux!",
-      tasks: [
-        { id: "t1", description: "Align the gate rings", codeKeyword: "align_gate_rings()" },
-        { id: "t2", description: "Calculate flux", codeKeyword: "calculate_flux" },
-        { id: "t3", description: "Charge gate to 200", codeKeyword: "charge_stargate" },
-      ],
-      initialCode: "// Align rings and charge the gate to 200 Flux:\nalign_gate_rings();\nint calculate_flux(int core_power) {\n  return core_power * 2;\n}\ncharge_stargate(calculate_flux(100));\n",
-      hint: "Call align_gate_rings(), define calculate_flux, and charge_stargate(calculate_flux(100));",
-      solutionCode: "align_gate_rings();\nint calculate_flux(int core_power) {\n  return core_power * 2;\n}\ncharge_stargate(calculate_flux(100));",
-      codeExample: "align_gate_rings(); int calculate_flux(int p) { return p * 2; } charge_stargate(calculate_flux(100));",
-      stageConfig: { targetFlux: 200 },
       outcomeText: "Flames erupt in a ring around the portal! The spatial fold opens instantly onto the Deep Ore Vaults.",
     },
     {
@@ -1699,17 +1296,6 @@ export const SAGA_FORGE: MagicalSaga = {
       ],
       questLevelId: 39,
       stageType: "chrono",
-      taskObjective: "Sort the ingot chest numbers and stabilize the pneumatic vault!",
-      tasks: [
-        { id: "t1", description: "Declare crystals = [4, 1, 3, 2]", codeKeyword: "crystals = [4, 1, 3, 2]" },
-        { id: "t2", description: "Sort crystals array", codeKeyword: "crystals.sort()" },
-        { id: "t3", description: "Stabilize vortex", codeKeyword: "stabilize_vortex(crystals)" },
-      ],
-      initialCode: "crystals = [4, 1, 3, 2];\n// Sort and stabilize treasury:\ncrystals.sort();\nstabilize_vortex(crystals);\n",
-      hint: "Sort the array and call stabilize_vortex(crystals); to balance the pressure.",
-      solutionCode: "crystals = [4, 1, 3, 2];\ncrystals.sort();\nstabilize_vortex(crystals);",
-      codeExample: "crystals.sort();\nstabilize_vortex(crystals);",
-      stageConfig: { targetOrder: [1, 2, 3, 4] },
       outcomeText: "The pneumatic cranes whirr smoothly, stacking the chests into neat shelves [1, 2, 3, 4] with satisfying mechanical thuds!",
     },
     {
@@ -1736,17 +1322,6 @@ export const SAGA_FORGE: MagicalSaga = {
       ],
       questLevelId: 40,
       stageType: "dragon",
-      taskObjective: "Guide Borek across the safety curbs to collect the Cooling Core!",
-      tasks: [
-        { id: "t1", description: "Advance 2 steps", codeKeyword: "player.move_forward()" },
-        { id: "t2", description: "Turn right", codeKeyword: "player.turn_right()" },
-        { id: "t3", description: "Collect crystal", codeKeyword: "player.collect_crystal()" },
-      ],
-      initialCode: "// Guide Borek through the crucible:\nplayer.move_forward();\nplayer.move_forward();\nplayer.turn_right();\nplayer.move_forward();\nplayer.move_forward();\nplayer.collect_crystal();\n",
-      hint: "Move forward 2 steps, turn right, move forward 2 steps, and collect the crystal.",
-      solutionCode: "player.move_forward();\nplayer.move_forward();\nplayer.turn_right();\nplayer.move_forward();\nplayer.move_forward();\nplayer.collect_crystal();",
-      codeExample: "player.move_forward();\nplayer.turn_right();\nplayer.collect_crystal();",
-      stageConfig: { gridSize: 5, startX: 0, startY: 0, startDir: "RIGHT", targetX: 2, targetY: 2, obstacles: [{ x: 1, y: 1 }] },
       outcomeText: "Borek triumphantly hoists the blue Cooling Core above his stone head! The molten river cools to safe black obsidian.",
     },
     {
@@ -1773,16 +1348,6 @@ export const SAGA_FORGE: MagicalSaga = {
       ],
       questLevelId: 41,
       stageType: "garden",
-      taskObjective: "Loop 3 times with grow_flower() to quench the three rune blades!",
-      tasks: [
-        { id: "t1", description: "Loop 3 times", codeKeyword: "for (int i = 0; i < 3; i++)" },
-        { id: "t2", description: "Grow flower", codeKeyword: "grow_flower()" },
-      ],
-      initialCode: "// Quench the 3 rune blades:\nfor (int i = 0; i < 3; i++) {\n  grow_flower();\n}\n",
-      hint: "Use for (int i = 0; i < 3; i++) { grow_flower(); }",
-      solutionCode: "for (int i = 0; i < 3; i++) {\n  grow_flower();\n}",
-      codeExample: "for (int i = 0; i < 3; i++) {\n  grow_flower();\n}",
-      stageConfig: { target: 3 },
       outcomeText: "HISS! Plumes of fragrant mineral steam fill the room! Three masterwork blades emerge with an iridescent cobalt finish.",
     },
     {
@@ -1818,18 +1383,6 @@ export const SAGA_FORGE: MagicalSaga = {
       ],
       questLevelId: 42,
       stageType: "boss",
-      taskObjective: "Raise mana_shield = 100, barrage 3 times with cast_starlight_bolt(), and finish with restore_core()!",
-      tasks: [
-        { id: "t1", description: "Set mana_shield = 100", codeKeyword: "mana_shield = 100" },
-        { id: "t2", description: "Loop 3 bolt strikes", codeKeyword: "for (int i = 0; i < 3; i++)" },
-        { id: "t3", description: "Cast bolt inside loop", codeKeyword: "cast_starlight_bolt()" },
-        { id: "t4", description: "Call restore_core()", codeKeyword: "restore_core()" },
-      ],
-      initialCode: "// Final Smithing Spell: Shield, Starlight Barrage, and Core Sealing:\nint mana_shield = 100;\nfor (int i = 0; i < 3; i++) {\n  cast_starlight_bolt();\n}\nrestore_core();\n",
-      hint: "Set mana_shield = 100, loop 3 bolt attacks, and invoke restore_core();",
-      solutionCode: "mana_shield = 100;\nfor (int i = 0; i < 3; i++) {\n  cast_starlight_bolt();\n}\nrestore_core();",
-      codeExample: "mana_shield = 100;\nfor (int i = 0; i < 3; i++) { cast_starlight_bolt(); }\nrestore_core();",
-      stageConfig: { bossHp: 100 },
       outcomeText: "The Magma Colossus petrifies into a magnificent granite archway! The geothermal valves lock securely, and Kar-Drakor rejoices!",
     },
   ],
@@ -1887,17 +1440,6 @@ export const SAGA_ATLANTIS: MagicalSaga = {
       ],
       questLevelId: 43,
       stageType: "dragon",
-      taskObjective: "Swim through the submerged atrium to collect the Star Tablet!",
-      tasks: [
-        { id: "t1", description: "Advance 2 tiles", codeKeyword: "player.move_forward()" },
-        { id: "t2", description: "Turn right", codeKeyword: "player.turn_right()" },
-        { id: "t3", description: "Collect crystal", codeKeyword: "player.collect_crystal()" },
-      ],
-      initialCode: "-- Swim toward the star tablet:\nplayer.move_forward();\nplayer.move_forward();\nplayer.turn_right();\nplayer.move_forward();\nplayer.move_forward();\nplayer.collect_crystal();\n",
-      hint: "Move forward 2 times, turn right, move forward 2 times, and collect the crystal.",
-      solutionCode: "player.move_forward();\nplayer.move_forward();\nplayer.turn_right();\nplayer.move_forward();\nplayer.move_forward();\nplayer.collect_crystal();",
-      codeExample: "player.move_forward();\nplayer.turn_right();\nplayer.collect_crystal();",
-      stageConfig: { gridSize: 5, startX: 0, startY: 0, startDir: "RIGHT", targetX: 2, targetY: 2, obstacles: [{ x: 1, y: 1 }] },
       outcomeText: "The coral pedestal illuminates! Glyphs carved into the star tablet shimmer with ancient celestial wisdom.",
     },
     {
@@ -1924,17 +1466,6 @@ export const SAGA_ATLANTIS: MagicalSaga = {
       ],
       questLevelId: 44,
       stageType: "potion",
-      taskObjective: "Set mana_flask = 100, star_dew = 3, and call cauldron.brew_elixir()!",
-      tasks: [
-        { id: "t1", description: "Set mana_flask = 100", codeKeyword: "mana_flask = 100" },
-        { id: "t2", description: "Set star_dew = 3", codeKeyword: "star_dew = 3" },
-        { id: "t3", description: "Brew elixir", codeKeyword: "cauldron.brew_elixir()" },
-      ],
-      initialCode: "-- Distill the pearl ink:\nmana_flask = 100;\nstar_dew = 3;\ncauldron.brew_elixir();\n",
-      hint: "Assign mana_flask = 100, star_dew = 3, and call cauldron.brew_elixir();",
-      solutionCode: "mana_flask = 100;\nstar_dew = 3;\ncauldron.brew_elixir();",
-      codeExample: "mana_flask = 100;\nstar_dew = 3;\ncauldron.brew_elixir();",
-      stageConfig: { targetVariables: { mana_flask: 100, star_dew: 3 } },
       outcomeText: "The pearl basin glows with an ethereal ultraviolet phosphorescence, ready to inscribe eternal wisdom scrolls!",
     },
     {
@@ -1961,16 +1492,6 @@ export const SAGA_ATLANTIS: MagicalSaga = {
       ],
       questLevelId: 45,
       stageType: "garden",
-      taskObjective: "Grow 6 glowing sea anemones with grow_flower() in a loop of 6!",
-      tasks: [
-        { id: "t1", description: "Loop 6 times", codeKeyword: "for (let i = 0; i < 6; i++)" },
-        { id: "t2", description: "Call grow_flower()", codeKeyword: "grow_flower()" },
-      ],
-      initialCode: "-- Bloom 6 glowing anemones:\nfor (let i = 0; i < 6; i++) {\n  grow_flower();\n}\n",
-      hint: "Loop 6 times and call grow_flower(); inside.",
-      solutionCode: "for (let i = 0; i < 6; i++) {\n  grow_flower();\n}",
-      codeExample: "for (let i = 0; i < 6; i++) {\n  grow_flower();\n}",
-      stageConfig: { targetFlowers: 6 },
       outcomeText: "Six radiant cyan anemones unfurl their glowing tentacles, guiding swimmers safely through the deep trench!",
     },
     {
@@ -1997,17 +1518,6 @@ export const SAGA_ATLANTIS: MagicalSaga = {
       ],
       questLevelId: 46,
       stageType: "bridge",
-      taskObjective: "Define function build_bridge() placing 4 tiles and invoke build_bridge()!",
-      tasks: [
-        { id: "t1", description: "Define function build_bridge()", codeKeyword: "function build_bridge()" },
-        { id: "t2", description: "Place 4 tiles", codeKeyword: "place_starlight_tile()" },
-        { id: "t3", description: "Call build_bridge()", codeKeyword: "build_bridge()" },
-      ],
-      initialCode: "-- Form the coral bridge view:\nfunction build_bridge() {\n  for (let i = 0; i < 4; i++) {\n    place_starlight_tile();\n  }\n}\nbuild_bridge();\n",
-      hint: "Define build_bridge() with 4 place_starlight_tile() iterations and call build_bridge();",
-      solutionCode: "function build_bridge() {\n  for (let i = 0; i < 4; i++) {\n    place_starlight_tile();\n  }\n}\nbuild_bridge();",
-      codeExample: "function build_bridge() { place_starlight_tile(); } build_bridge();",
-      stageConfig: { targetBridge: 4 },
       outcomeText: "Four crystalline coral pillars rise effortlessly, creating a seamless glass causeway above the abyssal trench!",
     },
     {
@@ -2034,17 +1544,6 @@ export const SAGA_ATLANTIS: MagicalSaga = {
       ],
       questLevelId: 47,
       stageType: "curse",
-      taskObjective: "Purify runes 1, 2, and 3 to clear the corrupted archival records!",
-      tasks: [
-        { id: "t1", description: "Purify rune 1", codeKeyword: "purify_rune(1)" },
-        { id: "t2", description: "Purify rune 2", codeKeyword: "purify_rune(2)" },
-        { id: "t3", description: "Purify rune 3", codeKeyword: "purify_rune(3)" },
-      ],
-      initialCode: "-- Filter and cleanse the 3 valid runes:\npurify_rune(1);\npurify_rune(2);\npurify_rune(3);\n",
-      hint: "Invoke purify_rune(1), purify_rune(2), and purify_rune(3);",
-      solutionCode: "purify_rune(1);\npurify_rune(2);\npurify_rune(3);",
-      codeExample: "purify_rune(1);\npurify_rune(2);\npurify_rune(3);",
-      stageConfig: { targetRunes: [1, 2, 3] },
       outcomeText: "The black sea urchins dissolve into bubbles! The archive doorway slides open into the inner sanctum.",
     },
     {
@@ -2071,17 +1570,6 @@ export const SAGA_ATLANTIS: MagicalSaga = {
       ],
       questLevelId: 48,
       stageType: "stargate",
-      taskObjective: "Align gate rings and charge oceanic stargate to 200 Flux!",
-      tasks: [
-        { id: "t1", description: "Align the gate rings", codeKeyword: "align_gate_rings()" },
-        { id: "t2", description: "Calculate flux", codeKeyword: "calculate_flux" },
-        { id: "t3", description: "Charge gate to 200", codeKeyword: "charge_stargate" },
-      ],
-      initialCode: "-- Align rings and charge the gate to 200 Flux:\nalign_gate_rings();\nfunction calculate_flux(core_power) {\n  return core_power * 2;\n}\ncharge_stargate(calculate_flux(100));\n",
-      hint: "Call align_gate_rings(), calculate_flux(100), and charge_stargate(200);",
-      solutionCode: "align_gate_rings();\nfunction calculate_flux(core_power) {\n  return core_power * 2;\n}\ncharge_stargate(calculate_flux(100));",
-      codeExample: "align_gate_rings(); charge_stargate(calculate_flux(100));",
-      stageConfig: { targetFlux: 200 },
       outcomeText: "A calm, luminous bubble portal opens without drawing in a single drop of floodwater!",
     },
     {
@@ -2108,17 +1596,6 @@ export const SAGA_ATLANTIS: MagicalSaga = {
       ],
       questLevelId: 49,
       stageType: "chrono",
-      taskObjective: "Sort the star crystals and stabilize the underwater vortex!",
-      tasks: [
-        { id: "t1", description: "Declare crystals = [4, 1, 3, 2]", codeKeyword: "crystals = [4, 1, 3, 2]" },
-        { id: "t2", description: "Sort crystals", codeKeyword: "crystals.sort()" },
-        { id: "t3", description: "Stabilize vortex", codeKeyword: "stabilize_vortex(crystals)" },
-      ],
-      initialCode: "crystals = [4, 1, 3, 2];\n-- Order by brilliance and stabilize:\ncrystals.sort();\nstabilize_vortex(crystals);\n",
-      hint: "Sort the array and call stabilize_vortex(crystals); to balance the vortex.",
-      solutionCode: "crystals = [4, 1, 3, 2];\ncrystals.sort();\nstabilize_vortex(crystals);",
-      codeExample: "crystals.sort();\nstabilize_vortex(crystals);",
-      stageConfig: { targetOrder: [1, 2, 3, 4] },
       outcomeText: "The tablets align into a glowing spiral [1, 2, 3, 4]! A 3D astral map of the night sky projects through the water column.",
     },
     {
@@ -2145,17 +1622,6 @@ export const SAGA_ATLANTIS: MagicalSaga = {
       ],
       questLevelId: 50,
       stageType: "dragon",
-      taskObjective: "Guide Barnaby to collect the Pearl of Knowledge!",
-      tasks: [
-        { id: "t1", description: "Move forward 2 steps", codeKeyword: "player.move_forward()" },
-        { id: "t2", description: "Turn right", codeKeyword: "player.turn_right()" },
-        { id: "t3", description: "Collect crystal", codeKeyword: "player.collect_crystal()" },
-      ],
-      initialCode: "-- Guide Barnaby through the coral:\nplayer.move_forward();\nplayer.move_forward();\nplayer.turn_right();\nplayer.move_forward();\nplayer.move_forward();\nplayer.collect_crystal();\n",
-      hint: "Advance 2 steps, turn right, advance 2 steps, and collect the crystal.",
-      solutionCode: "player.move_forward();\nplayer.move_forward();\nplayer.turn_right();\nplayer.move_forward();\nplayer.move_forward();\nplayer.collect_crystal();",
-      codeExample: "player.move_forward();\nplayer.turn_right();\nplayer.collect_crystal();",
-      stageConfig: { gridSize: 5, startX: 0, startY: 0, startDir: "RIGHT", targetX: 2, targetY: 2, obstacles: [{ x: 1, y: 1 }] },
       outcomeText: "Barnaby snaps up the Pearl with a gleeful bubble stream! The library records synchronize instantly.",
     },
     {
@@ -2182,16 +1648,6 @@ export const SAGA_ATLANTIS: MagicalSaga = {
       ],
       questLevelId: 51,
       stageType: "garden",
-      taskObjective: "Loop 3 times with grow_flower() to grow the three luminescent kelp groves!",
-      tasks: [
-        { id: "t1", description: "Loop 3 times", codeKeyword: "for (let i = 0; i < 3; i++)" },
-        { id: "t2", description: "Grow flower", codeKeyword: "grow_flower()" },
-      ],
-      initialCode: "-- Plant the 3 luminescent kelp groves:\nfor (let i = 0; i < 3; i++) {\n  grow_flower();\n}\n",
-      hint: "Use for (let i = 0; i < 3; i++) { grow_flower(); }",
-      solutionCode: "for (let i = 0; i < 3; i++) {\n  grow_flower();\n}",
-      codeExample: "for (let i = 0; i < 3; i++) {\n  grow_flower();\n}",
-      stageConfig: { target: 3 },
       outcomeText: "Towering fifty-foot ribbons of golden kelp rise to the surface, swaying rhythmically with the warm tides!",
     },
     {
@@ -2227,18 +1683,6 @@ export const SAGA_ATLANTIS: MagicalSaga = {
       ],
       questLevelId: 52,
       stageType: "boss",
-      taskObjective: "Raise mana_shield = 100, barrage 3 times with cast_starlight_bolt(), and finish with restore_core()!",
-      tasks: [
-        { id: "t1", description: "Raise mana_shield = 100", codeKeyword: "mana_shield = 100" },
-        { id: "t2", description: "Loop 3 bolt strikes", codeKeyword: "for (let i = 0; i < 3; i++)" },
-        { id: "t3", description: "Cast bolt inside loop", codeKeyword: "cast_starlight_bolt()" },
-        { id: "t4", description: "Call restore_core()", codeKeyword: "restore_core()" },
-      ],
-      initialCode: "-- Final Oceanic Spell: Shield, Starlight Barrage, and Core Restoration:\nmana_shield = 100;\nfor (let i = 0; i < 3; i++) {\n  cast_starlight_bolt();\n}\nrestore_core();\n",
-      hint: "Set mana_shield = 100, loop 3 bolt attacks, and invoke restore_core();",
-      solutionCode: "mana_shield = 100;\nfor (let i = 0; i < 3; i++) {\n  cast_starlight_bolt();\n}\nrestore_core();",
-      codeExample: "mana_shield = 100;\nfor (let i = 0; i < 3; i++) { cast_starlight_bolt(); }\nrestore_core();",
-      stageConfig: { bossHp: 100 },
       outcomeText: "The Ocean Heart blazes with radiant aquamarine light! The Leviathan calms, bowing its colossal head as the Sunken Archive rises toward the sunlit waves!",
     },
   ],

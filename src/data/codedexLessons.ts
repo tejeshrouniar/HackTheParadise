@@ -1,11 +1,5 @@
 import { JOURNEY } from "../content/journey.ts";
 import { forestLessons } from "./forestLessons.ts";
-export interface CodedexTask {
-  id: string;
-  text: string;
-  check: (code: string, state: any) => boolean;
-}
-
 export interface CodedexLesson {
   id: number;
   chapter: string;
@@ -24,18 +18,8 @@ export interface CodedexLesson {
 
   // Section 3: What you have to do (System instructions)
   taskObjective: string;
-  tasks: Array<{
-    id: string;
-    description: string;
-    codeKeyword: string;
-  }>;
-
   // Editor initial code (clean with "type code here")
   initialCode: string;
-
-  // Hint & Solution
-  hint: string;
-  solutionCode: string;
 
   // Stage configuration
   stageType:
@@ -80,40 +64,10 @@ player.collect_crystal()`,
 
     taskObjective:
       "Move from your starting tile at (0, 0) to collect the Core fragment at (2, 2)!",
-    tasks: [
-      {
-        id: "t1",
-        description: "Move forward 2 times to reach the intersection.",
-        codeKeyword: "player.move_forward()",
-      },
-      {
-        id: "t2",
-        description: "Turn right to face down.",
-        codeKeyword: "player.turn_right()",
-      },
-      {
-        id: "t3",
-        description: "Move forward 2 times towards the crystal.",
-        codeKeyword: "player.move_forward()",
-      },
-      {
-        id: "t4",
-        description: "Collect the crystal with player.collect_crystal().",
-        codeKeyword: "player.collect_crystal()",
-      },
-    ],
 
     initialCode: `# Type your spell instructions below to guide your avatar!
 
 `,
-
-    hint: "your avatar starts at (0, 0) facing RIGHT. Write player.move_forward() twice, player.turn_right(), player.move_forward() twice, and finish with player.collect_crystal()!",
-    solutionCode: `player.move_forward()
-player.move_forward()
-player.turn_right()
-player.move_forward()
-player.move_forward()
-player.collect_crystal()`,
 
     stageType: "dragon",
     stageConfig: {
@@ -142,43 +96,18 @@ player.collect_crystal()`,
     howToWriteTitle: "🍾 How do I give a variable?",
     howToWriteBody:
       "To create a variable, write the name of your magic bottle on the left, an equal sign `=` in the middle, and the value on the right:",
-    codeExample: `# Create a bottle for mana power:
-mana_flask = 100
+    codeExample: `# Store ingredients in labeled bottles:
+herbs = 4
+water = 2
 
-# Store the number of star drops:
-star_dew = 3
-
-# Another named quantity:
-moon_dust = 2`,
+# Values can be reused by later instructions.`,
 
     taskObjective:
       "Assign 100 power to mana_flask, store 3 drops of star_dew, and call cauldron.brew_elixir() to brew the potion!",
-    tasks: [
-      {
-        id: "t1",
-        description: "Create variable mana_flask = 100",
-        codeKeyword: "mana_flask = 100",
-      },
-      {
-        id: "t2",
-        description: "Create variable star_dew = 3",
-        codeKeyword: "star_dew = 3",
-      },
-      {
-        id: "t3",
-        description: "Call cauldron.brew_elixir() to mix the ingredients.",
-        codeKeyword: "cauldron.brew_elixir()",
-      },
-    ],
 
     initialCode: `# Create your variables and brew the potion!
 
 `,
-
-    hint: "Type: mana_flask = 100, on the next line write: star_dew = 3, and on the third line write: cauldron.brew_elixir()",
-    solutionCode: `mana_flask = 100
-star_dew = 3
-cauldron.brew_elixir()`,
 
     stageType: "potion",
     stageConfig: {
@@ -201,32 +130,16 @@ cauldron.brew_elixir()`,
     howToWriteTitle: "🔁 How do I write a loop in Python?",
     howToWriteBody:
       "In Python, we use a `for` loop with `range(number):`. Notice the colon `:` at the end and the 4 spaces of indentation inside:",
-    codeExample: `# Repeat an action 6 times:
-for step in range(6):
+    codeExample: `# Repeat an action a few times:
+for step in range(2):
     grow_flower()  # 4 spaces indentation!`,
 
     taskObjective:
       "Write a loop that repeats 6 times to cultivate 6 enchanted flowers across the meadow path!",
-    tasks: [
-      {
-        id: "t1",
-        description: "Start the loop header: for step in range(6):",
-        codeKeyword: "for step in range(6):",
-      },
-      {
-        id: "t2",
-        description: "Indent 4 spaces and write grow_flower().",
-        codeKeyword: "grow_flower()",
-      },
-    ],
 
     initialCode: `# Write a repeat loop to bloom 6 flowers!
 
 `,
-
-    hint: "Write: for step in range(6): and on the next line indent 4 spaces and write: grow_flower()",
-    solutionCode: `for step in range(6):
-    grow_flower()`,
 
     stageType: "garden",
     stageConfig: {
@@ -249,44 +162,19 @@ for step in range(6):
     howToWriteTitle: "📜 How do I define and call a function?",
     howToWriteBody:
       "Use the `def` keyword (short for define), write your function name with `():`, and call it at the bottom:",
-    codeExample: `# 1. Define the reusable spell scroll:
-def build_bridge():
-    for step in range(4):
-        place_starlight_tile()
+    codeExample: `# Give a reusable action a name:
+def light_the_way():
+    player.move_forward()
 
-# 2. Call the function to cast it:
-build_bridge()`,
+# Run the named action:
+light_the_way()`,
 
     taskObjective:
       "Define function build_bridge() with 4 starlight tiles, then call build_bridge() to cross the astral chasm!",
-    tasks: [
-      {
-        id: "t1",
-        description: "Define the function: def build_bridge():",
-        codeKeyword: "def build_bridge():",
-      },
-      {
-        id: "t2",
-        description: "Place 4 tiles using a loop or instructions inside.",
-        codeKeyword: "place_starlight_tile()",
-      },
-      {
-        id: "t3",
-        description: "Call build_bridge() at the end to cast it.",
-        codeKeyword: "build_bridge()",
-      },
-    ],
 
     initialCode: `# Define your reusable bridge spell and invoke it!
 
 `,
-
-    hint: "Define: def build_bridge(): with place_starlight_tile() inside, and at the bottom call: build_bridge()",
-    solutionCode: `def build_bridge():
-    for step in range(4):
-        place_starlight_tile()
-
-build_bridge()`,
 
     stageType: "bridge",
     stageConfig: {
@@ -309,46 +197,19 @@ build_bridge()`,
     howToWriteTitle: "🔍 How do I find and fix the curse?",
     howToWriteBody:
       "The dungeon altar has 3 ancient runes (#1, #2, #3). But someone chanted `purify_rune(9)`! Rune #9 does not exist—trying to touch an item that isn't there causes an **Index Error**.",
-    codeExample: `# Buggy Spell:
+    codeExample: `# This call uses a rune number:
 purify_rune(1)
-purify_rune(2)
-purify_rune(9)  # ❌ Error! Only 3 runes exist!
 
-# Fixed Spell:
-purify_rune(1)
-purify_rune(2)
-purify_rune(3)  # ✅ Cleanses the 3rd rune!`,
+# Check that an argument is within the available range.`,
 
     taskObjective:
       "Purify all three runes (1, 2, 3) to break the chains and unlock the dungeon vault door!",
-    tasks: [
-      {
-        id: "t1",
-        description: "Purify Rune #1: purify_rune(1)",
-        codeKeyword: "purify_rune(1)",
-      },
-      {
-        id: "t2",
-        description: "Purify Rune #2: purify_rune(2)",
-        codeKeyword: "purify_rune(2)",
-      },
-      {
-        id: "t3",
-        description: "Purify Rune #3: purify_rune(3)",
-        codeKeyword: "purify_rune(3)",
-      },
-    ],
 
     initialCode: `# Fix the broken line to cleanse all 3 runes!
 purify_rune(1)
 purify_rune(2)
 purify_rune(9)  # ⚠️ Bug: Change 9 to 3!
 `,
-
-    hint: "Change purify_rune(9) on line 4 to purify_rune(3). Then click Cast Spell!",
-    solutionCode: `purify_rune(1)
-purify_rune(2)
-purify_rune(3)`,
 
     stageType: "curse",
     stageConfig: {
@@ -371,51 +232,18 @@ purify_rune(3)`,
     howToWriteTitle: "⚙️ How do I write a function with parameters & return?",
     howToWriteBody:
       "Define the function with parameters in the parentheses, perform the calculation, and return the result:",
-    codeExample: `# Define a spell that doubles power:
-def calculate_flux(core_power):
-    return core_power * 2
+    codeExample: `# A function can return a calculated value:
+def double(value):
+    return value * 2
 
-# Align rings and charge the gate:
-align_gate_rings()
-total_flux = calculate_flux(100)
-charge_stargate(total_flux)`,
+sample_flux = double(30)`,
 
     taskObjective:
       "Align the celestial rings, define calculate_flux(core_power) to return core_power * 2, and charge the stargate to 200 Flux!",
-    tasks: [
-      {
-        id: "t1",
-        description: "Align the 3 astral rings: align_gate_rings()",
-        codeKeyword: "align_gate_rings()",
-      },
-      {
-        id: "t2",
-        description: "Define function: def calculate_flux(core_power):",
-        codeKeyword: "def calculate_flux(core_power):",
-      },
-      {
-        id: "t3",
-        description: "Return doubled power: return core_power * 2",
-        codeKeyword: "return core_power * 2",
-      },
-      {
-        id: "t4",
-        description: "Charge gate: charge_stargate(200)",
-        codeKeyword: "charge_stargate",
-      },
-    ],
 
     initialCode: `# Align celestial rings and charge the Stargate to 200 Flux!
 
 `,
-
-    hint: "Call align_gate_rings(), define def calculate_flux(core_power): with return core_power * 2, then call charge_stargate(200)!",
-    solutionCode: `align_gate_rings()
-
-def calculate_flux(core_power):
-    return core_power * 2
-
-charge_stargate(calculate_flux(100))`,
 
     stageType: "stargate",
     stageConfig: {
@@ -438,44 +266,19 @@ charge_stargate(calculate_flux(100))`,
     howToWriteTitle: "💎 How do I create and sort a list?",
     howToWriteBody:
       "Create a list of numbers or items, then use .sort() to order them from lowest to highest:",
-    codeExample: `# A fractured list of time crystals:
-crystals = [4, 1, 3, 2]
-
-# Sort the crystals in ascending order:
+    codeExample: `# Create and sort a small list:
+crystals = [3, 1, 2]
 crystals.sort()
 
-# Stabilize the timeline:
-stabilize_vortex(crystals)`,
+# The values are now in ascending order.`,
 
     taskObjective:
       "Store fractured crystals [4, 1, 3, 2], sort them with crystals.sort(), and stabilize the chrono vortex!",
-    tasks: [
-      {
-        id: "t1",
-        description: "Declare list: crystals = [4, 1, 3, 2]",
-        codeKeyword: "crystals = [4, 1, 3, 2]",
-      },
-      {
-        id: "t2",
-        description: "Sort list in ascending order: crystals.sort()",
-        codeKeyword: "crystals.sort()",
-      },
-      {
-        id: "t3",
-        description: "Stabilize timeline: stabilize_vortex(crystals)",
-        codeKeyword: "stabilize_vortex(crystals)",
-      },
-    ],
 
     initialCode: `# Repair the fractured timeline crystals!
 crystals = [4, 1, 3, 2]
 
 `,
-
-    hint: "Add crystals.sort() and stabilize_vortex(crystals) below the list declaration!",
-    solutionCode: `crystals = [4, 1, 3, 2]
-crystals.sort()
-stabilize_vortex(crystals)`,
 
     stageType: "chrono",
     stageConfig: {
@@ -498,51 +301,16 @@ stabilize_vortex(crystals)`,
     howToWriteTitle: "⚔️ How do I assemble the Master Spell?",
     howToWriteBody:
       "1. Set mana_shield = 100. 2. Loop cast_starlight_bolt() 3 times. 3. Call restore_core() for the finishing blow:",
-    codeExample: `# 1. Shield up:
-mana_shield = 100
-
-# 2. 3-round bolt barrage (deals 60 dmg):
-for bolt in range(3):
-    cast_starlight_bolt()
-
-# 3. Break the last binding (deals 40 dmg):
-restore_core()`,
+    codeExample: `# A single action can be called directly:
+mana_shield = 25
+cast_starlight_bolt()`,
 
     taskObjective:
       "Assemble the master spell: raise mana_shield = 100, cast 3 starlight bolts with a loop, and finish with restore_core()!",
-    tasks: [
-      {
-        id: "t1",
-        description: "Charge shield: mana_shield = 100",
-        codeKeyword: "mana_shield = 100",
-      },
-      {
-        id: "t2",
-        description:
-          "Barrage with loop: for bolt in range(3): cast_starlight_bolt()",
-        codeKeyword: "for bolt in range(3):",
-      },
-      {
-        id: "t3",
-        description: "Cast bolt inside loop: cast_starlight_bolt()",
-        codeKeyword: "cast_starlight_bolt()",
-      },
-      {
-        id: "t4",
-        description: "Finish boss: restore_core()",
-        codeKeyword: "restore_core()",
-      },
-    ],
 
     initialCode: `# Assemble your grand master spell to break Malachar’s binding!
 
 `,
-
-    hint: "Write mana_shield = 100, then for bolt in range(3): cast_starlight_bolt(), and finally restore_core()!",
-    solutionCode: `mana_shield = 100
-for bolt in range(3):
-    cast_starlight_bolt()
-restore_core()`,
 
     stageType: "boss",
     stageConfig: {

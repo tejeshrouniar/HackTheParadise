@@ -37,14 +37,6 @@ export function QuestDialogs({
           </button>
           <h3>Your mission</h3>
           <p>{lesson.taskObjective}</p>
-          <ol>
-            {lesson.tasks.map((task) => (
-              <li key={task.id}>
-                {task.description}
-                <code>{task.codeKeyword}</code>
-              </li>
-            ))}
-          </ol>
         </article>
       </Modal>
     </>

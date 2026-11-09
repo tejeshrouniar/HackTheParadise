@@ -55,3 +55,30 @@
 - After the user applied migration 009 then 007, the follow-up check returned PostgreSQL `42501` permission denials for `spark_wallets`, `spark_ledger`, `spark_unlocks`, `spark_content`, and `get_spark_content`. This confirms those protected tables and the RPC now resolve; the publishable role remains blocked as intended.
 - Checks used `limit=0` for table requests and an unauthenticated, denied RPC call. No balances or lesson rows were read; no database writes, code generation, code redemption, or deployment were performed. A signed-in app smoke check for wallet balance, code redemption, and hint/solution retrieval remains. See [the migration guide](MIGRATIONS.md).
 - No screen-reader, automated axe, or new visual browser pass was performed during this source/docs audit. The accessibility guide records this boundary.
+
+# Merge integration follow-up — 9 November 2026
+
+## Executed
+
+- Reviewed merge commit `c442f62` and both parents. Git reports no unmerged paths, and a repository-wide scan found no unresolved conflict markers.
+- Fixed the StoryPage/StoryCinema prop mismatch and the invalid `QuestAftermath` prop. Restored the original four-chapter Cinder journey as the primary Storybook, including its animated dragon and scene-by-scene completion gates. Kept the merged five-saga renderer behind a collapsed archive section so it no longer replaces the active story.
+- Story scenes now require completion of their linked playable level. Saga entries without a matching lesson remain locked; an available next lesson has one start control in its quest card.
+- Removed unused hint, solution, answer-checklist and draft lesson payloads from browser catalogs. Free guide samples are now partial; paid hint and solution text continues to come from the entitlement-checked `get_spark_content` RPC.
+- Updated README and authoring guides to distinguish the 12 playable levels from the 50-scene saga archive.
+- `npm test`: **47 passing tests**. `npm run build`: TypeScript and Vite production build pass; 2,571 modules transformed.
+- Browser accessibility tree at `http://127.0.0.1:3010/#/story` showed chapter 3 locked at 2/12 completed and exactly one `Play level` action in the quest card. This was a local UI check; it did not change progress or account data.
+
+## Limits
+
+- No live Supabase writes, migration, or deployment were performed. The 50-scene archive is not 50 playable coding levels: only the existing 12 lesson definitions can launch.
+- The local test suite validates Spark RPC authorization and accounting with a disposable database. It does not verify the currently hosted project's signed-in wallet or purchased content in this browser session.
+- No full screenshot, screen-reader, or cross-browser visual audit was performed for this merge follow-up.
+
+## Main-story preservation follow-up — 9 November 2026
+
+- Kept the merged saga collection as a collapsed secondary archive and restored the established four-region Cinder journey as the primary Storybook. The quest aftermath uses the same Cinder scene renderer.
+- Removed the duplicate quest-launch button from locked scenes; the corresponding level card remains the single entry point.
+- `npm test`: **48 passing tests**, including a regression check that keeps the four-chapter journey primary and Spark answers out of browser catalogs.
+- `npm run build`: TypeScript and Vite production build pass; 2,574 modules transformed.
+- All 12 test-only paid answer strings are absent from the 17 generated JavaScript bundles. The local Vite server returned HTTP 200 for the Storybook, both scene renderers, and quest aftermath modules.
+- `git diff --check` passes, and no merge conflict markers remain. No Supabase writes, migration, deployment, or commit were performed.

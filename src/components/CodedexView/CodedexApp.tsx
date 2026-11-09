@@ -68,7 +68,7 @@ export const CodedexApp = ({
       toast.error("Copy was blocked. Select and copy the code instead.");
     }
   }
-  if (questSuccess && !crossing) return <QuestAftermath key={lesson.id} id={lesson.id} code={code} solution={lesson.solutionCode || lesson.codeExample || ""} logs={terminalLogs} onContinue={lesson.id < CODEDEX_LESSONS.length ? handleNextQuest : onExit}/>;
+  if (questSuccess && !crossing) return <QuestAftermath key={lesson.id} id={lesson.id} code={code} logs={terminalLogs} onContinue={lesson.id < CODEDEX_LESSONS.length ? handleNextQuest : onExit}/>;
 
   return (
     <div className="sc-page sc-simple-quest">
@@ -167,7 +167,7 @@ export const CodedexApp = ({
               spellCheck={false}
               autoCapitalize="off"
               autoCorrect="off"
-              placeholder={lesson.tasks[0]?.codeKeyword}
+              placeholder="# Write your spell here"
             />
           </div>
           {errorPointer && (

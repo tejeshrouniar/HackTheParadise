@@ -502,7 +502,7 @@ export function useQuestEngine(
           lineIndex: Math.max(0, lines.length - 1),
           message: "Crystal was not collected!",
           suggestion:
-            "you must reach (2, 2) and call aether.collect_crystal() to finish!",
+            "Compare your position, facing direction, and collection step with the objective.",
           tileCoords: { x: 2, y: 2 },
         };
         setErrorPointer(err);
@@ -516,7 +516,7 @@ export function useQuestEngine(
           lineIndex: 0,
           message: "Potion recipe incomplete!",
           suggestion:
-            "Make sure mana_flask = 100, star_dew = 3, and cauldron.brew_elixir() are written.",
+            "Check the required ingredient values and confirm the brewing action ran.",
         };
         setErrorPointer(err);
         throw new Error(err.message);
@@ -529,7 +529,7 @@ export function useQuestEngine(
         const err: ErrorPointer = {
           lineIndex: 0,
           message: `Only ${blooms} flowers bloomed (needed ${target}).`,
-          suggestion: `Use a loop to repeat grow_flower() ${target} times.`,
+          suggestion: "Check the flower count and confirm each repetition runs.",
         };
         setErrorPointer(err);
         throw new Error(err.message);
@@ -588,7 +588,7 @@ export function useQuestEngine(
           lineIndex: 0,
           message: "Timeline vortex unstable!",
           suggestion:
-            "Order the crystals with crystals.sort() and call stabilize_vortex(crystals)!",
+            "Check the crystal order and confirm the stabilization step runs after sorting.",
         };
         setErrorPointer(err);
         throw new Error(err.message);
@@ -601,7 +601,7 @@ export function useQuestEngine(
           lineIndex: 0,
           message: "Malachar’s binding is still intact!",
           suggestion:
-            "Raise mana_shield = 100, barrage with cast_starlight_bolt(), and finish with restore_core()!",
+            "Review each part of the objective and confirm the final action runs after the defense and attack steps.",
         };
         setErrorPointer(err);
         throw new Error(err.message);
@@ -638,29 +638,6 @@ export function useQuestEngine(
       setCurrentLessonId(currentLessonId + 1);
     }
   };
-
-  // Check if a task is typed in code
-  const isTaskTyped = (keyword: string) => {
-    return code.includes(keyword);
-  };
-
-  // Smart Contextual Arrow Conditions
-  // 1. Is the editor clean/empty (only comments)?
-  const codeLinesWithoutComments = code
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l && !l.startsWith("#"));
-  const isEditorEmpty = codeLinesWithoutComments.length === 0;
-
-  // 2. Which is the first incomplete task?
-  const nextIncompleteTaskIndex = lesson.tasks.findIndex(
-    (t) => !isTaskTyped(t.codeKeyword),
-  );
-  const allTasksTyped = nextIncompleteTaskIndex === -1;
-
-  // 3. Is user ready to run code?
-  const isReadyToRun =
-    allTasksTyped && !questSuccess && !isExecuting && !errorPointer;
 
   const currentStageInfo = stageInfo[lesson.stageType] ?? {
     emoji: "✨",
@@ -743,12 +720,6 @@ export function useQuestEngine(
     turnDragon,
     checkQuestVictory,
     handleNextQuest,
-    isTaskTyped,
-    codeLinesWithoutComments,
-    isEditorEmpty,
-    nextIncompleteTaskIndex,
-    allTasksTyped,
-    isReadyToRun,
     currentStageInfo,
   };
 }

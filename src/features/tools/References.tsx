@@ -7,7 +7,7 @@ export function References() {
       {[
         [
           "Give an instruction",
-          "aether.move_forward()",
+          "player.move_forward()",
           "An object, a dot, and an action. Parentheses call the action.",
         ],
         [
@@ -17,7 +17,7 @@ export function References() {
         ],
         [
           "Repeat an action",
-          "for step in range(6):\n    grow_flower()",
+          "for step in range(2):\n    grow_flower()",
           "Indent the action inside the loop by four spaces.",
         ],
         [

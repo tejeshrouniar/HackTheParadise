@@ -1,4 +1,4 @@
-/** New campaign chapters are separate from the renderer and reusable quest engine. */
+/** Browser-safe campaign copy. Paid hints and solutions live in the Spark content table. */
 export const FOREST_CHAPTERS = [
   {
     id: 9,
@@ -8,8 +8,8 @@ export const FOREST_CHAPTERS = [
     story:
       "Past the restored academy, a forest has forgotten spring. Three sleeping seeds wait beside a lantern; a small spell could wake them.",
     objective: "Wake three seeds. Try using a loop to repeat the spell.",
-    hint: "Repeat grow_flower() three times with range(3).",
-    solution: "for seed in range(3):\n    grow_flower()",
+    howToWriteBody: "A loop repeats its indented body once for every value produced by range().",
+    codeExample: "for seed in range(1):\n    grow_flower()",
     stage: "garden",
     target: 3,
   },
@@ -22,9 +22,8 @@ export const FOREST_CHAPTERS = [
       "A river divides the forest from an abandoned village. Build a short crossing so that the villagers can meet again.",
     objective:
       "Create three bridge stones. Try putting the spell in a function.",
-    hint: "Define a function containing a loop of three place_starlight_tile() calls, then call it.",
-    solution:
-      "def build_crossing():\n    for stone in range(3):\n        place_starlight_tile()\n\nbuild_crossing()",
+    howToWriteBody: "A function gives a group of instructions a name so you can call them later.",
+    codeExample: "def open_path():\n    place_starlight_tile()\n\nopen_path()",
     stage: "bridge",
     target: 3,
   },
@@ -36,8 +35,8 @@ export const FOREST_CHAPTERS = [
     story:
       "A keeper left two lanterns behind a sealed door. The symbols numbered two and three must be released before the path can glow again.",
     objective: "Purify runes 2 and 3.",
-    hint: "Call purify_rune(2) and purify_rune(3).",
-    solution: "purify_rune(2)\npurify_rune(3)",
+    howToWriteBody: "An argument is the value passed between a command's parentheses.",
+    codeExample: "purify_rune(1)",
     stage: "curse",
     target: [2, 3],
   },
@@ -49,8 +48,8 @@ export const FOREST_CHAPTERS = [
     story:
       "Light reaches the gate, but the trail home is still dark. Align the rings and send the gate exactly enough energy to open a safe path.",
     objective: "Align the rings and charge the gate with at least 120 flux.",
-    hint: "Use align_gate_rings() and charge_stargate(120).",
-    solution: "align_gate_rings()\ncharge_stargate(120)",
+    howToWriteBody: "Store a value in a variable, then pass it to a command as an argument.",
+    codeExample: "energy = 60\ncharge_stargate(energy)",
     stage: "stargate",
     target: 120,
   },

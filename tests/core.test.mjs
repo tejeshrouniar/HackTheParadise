@@ -14,6 +14,8 @@ import {
 } from "../src/lib/validation.ts";
 import { CODEDEX_LESSONS } from "../src/data/codedexLessons.ts";
 import { CORE_FRAGMENTS, chapterOutcome } from "../src/content/eldoria.ts";
+import { ALL_SAGAS } from "../src/content/storySagas.ts";
+import { FOREST_CHAPTERS } from "../src/content/forestCampaign.ts";
 
 // Paid solution fixtures live in tests only. They are deliberately not imported
 // by the browser bundle; production reads them after a Supabase entitlement check.
@@ -62,6 +64,32 @@ test("all quest solutions and guide examples compile into real actions", () => {
       compileQuestCode(lesson.codeExample).length > 0,
       `${lesson.title} guide example`,
     );
+  }
+});
+test("Spark-gated answers stay out of browser catalogs and free guide examples", () => {
+  const references = readFileSync(
+    new URL("../src/features/tools/References.tsx", import.meta.url),
+    "utf8",
+  );
+  for (const solution of Object.values(SOLUTIONS)) {
+    assert.equal(references.includes(solution.trim()), false, "reference examples stay partial");
+  }
+  for (const lesson of CODEDEX_LESSONS) {
+    assert.equal("hint" in lesson, false, `${lesson.title} hint is server-only`);
+    assert.equal("solutionCode" in lesson, false, `${lesson.title} solution is server-only`);
+    assert.equal("tasks" in lesson, false, `${lesson.title} answer checklist is absent`);
+    assert.notEqual(lesson.codeExample.trim(), SOLUTIONS[lesson.id].trim(), `${lesson.title} guide is only an example`);
+  }
+  for (const saga of ALL_SAGAS) {
+    for (const chapter of saga.chapters) {
+      for (const key of ["hint", "solutionCode", "initialCode", "codeExample", "stageConfig", "tasks", "taskObjective"]) {
+        assert.equal(key in chapter, false, `${chapter.title} archive excludes ${key}`);
+      }
+    }
+  }
+  for (const chapter of FOREST_CHAPTERS) {
+    assert.equal("hint" in chapter, false, `${chapter.title} hint is server-only`);
+    assert.equal("solution" in chapter, false, `${chapter.title} solution is server-only`);
   }
 });
 test("forest campaign spells produce the actions needed by each mission", () => {
@@ -204,4 +232,28 @@ test("writer content has stable, unique IDs and valid quest links", () => {
       }
     }
   }
+});
+
+test("the active Storybook keeps Cinder's journey primary and the saga archive secondary", () => {
+  const storyPage = readFileSync(
+    new URL("../src/features/story/StoryPage.tsx", import.meta.url),
+    "utf8",
+  );
+  const journeyCinema = readFileSync(
+    new URL("../src/features/story/JourneyCinema.tsx", import.meta.url),
+    "utf8",
+  );
+  const aftermath = readFileSync(
+    new URL("../src/features/learning/QuestAftermath.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(storyPage, /from "\.\/JourneyCinema"/);
+  assert.match(storyPage, /from "\.\/SagaArchive"/);
+  assert.match(storyPage, /Explore other story worlds/);
+  assert.match(journeyCinema, /import \{ PixelDragon \}/);
+  assert.match(journeyCinema, /realm\.levels\[beat\] <= journeyProgress\(completed\)\.cleared/);
+  assert.match(journeyCinema, /Complete level \{realm\.levels\[beat\]\} below/);
+  assert.doesNotMatch(journeyCinema, /Play level \{realm\.levels\[beat\]\}/);
+  assert.match(aftermath, /JourneyScene \} from "\.\.\/story\/JourneyCinema"/);
 });

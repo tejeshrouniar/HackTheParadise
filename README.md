@@ -1,11 +1,11 @@
 # Storicode
 
-Storicode is a browser based coding adventure. Learners create an avatar, walk through four connected regions, and solve twelve small coding quests. Their instructions change the game world; each completed quest advances the story of the player and Cinder, a young copper dragon.
+Storicode is a browser based coding adventure. Learners create an avatar, walk through four connected regions, and solve twelve coding quests. Their instructions change the game world; completed quests advance the story of the player and Cinder, a young copper dragon.
 
 ## What is in the app
 
-- **Home:** a keyboard and pointer controlled trail. Each region becomes reachable after the previous three quests are complete.
-- **Storybook:** animated pixel scenes for the four chapters. A scene and its next level unlock with quest progress.
+- **Home:** a keyboard and pointer controlled trail through four regions, with three sequential quests per region.
+- **Storybook:** the main path follows the player and Cinder through four chapters and twelve quests. Completing a level reveals its matching animated scene. A collapsed archive keeps five additional saga outlines available; entries without a playable level stay locked.
 - **Coding quests:** a bounded Python inspired teaching language, step by step world feedback, hints, solutions, and completion scenes.
 - **Accounts and progress:** Supabase Auth supports email and Google sign in. Guest progress remains on the device; signed in progress syncs to the account.
 - **Sparks:** the database keeps balances, unlocks, redemption history, and admin test access. Test/promotion codes are supported. No real money checkout or referral payout is active.

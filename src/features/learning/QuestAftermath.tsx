@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { JourneyScene } from "../story/StoryCinema";
+import { JourneyScene } from "../story/JourneyCinema";
 import { JOURNEY } from "../../content/journey";
 import narration from "../../content/quest-narration.json";
 import { SparkUnlock } from "./SparkUnlock";

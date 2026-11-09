@@ -9,7 +9,7 @@ This document maps the running app and its sources so developers can make change
 | Route or area | Main entry | Owns |
 | --- | --- | --- |
 | Home | `src/features/learning/Dashboard.tsx`, `src/features/adventure/JourneyTrail.tsx` | Current region, player movement, quest landmarks, and chapter access |
-| Storybook | `src/features/story/StoryPage.tsx`, `StoryCinema.tsx` | Chapter scene playback, dragon poses, narration, and level links |
+| Storybook | `src/features/story/StoryPage.tsx`, `JourneyCinema.tsx` | Main Cinder story, completion-gated scenes, narration, and links to playable levels; a collapsed archive retains optional sagas |
 | Quest | `src/components/CodedexView/CodedexApp.tsx`, `src/features/learning/useQuestEngine.ts` | Quest editor, interpreter state, animated world, completion, and rewards |
 | Community | `src/features/chat/` | Message history, realtime updates, suggestions, reporting, and ownership controls |
 | Settings and profile | `src/features/settings/`, `src/features/profile/` | Account profile, private preferences, avatar, and accessibility options |
@@ -18,10 +18,11 @@ This document maps the running app and its sources so developers can make change
 
 ## Source-of-truth files
 
-- `src/content/journey.json`: four current chapters, their three quests, scene text, and chapter backgrounds/themes. `journey.ts` adds the small typed lookup helper.
+- `src/content/journey.json`: the four current Home regions, their three quests, scene text, and chapter backgrounds/themes. `journey.ts` adds the small typed lookup helper.
+- `src/content/storySagas.ts`: five optional saga outlines and their scene archive. It must not contain Spark-gated hints or solutions; the archive only unlocks a scene after its linked quest is completed. `SagaArchive` gets launch objectives from installed lessons instead of archived curriculum fields.
 - `src/content/quest-narration.json`: the twelve completion outcomes and coding explanations.
-- `src/features/story/PixelDragon.tsx` and `StoryCinema.tsx`: authored pixel dragon and scene animation. The SVG scene is composed in code over the pixel-art backgrounds.
-- `src/data/codedexLessons.ts`: current quest prompts, starter code, examples, and win conditions.
+- `src/features/story/JourneyCinema.tsx` and `PixelDragon.tsx`: the active four-chapter Cinder story and its authored animated dragon. `StoryCinema.tsx` renders optional archived sagas; `SagaArchive.tsx` keeps that collection separate from the main progression.
+- `src/data/codedexLessons.ts`: the 12 playable quest prompts, starter code, examples, and win conditions. Protected hint and solution text is served through `SparkUnlock` from the `get_spark_content` RPC; do not copy those bodies into browser lesson or scene data.
 - `src/features/learning/questCompiler.ts`: the bounded Python-inspired parser/interpreter. It executes only supported Storicode commands; it does not run arbitrary JavaScript or Python.
 - `src/features/adventure/appearance.ts` and `AppearanceContext.tsx`: player avatar configuration and persistence.
 - `src/features/learning/journeyProgress.ts`: sequential unlock rules shared by Home, Storybook, and quest navigation.
@@ -38,7 +39,7 @@ User-specific tables use row-level security. Progress is merged rather than over
 
 ## Retained older content
 
-The app's current Storybook reads `src/content/journey.json`; it does not use the old Aether-led `src/content/stories/first-light.json`. That JSON and migrations 001–004 remain for existing database history and the retired story publication. Do not regenerate or edit an already-applied migration to change the current player story.
+The active Home trail and main Storybook read `src/content/journey.json`; the optional Storybook archive reads `src/content/storySagas.ts`. Neither uses the old Aether-led `src/content/stories/first-light.json` publication. That JSON and migrations 001–004 remain for existing database history. Do not regenerate or edit an already-applied migration to change the current player story.
 
 Older component prototypes under `src/components/MinimalApp/`, `Home/`, `Lab/`, and `Map/` are not imported by the current route shell. `server/index.js` is a retained demo server, not the deployed auth backend. `src/components/GameWorlds/` is used by the current quest renderer; it is not part of that unused prototype list. Remove old modules only after checking the import graph and confirming they have no remaining reference.
 
