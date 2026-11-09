@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { CODEDEX_LESSONS, CodedexLesson } from '../../data/codedexLessons';
+import { HTML_CSS_LESSONS } from '../../data/htmlCssLessons';
 import { CodedexHome } from '../CodedexHome/CodedexHome';
+
+export const ALL_CODEDEX_LESSONS: CodedexLesson[] = [...CODEDEX_LESSONS, ...HTML_CSS_LESSONS];
 import { sound } from '../../utils/sound';
 import {
   Sparkles,
@@ -42,7 +45,7 @@ export const CodedexApp: React.FC = () => {
 
   // Lesson state
   const [currentLessonId, setCurrentLessonId] = useState<number>(1);
-  const lesson = CODEDEX_LESSONS.find((l) => l.id === currentLessonId) || CODEDEX_LESSONS[0];
+  const lesson = ALL_CODEDEX_LESSONS.find((l) => l.id === currentLessonId) || CODEDEX_LESSONS[0];
 
   // User Code State (Starts clean with "type code here")
   const [code, setCode] = useState<string>(lesson.initialCode);
@@ -188,7 +191,11 @@ export const CodedexApp: React.FC = () => {
 
     resetStage();
 
-    const logs: string[] = [`$ python main.py`];
+    const logs: string[] = [
+      lesson.stageType === 'webpage' || lesson.stageType === 'styler' || lesson.stageType === 'layout'
+        ? '$ webcraft render index.html'
+        : '$ python main.py',
+    ];
     setTerminalLogs([...logs]);
 
     let simDragon = {
@@ -210,6 +217,48 @@ export const CodedexApp: React.FC = () => {
     let simShield = 0;
 
     const lines = code.split('\n');
+
+    // HTML & CSS Stage Execution
+    if (lesson.stageType === 'webpage' || lesson.stageType === 'styler' || lesson.stageType === 'layout') {
+      try {
+        logs.push(`> Inscribing "${lesson.title}" into the Scrying Mirror...`);
+        setTerminalLogs([...logs]);
+        await delay(300);
+
+        // Check required keywords from tasks
+        const missingTask = lesson.tasks.find((t) => !code.includes(t.codeKeyword));
+        if (missingTask) {
+          sound.playError();
+          const err: ErrorPointer = {
+            lineIndex: Math.max(0, lines.length - 1),
+            message: `Task Incomplete: ${missingTask.description}`,
+            suggestion: `Inscribe "${missingTask.codeKeyword}" into your scroll to satisfy the runes.`,
+          };
+          setErrorPointer(err);
+          throw new Error(err.message);
+        }
+
+        sound.playVictoryFanfare();
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+        logs.push(`> ✨ All runes and incantations verified!`);
+        logs.push(`================================`);
+        logs.push(`🎉 QUEST COMPLETE! +150 XP`);
+        logs.push(`> Web enchantment woven into the Scrying Mirror successfully.`);
+        setTerminalLogs([...logs]);
+        setQuestSuccess(true);
+        setErrorPointer(null);
+        if (!completedLessons.includes(lesson.id)) {
+          setCompletedLessons([...completedLessons, lesson.id]);
+        }
+      } catch (e: any) {
+        sound.playError();
+        logs.push(`⚠️ ${e.message}`);
+        setTerminalLogs([...logs]);
+      } finally {
+        setIsExecuting(false);
+      }
+      return;
+    }
 
     try {
       for (let i = 0; i < lines.length; i++) {
@@ -633,8 +682,9 @@ export const CodedexApp: React.FC = () => {
 
   const handleNextQuest = () => {
     sound.playClick();
-    if (currentLessonId < CODEDEX_LESSONS.length) {
-      setCurrentLessonId(currentLessonId + 1);
+    const currIdx = ALL_CODEDEX_LESSONS.findIndex((l) => l.id === currentLessonId);
+    if (currIdx !== -1 && currIdx < ALL_CODEDEX_LESSONS.length - 1) {
+      setCurrentLessonId(ALL_CODEDEX_LESSONS[currIdx + 1].id);
     }
   };
 
@@ -694,9 +744,36 @@ export const CodedexApp: React.FC = () => {
             </div>
           </div>
 
-          {/* Quest Selector Buttons (Chapter 1..8) */}
-          <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none">
-            {CODEDEX_LESSONS.map((l) => {
+          {/* Track Switcher & Quest Selector Buttons */}
+          <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
+            <div className="flex items-center bg-black/40 p-0.5 rounded-xl border border-white/10 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  sound.playClick();
+                  setCurrentLessonId(1);
+                }}
+                className={`px-2 py-1 rounded-lg text-[10px] font-pixel transition-all ${
+                  currentLessonId <= 8 ? 'bg-magic text-white shadow font-bold' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                🐍 Python
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sound.playClick();
+                  setCurrentLessonId(101);
+                }}
+                className={`px-2 py-1 rounded-lg text-[10px] font-pixel transition-all ${
+                  currentLessonId >= 101 ? 'bg-spellPink text-night-950 shadow font-bold' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                🌐 HTML/CSS
+              </button>
+            </div>
+
+            {(currentLessonId >= 101 ? HTML_CSS_LESSONS : CODEDEX_LESSONS).map((l) => {
               const isCurrent = l.id === currentLessonId;
               const isDone = completedLessons.includes(l.id);
 
@@ -707,7 +784,7 @@ export const CodedexApp: React.FC = () => {
                     sound.playClick();
                     setCurrentLessonId(l.id);
                   }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-fantasy font-bold transition-all flex items-center gap-1.5 shrink-0 ${
+                  className={`px-2.5 py-1.5 rounded-xl text-xs font-fantasy font-bold transition-all flex items-center gap-1.5 shrink-0 ${
                     isCurrent
                       ? 'bg-gradient-to-r from-magic to-spellPink text-night-950 shadow-magic scale-105'
                       : isDone
@@ -715,7 +792,7 @@ export const CodedexApp: React.FC = () => {
                       : 'bg-white/5 hover:bg-white/10 text-moonCream/70'
                   }`}
                 >
-                  <span>#{l.id}</span>
+                  <span>#{l.id >= 101 ? l.id - 100 : l.id}</span>
                   <span className="hidden sm:inline">{l.title}</span>
                   {isDone && <CheckCircle2 className="w-3.5 h-3.5 text-manaMint" />}
                 </button>
@@ -1187,6 +1264,28 @@ export const CodedexApp: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              {/* HTML & CSS Live Scrying Mirror (iframe Preview) */}
+              {(lesson.stageType === 'webpage' || lesson.stageType === 'styler' || lesson.stageType === 'layout') && (
+                <div className="flex flex-col items-center gap-2.5 w-full h-full min-h-[300px]">
+                  <div className="w-full flex items-center justify-between px-3.5 py-2 bg-[#090610] rounded-t-2xl border border-white/10 text-xs shadow-md">
+                    <span className="flex items-center gap-2 text-manaMint font-bold font-pixel">
+                      <Sparkles className="w-3.5 h-3.5 text-[#F472B6]" /> Scrying Mirror (Live Preview)
+                    </span>
+                    <span className="text-[10px] text-white/60 font-code font-bold px-2 py-0.5 rounded bg-white/5 border border-white/10">
+                      {lesson.stageType === 'webpage' ? '📜 Structure' : lesson.stageType === 'styler' ? '🎨 Stylesheet' : '🏛️ Layout'}
+                    </span>
+                  </div>
+                  <div className="w-full flex-1 rounded-b-2xl overflow-hidden bg-white border border-t-0 border-white/20 shadow-2xl min-h-[260px] flex flex-col">
+                    <iframe
+                      srcDoc={code}
+                      title="Live HTML/CSS Preview"
+                      sandbox="allow-scripts"
+                      className="w-full h-full min-h-[260px] flex-1 border-none bg-white text-black"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Victory Next Quest Banner with Pointer Arrow */}
@@ -1204,7 +1303,10 @@ export const CodedexApp: React.FC = () => {
                   </div>
                 </div>
 
-                {currentLessonId < CODEDEX_LESSONS.length && (
+                {(() => {
+                  const currIdx = ALL_CODEDEX_LESSONS.findIndex((l) => l.id === currentLessonId);
+                  return currIdx !== -1 && currIdx < ALL_CODEDEX_LESSONS.length - 1;
+                })() && (
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-fantasy font-bold text-manaMint animate-pulse hidden sm:inline">
                       Next Step 👉

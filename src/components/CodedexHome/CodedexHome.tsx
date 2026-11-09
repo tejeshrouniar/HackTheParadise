@@ -23,6 +23,7 @@ import {
 import confetti from 'canvas-confetti';
 import { sound } from '../../utils/sound';
 import { CODEDEX_LESSONS, CodedexLesson } from '../../data/codedexLessons';
+import { HTML_CSS_LESSONS } from '../../data/htmlCssLessons';
 import homeBg from '../../assets/home-bg-sharp.png';
 import { ArcaneTerminalModal } from './ArcaneTerminalModal';
 import { SparkyCompanionModal } from './SparkyCompanionModal';
@@ -74,6 +75,7 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
   const [signUpPassword, setSignUpPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [selectedLanguage, setSelectedLanguage] = useState<'Python' | 'JavaScript' | 'SpellScript'>('Python');
+  const [selectedTrack, setSelectedTrack] = useState<'python' | 'htmlcss'>('python');
   const [isSignedUp, setIsSignedUp] = useState<boolean>(false);
 
   // Close dropdowns on outside click or escape
@@ -123,8 +125,11 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
     }
   }, [isSearchOpen]);
 
+  // Combined all lessons for search
+  const allLessons = [...CODEDEX_LESSONS, ...HTML_CSS_LESSONS];
+
   // Search filter across lessons
-  const filteredLessons = CODEDEX_LESSONS.filter((lesson) => {
+  const filteredLessons = allLessons.filter((lesson) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     return (
@@ -219,14 +224,15 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
 
               {isLearnOpen && (
                 <div
-                  className={`absolute top-full left-0 mt-2 w-72 rounded-2xl p-2 shadow-2xl border backdrop-blur-xl z-50 animate-fadeIn ${
+                  className={`absolute top-full left-0 mt-2 w-80 max-h-[480px] overflow-y-auto rounded-2xl p-2 shadow-2xl border backdrop-blur-xl z-50 animate-fadeIn ${
                     isDarkMode
                       ? 'bg-[#1A1230]/95 border-[#8B5CF6]/40 text-[#FFF7ED]'
                       : 'bg-white/95 border-[#DDD6FE] text-[#231238]'
                   }`}
                 >
-                  <div className="px-3 py-1.5 text-[10px] font-pixel uppercase tracking-wider text-[#A78BFA]">
-                    Curriculum Chapters
+                  <div className="px-3 py-1 text-[10px] font-pixel uppercase tracking-wider text-[#A78BFA] flex items-center justify-between">
+                    <span>🐍 Python Spellcraft</span>
+                    <span className="text-[9px] opacity-70">8 Quests</span>
                   </div>
                   {CODEDEX_LESSONS.map((l) => (
                     <button
@@ -236,11 +242,11 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
                         setIsLearnOpen(false);
                         onStartAdventure(l.id);
                       }}
-                      className={`w-full text-left px-3 py-2 rounded-xl flex items-center gap-3 transition-colors ${
+                      className={`w-full text-left px-3 py-1.5 rounded-xl flex items-center gap-2.5 transition-colors ${
                         isDarkMode ? 'hover:bg-[#8B5CF6]/20' : 'hover:bg-purple-50'
                       }`}
                     >
-                      <span className="text-lg">
+                      <span className="text-base">
                         {l.stageType === 'dragon'
                           ? '🐲'
                           : l.stageType === 'potion'
@@ -249,15 +255,72 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
                           ? '🌸'
                           : l.stageType === 'bridge'
                           ? '🔮'
+                          : l.stageType === 'stargate'
+                          ? '🌌'
+                          : l.stageType === 'chrono'
+                          ? '⏳'
+                          : l.stageType === 'boss'
+                          ? '🏆'
                           : '⚡'}
                       </span>
                       <div className="flex-1 overflow-hidden">
                         <div className="text-xs font-bold truncate">{l.title}</div>
-                        <div className={`text-[11px] truncate ${isDarkMode ? 'text-[#A78BFA]' : 'text-[#6D28D9]'}`}>
+                        <div className={`text-[10px] truncate ${isDarkMode ? 'text-[#A78BFA]' : 'text-[#6D28D9]'}`}>
                           {l.conceptName}
                         </div>
                       </div>
-                      <ArrowRight className="w-3.5 h-3.5 opacity-50" />
+                      <ArrowRight className="w-3 h-3 opacity-50 shrink-0" />
+                    </button>
+                  ))}
+
+                  <div className="mt-2 pt-2 border-t border-white/10 px-3 py-1 text-[10px] font-pixel uppercase tracking-wider text-[#F472B6] flex items-center justify-between">
+                    <span>🌐 HTML & CSS Enchanter</span>
+                    <span className="text-[9px] opacity-70">12 Quests</span>
+                  </div>
+                  {HTML_CSS_LESSONS.map((l) => (
+                    <button
+                      key={l.id}
+                      onClick={() => {
+                        sound.playWandCast();
+                        setIsLearnOpen(false);
+                        onStartAdventure(l.id);
+                      }}
+                      className={`w-full text-left px-3 py-1.5 rounded-xl flex items-center gap-2.5 transition-colors ${
+                        isDarkMode ? 'hover:bg-[#EC4899]/20' : 'hover:bg-pink-50'
+                      }`}
+                    >
+                      <span className="text-base">
+                        {l.id === 101
+                          ? '📜'
+                          : l.id === 102
+                          ? '🪨'
+                          : l.id === 103
+                          ? '🌀'
+                          : l.id === 104
+                          ? '📜'
+                          : l.id === 105
+                          ? '🧪'
+                          : l.id === 106
+                          ? '🚪'
+                          : l.id === 107
+                          ? '👗'
+                          : l.id === 108
+                          ? '💎'
+                          : l.id === 109
+                          ? '📦'
+                          : l.id === 110
+                          ? '⚔️'
+                          : l.id === 111
+                          ? '🏛️'
+                          : '🪞'}
+                      </span>
+                      <div className="flex-1 overflow-hidden">
+                        <div className="text-xs font-bold truncate">{l.title}</div>
+                        <div className={`text-[10px] truncate ${isDarkMode ? 'text-[#F472B6]' : 'text-[#DB2777]'}`}>
+                          {l.conceptName}
+                        </div>
+                      </div>
+                      <ArrowRight className="w-3 h-3 opacity-50 shrink-0" />
                     </button>
                   ))}
                 </div>
@@ -627,20 +690,60 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
                 isDarkMode ? 'text-[#FFF7ED]' : 'text-[#231238]'
               }`}
             >
-              Explore 8 Magical Realms & Boss Battle
+              {selectedTrack === 'python'
+                ? 'Explore 8 Magical Python Realms'
+                : 'Explore 12 HTML & CSS Web Quests'}
             </h2>
             <p
               className={`text-sm max-w-xl mx-auto leading-relaxed transition-colors ${
                 isDarkMode ? 'text-[#CBD5E1]' : 'text-[#475569]'
               }`}
             >
-              Master algorithms, variables, loops, and functions through hands-on fantasy quests with live cause-and-effect!
+              {selectedTrack === 'python'
+                ? 'Master algorithms, variables, loops, and functions through hands-on fantasy quests with live cause-and-effect!'
+                : 'Weave web scrolls and style enchantments from HTML skeletons to CSS Flexbox, Grid, and responsive illusion mirrors!'}
             </p>
+
+            {/* Language Track Switcher Tabs */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  sound.playClick();
+                  setSelectedTrack('python');
+                }}
+                className={`px-5 py-2.5 rounded-2xl text-xs font-pixel font-bold uppercase transition-all flex items-center gap-2 border-2 ${
+                  selectedTrack === 'python'
+                    ? 'bg-[#8B5CF6] text-white border-[#6D28D9] shadow-lg shadow-purple-900/40 scale-105'
+                    : isDarkMode
+                    ? 'bg-[#1A1230] border-white/10 text-gray-400 hover:text-white'
+                    : 'bg-white border-purple-200 text-purple-700 hover:bg-purple-50'
+                }`}
+              >
+                <span>🐍 Python Spellcraft (8 Quests)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sound.playClick();
+                  setSelectedTrack('htmlcss');
+                }}
+                className={`px-5 py-2.5 rounded-2xl text-xs font-pixel font-bold uppercase transition-all flex items-center gap-2 border-2 ${
+                  selectedTrack === 'htmlcss'
+                    ? 'bg-[#EC4899] text-white border-[#BE185D] shadow-lg shadow-pink-900/40 scale-105'
+                    : isDarkMode
+                    ? 'bg-[#1A1230] border-white/10 text-gray-400 hover:text-white'
+                    : 'bg-white border-purple-200 text-purple-700 hover:bg-purple-50'
+                }`}
+              >
+                <span>🌐 HTML & CSS Enchanter (12 Quests)</span>
+              </button>
+            </div>
           </div>
 
-          {/* 5 Course Cards */}
+          {/* Course Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {CODEDEX_LESSONS.map((l) => (
+            {(selectedTrack === 'python' ? CODEDEX_LESSONS : HTML_CSS_LESSONS).map((l) => (
               <div
                 key={l.id}
                 onClick={() => {
@@ -687,6 +790,12 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
                         ? '⏳'
                         : l.stageType === 'boss'
                         ? '🏆'
+                        : l.stageType === 'webpage'
+                        ? '📜'
+                        : l.stageType === 'styler'
+                        ? '🎨'
+                        : l.stageType === 'layout'
+                        ? '🏛️'
                         : '✨'}
                     </span>
                   </div>
