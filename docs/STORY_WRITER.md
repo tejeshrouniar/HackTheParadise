@@ -7,13 +7,20 @@ The active story follows the learner as the main character. Cinder, a young copp
 | Content | Source | Used by |
 | --- | --- | --- |
 | Four Home regions, quest stops, and 12 scene lines | `src/content/journey.json` | Home trail, quest progression, cutscenes, completion scene, narration |
-| Five optional saga outlines and 50 archived scene scripts | `src/content/storySagas.ts` | Source archive only; not loaded into the player interface |
+| Two optional six-chapter volumes and their code puzzles | `src/content/storyBooks.ts`, `src/content/codeCampaign.ts` | Storybook shelf, volume page layout, theme, background, soundtrack, and independent unlock sequence |
+| Five older saga outlines and archived scene scripts | `src/content/storySagas.ts` | Source archive only; not loaded into the player interface |
 | Quest outcome and coding explanation copy | `src/content/quest-narration.json` | Quest completion page and generated voice manifest |
 | Main story scene composition, props, character and Cinder movement | `src/features/story/JourneyCinema.tsx`, `PixelDragon.tsx` | Four-chapter Storybook and quest aftermath |
 | Archived saga UI prototype | `src/features/story/StoryCinema.tsx`, `SagaArchive.tsx` | Retained but not imported by active routes |
 | Quest instructions, starter code, examples, win conditions | `src/data/codedexLessons.ts` | Coding screen, guides, and quest interpreter |
 
 Keep the three entries in each chapter aligned: level IDs, stop names, and scene lines all use the same order. The sequential unlock policy lives in `src/features/learning/journeyProgress.ts`, not in story copy. Each chapter's third quest should lead naturally into the next region.
+
+## Optional storybook volumes
+
+The original wizard-school mystery lives beside Cinder's main campaign. `storyBooks.ts` declares each volume's independent story ID, theme, backdrop, music track, and chapter list. `codeCampaign.ts` holds its story text, objectives, and sandbox test cases. The Storybook UI reads the learner's chosen volume without sharing `ProgressContext` lesson IDs. `useBookProgress.ts` stores chapter completion locally and in Supabase `story_progress`; migration 010 seeds the distinct chapter IDs. Keep each book's chapters sequential, and gate a sequel behind completion of its previous volume.
+
+Artwork is authored in CSS per book theme and the scores use the included Web Audio synthesizer. A new volume should provide its own theme, background key, and soundscape preset, then add chapter IDs in a new migration. Keep answer code out of browser content; test fixtures may hold expected outputs but should not include reference solutions.
 
 ## Spark-gated content
 

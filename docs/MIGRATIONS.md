@@ -13,6 +13,7 @@ Apply migrations in filename order on a clean project. Existing projects should 
 | `202611050007` | Protected hint/solution content and entitlement check | 006 |
 | `202611090008` | Hashed redemption codes, campaign attribution, admin tools, unlimited test access | 006–007 |
 | `202611090009` | Idempotent repair for wallet/ledger/unlock tables and trusted credit RPC | Auth users; safe after 008 |
+| `202611090010` | Two optional storybook volumes and chapter rows for independent progress sync | 002–004 |
 
 ## Current hosted project check
 

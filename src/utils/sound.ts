@@ -12,6 +12,8 @@ export const BGM_TRACKS: BgmTrack[] = [
  { id: 'twilight', name: 'Twilight Sanctuary', emoji: '✨', vibe: 'Synthesized lo-fi and bells' },
  { id: 'citadel', name: 'Cyber Citadel', emoji: '🏰', vibe: 'Synthesized warm pads' },
  { id: 'meadow', name: 'Arcane Meadow', emoji: '🌿', vibe: 'Synthesized soft harp' },
+ { id: 'archive', name: 'Candlelit Archive', emoji: '📖', vibe: 'Original synthesized chamber score' },
+ { id: 'eclipse', name: 'Midnight Observatory', emoji: '🌙', vibe: 'Original synthesized night score' },
 ];
 
 class SoundSystem {
@@ -53,6 +55,18 @@ class SoundSystem {
       [146.83, 220.00, 261.63, 329.63, 392.00], // Dm7
       [196.00, 246.94, 293.66, 392.00, 440.00], // G6
     ],
+    archive: [
+      [110.00, 164.81, 220.00, 261.63, 329.63],
+      [98.00, 146.83, 196.00, 246.94, 293.66],
+      [130.81, 196.00, 246.94, 293.66, 392.00],
+      [116.54, 174.61, 220.00, 293.66, 349.23],
+    ],
+    eclipse: [
+      [92.50, 138.59, 185.00, 220.00, 277.18],
+      [82.41, 123.47, 164.81, 207.65, 246.94],
+      [98.00, 146.83, 196.00, 233.08, 293.66],
+      [87.31, 130.81, 174.61, 220.00, 261.63],
+    ],
   };
 
   // Generative melody scales
@@ -62,6 +76,8 @@ class SoundSystem {
     twilight: [523.25, 587.33, 659.25, 783.99, 880.00, 987.77, 1046.50],
     citadel: [587.33, 659.25, 739.99, 880.00, 987.77, 1108.73, 1174.66],
     meadow: [698.46, 783.99, 880.00, 1046.50, 1174.66, 1318.51],
+    archive: [392.00, 440.00, 523.25, 587.33, 659.25, 783.99],
+    eclipse: [293.66, 349.23, 392.00, 440.00, 523.25, 587.33],
   };
 
   constructor() {
@@ -332,7 +348,7 @@ class SoundSystem {
     };
 
     // Melody tempo: 420ms for BTS upbeat tracks, 750ms for ballads
-    const isBallad = this.currentTrackId === 'twilight';
+    const isBallad = ['twilight', 'archive', 'eclipse'].includes(this.currentTrackId);
     const tempoMs = isBallad ? 650 : 420;
 
     this.bgmMelodyIntervalId = setInterval(() => {

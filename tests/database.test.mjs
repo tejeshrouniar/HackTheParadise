@@ -77,6 +77,45 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
         assert.deepEqual(after.rows, before.rows);
       },
     );
+    await t.test(
+      "optional storybooks seed independently and preserve Cinder progress",
+      async () => {
+        const before = await db.query(
+          "select completed,choices from public.story_progress where user_id=$1 and chapter_id='the-awakening'",
+          [A],
+        );
+        await db.exec(migration("202611090010_ink_and_ember_storybooks.sql"));
+
+        const books = await db.query(
+          "select id,title,published from public.stories where id like 'ink-and-ember-book-%' order by id",
+        );
+        assert.equal(books.rows.length, 2);
+        assert.ok(books.rows.every((book) => book.published));
+        const chapters = await db.query(
+          "select story_id,count(*)::int as count from public.story_chapters where story_id like 'ink-and-ember-book-%' group by story_id order by story_id",
+        );
+        assert.deepEqual(chapters.rows.map((row) => row.count), [6, 6]);
+
+        const cinder = await db.query(
+          "select title,edition from public.stories where id='first-light'",
+        );
+        assert.deepEqual(cinder.rows[0], {
+          title: "The Fragments of Eldoria",
+          edition: 2,
+        });
+        const after = await db.query(
+          "select completed,choices from public.story_progress where user_id=$1 and chapter_id='the-awakening'",
+          [A],
+        );
+        assert.deepEqual(after.rows, before.rows);
+
+        await db.exec(migration("202611090010_ink_and_ember_storybooks.sql"));
+        const repeated = await db.query(
+          "select count(*)::int as count from public.story_chapters where story_id like 'ink-and-ember-book-%'",
+        );
+        assert.equal(repeated.rows[0].count, 12);
+      },
+    );
     const as = async (id) => {
       await db.exec("reset role");
       await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
@@ -393,7 +432,7 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
         await as(null);
         assert.equal(
           (await db.query("select * from story_chapters")).rows.length,
-          8,
+          20, // Eight Cinder chapters plus twelve optional book chapters.
         );
         for (const table of [
           "profiles",

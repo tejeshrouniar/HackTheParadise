@@ -5,7 +5,7 @@ Storicode is a browser based coding adventure. Learners create an avatar, walk t
 ## What is in the app
 
 - **Home:** a keyboard and pointer controlled trail through four regions, with three sequential quests per region.
-- **Storybook:** the player and Cinder’s four chapter, twelve quest story is the only story shown in the app. Completing a level reveals its matching animated scene. Other saga drafts remain archived in source and are not loaded by the player interface.
+- **Storybook:** Cinder’s four-chapter campaign remains the main journey. Two optional six-chapter volumes, *The Hidden Relics* and *The Last Ward*, add an original wizard-school mystery with independent progress, page-like reading layouts, distinct backgrounds, and original synthesized scores. Book II opens after Book I; neither changes Cinder’s quest progress.
 - **Coding quests:** a bounded Python inspired teaching language, step by step world feedback, hints, solutions, and completion scenes.
 - **Accounts and progress:** Supabase Auth supports email and Google sign in. Guest progress remains on the device; signed in progress syncs to the account.
 - **Sparks:** the database keeps balances, unlocks, redemption history, and admin test access. Test/promotion codes are supported. No real money checkout or referral payout is active.
@@ -43,6 +43,8 @@ VITE_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 ```
 
 Never place a Supabase secret or `service_role` key in the browser app. Apply schema migrations in filename order and configure Google OAuth using [the Supabase setup guide](SUPABASE_SETUP.md). Migration 009 repairs the Spark wallet tables when migration 008 exists but the earlier wallet foundation is missing; it is safe after 008 and preserves existing rows.
+
+The optional storybook volumes need migration `202611090010_ink_and_ember_storybooks.sql` for signed-in progress sync. Until it is applied, the books save locally in the browser.
 
 ## Where to look
 

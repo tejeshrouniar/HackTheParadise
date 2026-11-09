@@ -28,6 +28,18 @@ export const soundscapes: MusicTrack[] = [
     title: "Arcane meadow",
     artist: "Storicode · synthesized soundscape",
   },
+  {
+    id: "volume-one-score",
+    preset: "archive",
+    title: "Candlelit Archive",
+    artist: "Storicode · original synthesized score",
+  },
+  {
+    id: "volume-two-score",
+    preset: "eclipse",
+    title: "Midnight Observatory",
+    artist: "Storicode · original synthesized score",
+  },
 ];
 const cache = new Map<string, MusicTrack[]>();
 export async function searchMusic(
