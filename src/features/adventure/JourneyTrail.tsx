@@ -16,12 +16,14 @@ import walkway from "../../assets/realms/walkway.png";
 
 const WIDTH = 1280;
 const VIEW = 480;
+const POSITION_STORAGE_KEY = "storicode:journey-position-v2";
 const art = import.meta.glob<string>("../../assets/realms/*.png", {eager:true,query:"?url",import:"default"});
 const sprite = (name:string) => art[`../../assets/realms/${name}.png`];
 const BACKGROUNDS = [forest, moon, amber, dawn];
 const PROPS = ["lantern","resin_bottle","healing_herb","hammer","scroll","gold_key","sun_disc","soul_stone","healing_herb","wood_log","lantern","magic_staff"];
 const stops = JOURNEY.flatMap((realm, chapter) => realm.levels.map((id, index) => ({id, chapter, x: chapter * WIDTH + 240 + index * 380, title: realm.stops[index]})));
 
+// Pointer and keyboard input share one world position; progression gates every landmark entry.
 export function JourneyTrail({completed,onQuest,onLocation}:{completed:number[];onQuest:(id:number)=>void;onLocation:(chapter:number)=>void}) {
   const progress = journeyProgress(completed);
   const mistId = useId().replace(/:/g, "");
@@ -30,7 +32,14 @@ export function JourneyTrail({completed,onQuest,onLocation}:{completed:number[];
   const reduced = preferences.reduced_motion || !!systemReduced;
   const {appearance} = useAppearance();
   const [start] = useState(() => {
-    try { const saved=Number(sessionStorage.getItem("storicode:journey-position-v2")); if(Number.isFinite(saved)&&saved>=40)return Math.min(saved,(progress.chapter+1)*WIDTH-40); } catch { /* Position persistence is optional. */ }
+    try {
+      const saved = Number(
+        sessionStorage.getItem(POSITION_STORAGE_KEY) ??
+          sessionStorage.getItem("storicode:journey-position"),
+      );
+      if (Number.isFinite(saved) && saved >= 40)
+        return Math.min(saved, (progress.chapter + 1) * WIDTH - 40);
+    } catch { /* Position persistence is optional. */ }
     return Math.max(80,progress.chapter*WIDTH-80);
   });
   const [position,setPosition] = useState(start);
@@ -85,7 +94,7 @@ export function JourneyTrail({completed,onQuest,onLocation}:{completed:number[];
     };
     frame=requestAnimationFrame(animate);
     window.addEventListener("blur",stop);document.addEventListener("visibilitychange",stop);
-    return()=>{try { sessionStorage.setItem("storicode:journey-position",String(x.current)); } catch { /* Keep the route playable without storage. */ } cancelAnimationFrame(frame);window.removeEventListener("blur",stop);document.removeEventListener("visibilitychange",stop);};
+    return()=>{try { sessionStorage.setItem(POSITION_STORAGE_KEY,String(x.current)); } catch { /* Keep the route playable without storage. */ } cancelAnimationFrame(frame);window.removeEventListener("blur",stop);document.removeEventListener("visibilitychange",stop);};
   },[]);
   function enter(id:number){
     if(!canEnterLevel(id,completed)){setNotice("Complete the earlier spell to unlock this landmark.");return;}

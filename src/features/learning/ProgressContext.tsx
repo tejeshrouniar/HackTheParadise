@@ -24,6 +24,7 @@ const Context = createContext<{
   status: string;
   retry: () => void;
 }>({ completed: [], complete: () => {}, status: "", retry: () => {} });
+// Guest progress stays local; signed-in progress merges with the server to protect both copies.
 export function ProgressProvider({ children }: PropsWithChildren) {
   const { user } = useAuth();
   const key = user

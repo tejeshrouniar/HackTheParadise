@@ -1,35 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { JourneyScene } from "../story/StoryCinema";
 import { JOURNEY } from "../../content/journey";
-const explanations = [
-"Movement follows the direction you face. Turning changes that direction; collecting works after you reach the fragment.",
-"Assignments store values under names. The brewing action reads those values to make the mixture.",
-"A loop repeats its indented instructions. Each repetition grows another part of the garden.",
-"A function names a reusable sequence. Calling it runs the building instructions inside it.",
-"A list index selects one item. Correcting the invalid index lets the ward spell reach its target.",
-"Parameters pass values into a function. Its return value supplies the result used by the passage.",
-"Sorting changes the order of list values. Indexes then refer to positions in that new order.",
-"Your variables, repeated actions, and function calls work together to remove the binding.",
-"The loop repeats your growing instruction for each sleeping seed.",
-"Calling your bridge function reuses its building instructions for the crossing.",
-"Arguments tell the lighting function which values to use for each marker.",
-"The calculation combines stored values. The final instruction uses the result to restore the road."
-];
-const outcomes = [
-"You follow the path and catch the lost spark. Your lantern flickers awake.",
-"Your mixture feeds the spark. The lantern burns brightly enough to reveal the sleeping roots.",
-"Your repeated spell wakes the roots. They part, opening the road to Moonlit Crossing.",
-"Your reusable spell builds the crossing. You walk safely across the hollow.",
-"You repair the broken ward. Its runes shine again, revealing the passage beyond.",
-"Your spell aligns the passage. You step through toward the Amber Ruins.",
-"You put the scattered hours in order. The ancient clock begins to stir.",
-"Your instructions break the binding around the clock’s heart. Time starts moving again.",
-"Your repeated spell wakes the seeds. New leaves point toward Dawnreach.",
-"Your bridge reaches the far bank. The road home is open to everyone.",
-"Your instructions light the trail markers. Their glow guides the waiting travellers.",
-"You send the last light home. The mist lifts, and your village returns."
-];
-export function QuestAftermath({id,code,solution,logs,onContinue}:{id:number;code:string;solution:string;logs:string[];onContinue:()=>void}) {
+import narration from "../../content/quest-narration.json";
+import { SparkUnlock } from "./SparkUnlock";
+// Completion copy is shared with the offline narration manifest in quest-narration.json.
+const { explanations, outcomes } = narration;
+export function QuestAftermath({id,code,logs,onContinue}:{id:number;code:string;logs:string[];onContinue:()=>void}) {
   const audio=useRef<HTMLAudioElement>(null);
   const [speaking,setSpeaking]=useState(false);
   const [voiceNotice,setVoiceNotice]=useState("");
@@ -56,7 +32,7 @@ export function QuestAftermath({id,code,solution,logs,onContinue}:{id:number;cod
     <p aria-live="polite">{outcomes[id-1]}</p>
     <h3>How your spell worked</h3>
     <p>{explanations[id-1]}</p>
-    <div className="sc-completion-code"><section><h3>Your spell</h3><pre><code>{snapshot.code}</code></pre></section><section><h3>Example solution</h3><pre><code>{solution}</code></pre></section></div>
+    <div className="sc-completion-code"><section><h3>Your spell</h3><pre><code>{snapshot.code}</code></pre></section><section><h3>Example solution · 20 sparks</h3><SparkUnlock id={id} kind="solution" onUse={code=>{navigator.clipboard?.writeText(code).catch(()=>{});}} /></section></div>
     <details><summary>Execution steps</summary><ol>{snapshot.logs.filter(line=>!line.startsWith('$')).slice(-16).map((line,i)=><li key={i}>{line.split("aether.").join("player.")}</li>)}</ol></details>
     <button className="sc-button" disabled={!ready} onClick={onContinue}>{ready ? id===12?"Return home":"Continue the story →" : "Your story is unfolding…"}</button>
     {!ready&&<button className="sc-link" onClick={()=>setReady(true)}>Skip animation</button>}

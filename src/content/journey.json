@@ -1,0 +1,50 @@
+[
+  {
+    "title": "The Last Light",
+    "place": "Lanternwood",
+    "theme": "dawn",
+    "levels": [1, 2, 3],
+    "stops": ["Find the spark", "Brew the lantern fuel", "Wake the roots"],
+    "lines": [
+      "At Lanternwood's edge, a vast winged shadow cuts across the sky. One copper scale falls beside your empty lantern; your village has vanished into the mist.",
+      "You follow the scale's warm glow and catch the forest's last spark. Your lantern wakes, and something beneath the tangled roots answers.",
+      "Your spell parts the roots. Cinder, a young copper dragon, is trapped there with a cracked wing. It watches as you lift the roots clear."
+    ]
+  },
+  {
+    "title": "Across the Hollow",
+    "place": "Moonlit Crossing",
+    "theme": "moon",
+    "levels": [4, 5, 6],
+    "stops": ["Build the crossing", "Mend the ward", "Open the passage"],
+    "lines": [
+      "Cinder leads you to Moonlit Crossing, where the bridge lies in pieces. Beyond it, a sealed gate bears the same mark as the scale.",
+      "You rebuild the bridge block by block. Cinder steadies a beam while your ward spell lights the runes above the hollow.",
+      "The gate opens when your light meets its mark. Cinder recognizes the rune and steps through first, toward the clock that broke its wing."
+    ]
+  },
+  {
+    "title": "The Borrowed Hours",
+    "place": "Amber Ruins",
+    "theme": "amber",
+    "levels": [7, 8, 9],
+    "stops": ["Order the hours", "Free the heart", "Plant tomorrow"],
+    "lines": [
+      "In Amber Ruins, every leaf is frozen mid-fall. Golden threads run from Cinder's wing to a clock with no moving hands.",
+      "You sort the lost hours into place. The clock strikes once; its binding shatters, and Cinder spreads its mended wings.",
+      "The three seeds wake as time returns. Cinder lowers a wing, and you ride its warm updraft toward the lights of Dawnreach."
+    ]
+  },
+  {
+    "title": "A Road for Everyone",
+    "place": "Dawnreach",
+    "theme": "sunrise",
+    "levels": [10, 11, 12],
+    "stops": ["Bridge the stream", "Light the way", "Bring the dawn"],
+    "lines": [
+      "Cinder carries you to Dawnreach. Across the stream, your neighbors raise lanterns, but the road between you is gone.",
+      "You rebuild a crossing anyone can use. Cinder sends a ribbon of golden fire through each marker, lighting the safe path.",
+      "Your last spell carries the Core's light home. The mist lifts and your village returns. Cinder lands beside you as the road opens for everyone."
+    ]
+  }
+]

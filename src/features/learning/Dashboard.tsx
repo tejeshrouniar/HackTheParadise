@@ -12,13 +12,13 @@ import { sound } from "../../utils/sound";
 
 export default function Dashboard({
   onQuest,
-  onCompanion,
+  onJournal,
   onTerminal,
   onCharacter,
   catalog = false,
 }: {
   onQuest: (id: number) => void;
-  onCompanion: () => void;
+  onJournal: () => void;
   onTerminal: () => void;
   onMap: () => void;
   onCharacter: () => void;
@@ -93,7 +93,7 @@ export default function Dashboard({
             </div>
           </section>
           <div className="sc-trail-shortcuts">
-            <button onClick={onCompanion}>
+            <button onClick={onJournal}>
               <BookOpen size={16} /> Your journal
             </button>
             <button onClick={onTerminal}>

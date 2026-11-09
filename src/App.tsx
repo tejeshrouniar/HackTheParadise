@@ -9,6 +9,7 @@ import { AppShell } from "./layouts/AppShell";
 import { Loading } from "./components/ui/Status";
 import { AppearanceProvider } from "./features/adventure/AppearanceContext";
 
+// Keep account-scoped providers above the route shell so their state survives navigation.
 export const App: React.FC = () => {
   const { user, loading } = useAuth();
   if (loading) return <Loading label="Opening Storicode…" />;

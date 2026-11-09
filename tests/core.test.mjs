@@ -15,8 +15,25 @@ import {
 import { CODEDEX_LESSONS } from "../src/data/codedexLessons.ts";
 import { CORE_FRAGMENTS, chapterOutcome } from "../src/content/eldoria.ts";
 
+// Paid solution fixtures live in tests only. They are deliberately not imported
+// by the browser bundle; production reads them after a Supabase entitlement check.
+const SOLUTIONS = {
+  1: `player.move_forward()\nplayer.move_forward()\nplayer.turn_right()\nplayer.move_forward()\nplayer.move_forward()\nplayer.collect_crystal()`,
+  2: `mana_flask = 100\nstar_dew = 3\ncauldron.brew_elixir()`,
+  3: `for step in range(6):\n    grow_flower()`,
+  4: `def build_bridge():\n    for step in range(4):\n        place_starlight_tile()\n\nbuild_bridge()`,
+  5: `purify_rune(1)\npurify_rune(2)\npurify_rune(3)`,
+  6: `align_gate_rings()\n\ndef calculate_flux(core_power):\n    return core_power * 2\n\ncharge_stargate(calculate_flux(100))`,
+  7: `crystals = [4, 1, 3, 2]\ncrystals.sort()\nstabilize_vortex(crystals)`,
+  8: `mana_shield = 100\nfor bolt in range(3):\n    cast_starlight_bolt()\nrestore_core()`,
+  9: `for seed in range(3):\n    grow_flower()`,
+  10: `def build_crossing():\n    for stone in range(3):\n        place_starlight_tile()\n\nbuild_crossing()`,
+  11: `purify_rune(2)\npurify_rune(3)`,
+  12: `align_gate_rings()\ncharge_stargate(120)`,
+};
+
 test("Player commands retain the existing movement semantics and old commands remain valid", () => {
-  const solution = CODEDEX_LESSONS[0].solutionCode;
+  const solution = SOLUTIONS[1];
   assert.match(solution, /player\.move_forward/);
   assert.deepEqual(
     compileQuestCode(solution),
@@ -39,7 +56,7 @@ test("the final story outcome requires all five fragments, including out-of-orde
 
 test("all quest solutions and guide examples compile into real actions", () => {
   for (const lesson of CODEDEX_LESSONS) {
-    const instructions = compileQuestCode(lesson.solutionCode);
+    const instructions = compileQuestCode(SOLUTIONS[lesson.id]);
     assert.ok(instructions.length > 0, lesson.title);
     assert.ok(
       compileQuestCode(lesson.codeExample).length > 0,
@@ -48,7 +65,7 @@ test("all quest solutions and guide examples compile into real actions", () => {
   }
 });
 test("forest campaign spells produce the actions needed by each mission", () => {
-  const actions = (id) => compileQuestCode(CODEDEX_LESSONS.find((lesson) => lesson.id === id).solutionCode);
+  const actions = (id) => compileQuestCode(SOLUTIONS[id]);
   assert.equal(actions(9).filter((action) => action.name === "grow_flower").length, 3);
   assert.equal(actions(10).filter((action) => action.name === "place_starlight_tile").length, 3);
   assert.deepEqual(actions(11).filter((action) => action.name === "purify_rune").map((action) => action.args[0]), [2, 3]);
@@ -56,9 +73,10 @@ test("forest campaign spells produce the actions needed by each mission", () => 
   assert.equal(actions(12).find((action) => action.name === "charge_stargate").args[0], 120);
 });
 test("bridge functions only run when invoked and expand their real loop body", () => {
-  const solution = CODEDEX_LESSONS.find(
+  const lessonId = CODEDEX_LESSONS.find(
     (l) => l.stageType === "bridge",
-  ).solutionCode;
+  ).id;
+  const solution = SOLUTIONS[lessonId];
   assert.equal(
     compileQuestCode(solution).filter((i) => i.name === "place_starlight_tile")
       .length,
@@ -71,9 +89,10 @@ test("bridge functions only run when invoked and expand their real loop body", (
   assert.throws(() => compileQuestCode("build_bridge()"), /Unknown command/);
 });
 test("stargate return values are calculated, not assumed to be 200", () => {
-  const solution = CODEDEX_LESSONS.find(
+  const lessonId = CODEDEX_LESSONS.find(
     (l) => l.stageType === "stargate",
-  ).solutionCode;
+  ).id;
+  const solution = SOLUTIONS[lessonId];
   assert.equal(
     compileQuestCode(solution).find((i) => i.name === "charge_stargate")
       .args[0],
@@ -88,7 +107,7 @@ test("stargate return values are calculated, not assumed to be 200", () => {
 });
 test("boss shield and all loop attacks execute", () => {
   const actions = compileQuestCode(
-    CODEDEX_LESSONS.find((lesson) => lesson.id === 8).solutionCode,
+    SOLUTIONS[8],
   );
   assert.deepEqual(actions[0], {
     line: 0,

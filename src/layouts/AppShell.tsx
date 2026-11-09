@@ -45,7 +45,7 @@ const Story = lazy(() => import("../features/story/StoryPage"));
 const Chat = lazy(() => import("../features/chat/ChatPage"));
 const Settings = lazy(() => import("../features/settings/SettingsPage"));
 const Tools = lazy(() => import("../features/tools/ToolsDrawer"));
-const Companion = lazy(() => import("../features/story/AetherGuide"));
+const Journal = lazy(() => import("../features/story/PlayerJournal"));
 const Playground = lazy(() =>
   import("../components/CodedexHome/ArcaneTerminalModal").then((m) => ({
     default: m.ArcaneTerminalModal,
@@ -57,6 +57,7 @@ const links = [
   { id: "story", label: "Storybook", Icon: BookOpen },
   { id: "community", label: "Community", Icon: MessageCircle },
 ];
+// Hash routes keep direct links working on static hosting without server rewrites.
 const routeFromHash = () =>
   /^#\/(home|learn|story|community|settings|quest\/(?:[1-9]|1[0-2]))$/.test(
     location.hash,
@@ -78,7 +79,7 @@ export function AppShell() {
   const [toolsMounted, setToolsMounted] = useState(false);
   const [search, setSearch] = useState(false);
   const [query, setQuery] = useState("");
-  const [companion, setCompanion] = useState(false);
+  const [journal, setJournal] = useState(false);
   const [playground, setPlayground] = useState(false);
   const [character, setCharacter] = useState(false);
   const name =
@@ -169,7 +170,7 @@ export function AppShell() {
       reducedMotion={preferences.reduced_motion ? "always" : "user"}
     >
       <div
-        className={`sc-app sc-adventure-shell ${route === "home" ? "sc-on-home" : ""} ${route.startsWith("quest/") ? "sc-on-quest" : ""}`}
+        className={`sc-app sc-adventure-shell ${route === "home" ? "sc-on-home" : ""} ${route === "story" ? "sc-on-story" : ""} ${route.startsWith("quest/") ? "sc-on-quest" : ""}`}
       >
         <a
           className="sc-skip"
@@ -325,7 +326,7 @@ export function AppShell() {
                 <Dashboard
                   catalog={route === "learn"}
                   onQuest={openQuest}
-                  onCompanion={() => setCompanion(true)}
+                  onJournal={() => setJournal(true)}
                   onTerminal={() => setPlayground(true)}
                   onMap={() => navigate("learn")}
                   onCharacter={() => setCharacter(true)}
@@ -344,7 +345,7 @@ export function AppShell() {
         {!tools &&
           !auth &&
           !search &&
-          !companion &&
+          !journal &&
           !playground &&
           !character &&
           !(small && mobile) && <MiniPlayer onOpen={openTools} />}
@@ -409,8 +410,8 @@ export function AppShell() {
           {toolsMounted && (
             <Tools open={tools} onClose={() => setTools(false)} />
           )}{" "}
-          {companion && (
-            <Companion isOpen={companion} onClose={() => setCompanion(false)} />
+          {journal && (
+            <Journal isOpen={journal} onClose={() => setJournal(false)} />
           )}
           {character && <CharacterStudio onClose={() => setCharacter(false)} />}
           {playground && (

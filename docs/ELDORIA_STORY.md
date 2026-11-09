@@ -1,5 +1,7 @@
 # The Fragments of Eldoria
 
+> **Historical database story.** This Aether-led edition is retained for migrations 003–004 and existing records; the current player story is authored in `src/content/journey.json` and follows the learner with Cinder. See [Story and narration authoring](STORY_WRITER.md).
+
 Refined from STORI.pages for Storicode. Aether replaces the dragon as the playable character. SpellScript remains the name of Eldoria’s magical language.
 
 ## 1. The book that answered

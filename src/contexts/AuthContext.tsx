@@ -23,6 +23,7 @@ function requireSupabase() {
   return supabase;
 }
 
+// Supabase Auth owns session lifetime; profile onboarding stays in the profile feature.
 export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);

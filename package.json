@@ -11,7 +11,6 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "node --test tests/*.test.mjs",
-    "content:seed": "node scripts/generate-story-seed.mjs",
     "dev:legacy": "concurrently -k -p \"[{name}]\" -n \"SERVER,CLIENT\" -c \"magenta.bold,cyan.bold\" \"node server/index.js\" \"vite\""
   },
   "dependencies": {

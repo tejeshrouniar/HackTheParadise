@@ -1,5 +1,7 @@
 # Eldoria and simplified UI validation — 4 November 2026
 
+> This file contains dated snapshots. The newest audit is at the end; older test counts and screenshots describe the code at those dates, not the current build.
+
 - `npm test`: **24 passing tests**, including all eight solutions and guide examples, Aether command compatibility, fragment-dependent endings, and migration 004 preserving reading choices and completion when reapplied.
 - `npm run build`: TypeScript and production build pass. No new dependencies were introduced for this update.
 - Live Supabase checks returned HTTP 200 for **The Fragments of Eldoria**, edition **2**, and all eight revised chapter titles after the user applied migration 004.
@@ -32,5 +34,24 @@
 - Google and email auth code preserves the existing redirect flow. The Google account chooser was reached with the correct Supabase callback and local return URL. No new live account was created, no real password was reset, and no user's Google account was selected by the agent. The user reported signing in. Further signed-in browser inspection stopped when the computer-use tool could not reliably determine the active Windows browser URL. Actual new/returning user onboarding, avatar uploads and two-user Realtime chat still require authenticated checks.
 - The Openverse catalog returned HTTP 200 and `Access-Control-Allow-Origin: *` from the network probe. The embedded browser timed out both on search and on direct navigation to that API. Remote recording playback therefore remains **unverified** here. The application displays the failure and retains the working included soundscapes.
 - Storage SQL policies and configured MIME/size limits were tested locally; Supabase Storage's HTTP upload enforcement was not exercised.
-- No claim is made that the test account data, avatar uploads, Realtime service or production RLS were verified live. Follow the staging matrix in `RENOVATION.md` after applying migrations.
+- No claim is made that the test account data, avatar uploads, Realtime service or production RLS were verified live. Follow the current setup and migration guides before a hosted staging pass.
 - Renovation follow-up changes are in the local workspace. No new deployment was initiated by this validation run.
+
+# Current codebase and Sparks audit — 9 November 2026
+
+## Executed
+
+- `npm test`: **46 passing tests**. This includes the compiler and progression suites, sprite timing, database/RLS tests, story/narration source alignment, Spark code limits, referral attribution storage, unlimited test access, and a simulated repair of the missing Spark wallet foundation.
+- `npm run build`: TypeScript and Vite production build pass; 2,557 modules transformed.
+- Rebuilt `scripts/narration.json` from shared JSON content and added a test that checks all 24 quest/story lines against the generated manifest.
+- Fixed a home-trail persistence mismatch: the component now reads and writes the same versioned key and can still read the previous key.
+- Replaced regex scraping of TypeScript in narration generation with direct JSON reads. Chapter and post-quest copy now each have one source file.
+- Removed the retired seed command that could overwrite historical migration 004. Renamed the player journal module to remove stale Aether naming.
+- Replaced stale presentation copy with current project/readme, codebase, feature, migration, accessibility, and authoring guides. Added focused module comments at key data and security boundaries.
+
+## Live Supabase verification and limits
+
+- The initial read-only check found migration 008's admin/code objects but reported missing wallet/content tables and `get_spark_content` (`PGRST205`/`PGRST202`).
+- After the user applied migration 009 then 007, the follow-up check returned PostgreSQL `42501` permission denials for `spark_wallets`, `spark_ledger`, `spark_unlocks`, `spark_content`, and `get_spark_content`. This confirms those protected tables and the RPC now resolve; the publishable role remains blocked as intended.
+- Checks used `limit=0` for table requests and an unauthenticated, denied RPC call. No balances or lesson rows were read; no database writes, code generation, code redemption, or deployment were performed. A signed-in app smoke check for wallet balance, code redemption, and hint/solution retrieval remains. See [the migration guide](MIGRATIONS.md).
+- No screen-reader, automated axe, or new visual browser pass was performed during this source/docs audit. The accessibility guide records this boundary.

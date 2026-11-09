@@ -25,6 +25,7 @@ test("spark wallet: authorization, accounting and retry safety", async (t) => {
     `);
     await db.query("insert into auth.users values($1),($2),($3)", [A, B, C]);
     await db.exec(readFileSync(new URL("../supabase/migrations/202611050006_spark_wallet.sql", import.meta.url), "utf8"));
+    await db.exec(readFileSync(new URL("../supabase/migrations/202611050007_spark_content.sql", import.meta.url), "utf8"));
     async function as(role, user = "") {
       await db.exec("reset role");
       await db.query("select set_config('request.jwt.claim.sub',$1,false)", [user]);

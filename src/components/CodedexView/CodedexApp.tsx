@@ -5,7 +5,6 @@ import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
-  ArrowRight,
   Check,
   Copy,
   HelpCircle,

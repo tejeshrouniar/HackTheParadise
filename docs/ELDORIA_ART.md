@@ -1,5 +1,7 @@
 # Eldoria artwork
 
+> **Archived art direction.** These painterly Aether illustrations are not used by the current pixel-art journey. The active scenes use bundled pixel assets from the licensed packs listed in `docs/asset-licenses/` and the local scene-art pipeline.
+
 Generated with the built-in image-generation tool for Storicode. Selected production assets are in `src/assets/eldoria/`, with three 1600px WebP landscapes, 640px card variants, and a transparent 640px-tall Aether character. The app uses local bundled assets, responsive sources, stable dimensions and lazy loading. Original generated PNGs remain in the image-generation output folder.
 
 Final prompts:

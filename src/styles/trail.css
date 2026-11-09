@@ -522,4 +522,25 @@
 .sc-wallet-card summary { cursor:pointer; min-height:44px; padding:12px 0; }
 .sc-wallet-card ul { list-style:none; padding:0; }
 .sc-wallet-card li { display:flex; flex-wrap:wrap; gap:8px; justify-content:space-between; padding:12px 0; border-top:1px solid #50694f; }
+.sc-redeem-code { display:grid; gap:8px; margin:16px 0; }
+.sc-redeem-code label { font-weight:700; }
+.sc-redeem-code > div { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; }
+.sc-redeem-code input,.sc-spark-admin input,.sc-spark-admin select { min-width:0; min-height:44px; border:1px solid #667d6b; border-radius:4px; padding:9px 11px; background:#0c211b; color:#f4eedc; }
+.sc-redeem-code .error,.sc-spark-admin-notice.error { color:#ffb8aa; }
+.sc-redeem-code .success,.sc-spark-admin-notice.success { color:#a9e8cb; }
+.sc-spark-admin { margin-top:20px; border-top:1px solid #50694f; }
+.sc-spark-admin > summary { min-height:48px; display:flex; align-items:center; cursor:pointer; color:#efd99b; font-weight:700; }
+.sc-spark-admin-content { display:grid; gap:20px; padding:4px 0 12px; }
+.sc-spark-admin-content section { border-top:1px solid #324e42; padding-top:14px; }
+.sc-spark-admin-content h3 { margin:2px 0 8px; font-size:16px; }
+.sc-spark-admin-content p { color:#b9cabe; font-size:13px; line-height:1.5; }
+.sc-spark-admin-content form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; align-items:end; }
+.sc-spark-admin-content label { display:grid; gap:6px; min-width:0; color:#d9e2d8; font-size:13px; }
+.sc-spark-admin-content label span { color:#eacb86; }
+.sc-spark-admin-wide { grid-column:1/-1; }
+.sc-spark-code-list { display:grid; gap:8px; padding:0; list-style:none; }
+.sc-spark-code-list li { display:flex; flex-wrap:wrap; align-items:center; gap:8px; border:1px solid #405b4a; border-radius:4px; padding:8px; }
+.sc-spark-code-list code { flex:1 1 170px; overflow-wrap:anywhere; color:#fff0b5; }
+.sc-spark-admin-notice { margin:0; padding:10px 0; }
+@media(max-width:560px) { .sc-redeem-code > div,.sc-spark-admin-content form { grid-template-columns:1fr; } }
 .sc-completion-page audio { width:min(100%,460px); }
