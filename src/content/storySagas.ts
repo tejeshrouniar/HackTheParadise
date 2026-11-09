@@ -3,7 +3,8 @@
  * 📖 STORICODE GRAND STORY SAGAS ARCHIVE
  * ═════════════════════════════════════════════════════════════════════════════
  * 
- * This file contains the browser-safe lore and cinematic scripts for five story sagas.
+ * This file preserves the lore and cinematic drafts for five future story sagas.
+ * Active routes do not import this catalog, so these stories are not shipped in the player UI.
  * Playable lesson instructions stay in the lesson catalog; Spark-gated answers stay server-side.
  * 
  * 1. 🐍 SAGA I: "The Chronicles of Eldoria: The Archmage's Starlight Core" (Python)
@@ -27,6 +28,7 @@ export interface StoryChoice {
   effect?: string;
 }
 
+// Source-only drafts for future story worlds; active routes do not import this catalog.
 export interface StoryBeat {
   id: string;
   speaker?: string;

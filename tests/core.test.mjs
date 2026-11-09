@@ -234,7 +234,7 @@ test("writer content has stable, unique IDs and valid quest links", () => {
   }
 });
 
-test("the active Storybook keeps Cinder's journey primary and the saga archive secondary", () => {
+test("the active Storybook shows only Cinder's four-chapter journey", () => {
   const storyPage = readFileSync(
     new URL("../src/features/story/StoryPage.tsx", import.meta.url),
     "utf8",
@@ -247,13 +247,18 @@ test("the active Storybook keeps Cinder's journey primary and the saga archive s
     new URL("../src/features/learning/QuestAftermath.tsx", import.meta.url),
     "utf8",
   );
+  const worldMap = readFileSync(
+    new URL("../src/features/learning/WorldMap.tsx", import.meta.url),
+    "utf8",
+  );
 
   assert.match(storyPage, /from "\.\/JourneyCinema"/);
-  assert.match(storyPage, /from "\.\/SagaArchive"/);
-  assert.match(storyPage, /Explore other story worlds/);
+  assert.doesNotMatch(storyPage, /SagaArchive|Explore other story worlds/);
   assert.match(journeyCinema, /import \{ PixelDragon \}/);
   assert.match(journeyCinema, /realm\.levels\[beat\] <= journeyProgress\(completed\)\.cleared/);
   assert.match(journeyCinema, /Complete level \{realm\.levels\[beat\]\} below/);
   assert.doesNotMatch(journeyCinema, /Play level \{realm\.levels\[beat\]\}/);
+  assert.match(worldMap, /from "\.\.\/story\/JourneyCinema"/);
+  assert.doesNotMatch(worldMap, /from "\.\.\/story\/StoryCinema"/);
   assert.match(aftermath, /JourneyScene \} from "\.\.\/story\/JourneyCinema"/);
 });

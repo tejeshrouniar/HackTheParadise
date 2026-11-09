@@ -1,7 +1,7 @@
 import { canEnterLevel, journeyProgress } from "./journeyProgress";
 import { JOURNEY } from "../../content/journey";
 import { useProgress } from "./ProgressContext";
-import { JourneyScene } from "../story/StoryCinema";
+import { JourneyScene } from "../story/JourneyCinema";
 export function WorldMap({onQuest}:{onQuest:(id:number)=>void}) {
   const {completed}=useProgress();
   return <div className="sc-world-map"><header className="sc-world-map-heading"><div><span>FOUR CHAPTERS · TWELVE SPELLS</span><h2>The road you restore</h2></div><span>{journeyProgress(completed).cleared} / 12 complete</span></header>

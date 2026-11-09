@@ -1,3 +1,4 @@
+// Archived saga UI; active routes intentionally do not import this component.
 import React, { useState } from "react";
 import { useProgress } from "../learning/ProgressContext";
 import { canEnterLevel } from "../learning/journeyProgress";

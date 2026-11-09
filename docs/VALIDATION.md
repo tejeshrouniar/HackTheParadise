@@ -61,7 +61,7 @@
 ## Executed
 
 - Reviewed merge commit `c442f62` and both parents. Git reports no unmerged paths, and a repository-wide scan found no unresolved conflict markers.
-- Fixed the StoryPage/StoryCinema prop mismatch and the invalid `QuestAftermath` prop. Restored the original four-chapter Cinder journey as the primary Storybook, including its animated dragon and scene-by-scene completion gates. Kept the merged five-saga renderer behind a collapsed archive section so it no longer replaces the active story.
+- Fixed the StoryPage/StoryCinema prop mismatch and the invalid `QuestAftermath` prop. Restored the original four-chapter Cinder journey as the primary Storybook, including its animated dragon and scene-by-scene completion gates. The five additional saga drafts remain in source only.
 - Story scenes now require completion of their linked playable level. Saga entries without a matching lesson remain locked; an available next lesson has one start control in its quest card.
 - Removed unused hint, solution, answer-checklist and draft lesson payloads from browser catalogs. Free guide samples are now partial; paid hint and solution text continues to come from the entitlement-checked `get_spark_content` RPC.
 - Updated README and authoring guides to distinguish the 12 playable levels from the 50-scene saga archive.
@@ -76,9 +76,16 @@
 
 ## Main-story preservation follow-up — 9 November 2026
 
-- Kept the merged saga collection as a collapsed secondary archive and restored the established four-region Cinder journey as the primary Storybook. The quest aftermath uses the same Cinder scene renderer.
+- Restored the established four-region Cinder journey as the only story shown in Storybook. The quest aftermath and world map use the same Cinder scene renderer. Other story drafts remain archived in source and are not imported by active routes.
 - Removed the duplicate quest-launch button from locked scenes; the corresponding level card remains the single entry point.
-- `npm test`: **48 passing tests**, including a regression check that keeps the four-chapter journey primary and Spark answers out of browser catalogs.
+- `npm test`: **48 passing tests**, including a regression check that keeps the four-chapter journey as the only player-facing story and Spark answers out of browser catalogs.
 - `npm run build`: TypeScript and Vite production build pass; 2,574 modules transformed.
-- All 12 test-only paid answer strings are absent from the 17 generated JavaScript bundles. The local Vite server returned HTTP 200 for the Storybook, both scene renderers, and quest aftermath modules.
+- All 12 test-only paid answer strings are absent from the 17 generated JavaScript bundles. The local Vite server returned HTTP 200 for the Storybook, main scene renderer, and quest aftermath modules.
 - `git diff --check` passes, and no merge conflict markers remain. No Supabase writes, migration, deployment, or commit were performed.
+
+## Player-facing story archive removal — 9 November 2026
+
+- Removed the optional saga section from Storybook. The live Storybook and world map now use only the four-chapter Cinder journey; the additional saga drafts and their old UI prototype remain archived in source.
+- `npm test`: **48 passing tests**, including checks that Storybook and the world map do not link to the archived UI.
+- `npm run build`: TypeScript and Vite production build pass; 2,557 modules transformed.
+- Confirmed that no archived saga titles appear in the 16 generated JavaScript bundles. `git diff --check` passes.

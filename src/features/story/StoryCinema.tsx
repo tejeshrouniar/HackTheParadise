@@ -1,3 +1,4 @@
+// Archived saga renderer; the live four-chapter journey uses JourneyCinema.tsx.
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { AvatarGraphic } from "../adventure/AvatarGraphic";
 import { useAppearance } from "../adventure/AppearanceContext";

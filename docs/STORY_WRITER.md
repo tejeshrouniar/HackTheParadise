@@ -7,10 +7,10 @@ The active story follows the learner as the main character. Cinder, a young copp
 | Content | Source | Used by |
 | --- | --- | --- |
 | Four Home regions, quest stops, and 12 scene lines | `src/content/journey.json` | Home trail, quest progression, cutscenes, completion scene, narration |
-| Five optional saga outlines and 50 archived scene scripts | `src/content/storySagas.ts` | The collapsed Storybook archive and completion-gated scenes |
+| Five optional saga outlines and 50 archived scene scripts | `src/content/storySagas.ts` | Source archive only; not loaded into the player interface |
 | Quest outcome and coding explanation copy | `src/content/quest-narration.json` | Quest completion page and generated voice manifest |
 | Main story scene composition, props, character and Cinder movement | `src/features/story/JourneyCinema.tsx`, `PixelDragon.tsx` | Four-chapter Storybook and quest aftermath |
-| Archived saga scenes | `src/features/story/StoryCinema.tsx`, `SagaArchive.tsx` | Optional story archive below the main path |
+| Archived saga UI prototype | `src/features/story/StoryCinema.tsx`, `SagaArchive.tsx` | Retained but not imported by active routes |
 | Quest instructions, starter code, examples, win conditions | `src/data/codedexLessons.ts` | Coding screen, guides, and quest interpreter |
 
 Keep the three entries in each chapter aligned: level IDs, stop names, and scene lines all use the same order. The sequential unlock policy lives in `src/features/learning/journeyProgress.ts`, not in story copy. Each chapter's third quest should lead naturally into the next region.

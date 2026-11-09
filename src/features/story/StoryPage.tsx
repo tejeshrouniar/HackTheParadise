@@ -2,7 +2,6 @@ import { useState } from "react";
 import { JOURNEY } from "../../content/journey";
 import { useProgress } from "../learning/ProgressContext";
 import { canEnterLevel, journeyProgress } from "../learning/journeyProgress";
-import JourneyArchive from "./SagaArchive";
 import { StoryCinema } from "./JourneyCinema";
 
 export default function StoryPage({ onQuest }: { onQuest: (id: number) => void }) {
@@ -55,11 +54,6 @@ export default function StoryPage({ onQuest }: { onQuest: (id: number) => void }
         </section>
       </div>
 
-      <details className="sc-saga-archive">
-        <summary>Explore other story worlds</summary>
-        <p>Optional coding tales from the archive. The Cinder journey above tracks your main progress.</p>
-        <JourneyArchive onQuest={onQuest} />
-      </details>
     </>
   );
 }
