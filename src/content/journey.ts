@@ -5,6 +5,7 @@ export type JourneyTheme = string;
 export interface JourneyChapter {
   title: string;
   place: string;
+  summary: string;
   theme: JourneyTheme;
   levels: readonly number[];
   stops: readonly string[];

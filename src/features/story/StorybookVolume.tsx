@@ -1,25 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, BookOpen, Check, ChevronLeft, ChevronRight, Headphones, LockKeyhole, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, Check, Headphones, LockKeyhole, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProfile } from "../profile/ProfileContext";
 import { Avatar } from "../../components/ui/Avatar";
 import { useMusic } from "../tools/MusicContext";
 import { soundscapes } from "../../services/music";
-import type { StoryBook } from "../../content/storyBooks";
+import type { CodingStoryBook } from "../../content/storyBooks";
 import { formatPuzzleValue, PuzzleCodeError, runPuzzleTests, type PuzzleTestResult } from "../learning/puzzleRunner";
 
 interface StorybookVolumeProps {
-  book: StoryBook;
+  book: CodingStoryBook;
   completed: string[];
   progressStatus: string;
-  locked: boolean;
   onComplete: (chapterId: string) => Promise<boolean>;
-  onChooseBook: (bookId: string) => void;
 }
 
 const starterCode = (functionName: string) => `# Define ${functionName} below.\n`;
 
-export function StorybookVolume({ book, completed, progressStatus, locked, onComplete, onChooseBook }: StorybookVolumeProps) {
+export function StorybookVolume({ book, completed, progressStatus, onComplete }: StorybookVolumeProps) {
   const { user } = useAuth();
   const { profile } = useProfile();
   const music = useMusic();
@@ -33,7 +31,6 @@ export function StorybookVolume({ book, completed, progressStatus, locked, onCom
   const chapter = book.chapters.find((item) => item.chapterId === selectedId) ?? book.chapters[0];
   const completedSet = useMemo(() => new Set(completed), [completed]);
   const chapterIndex = Math.max(0, book.chapters.findIndex((item) => item.chapterId === chapter?.chapterId));
-  const isBookOneComplete = book.id === "book-one" && book.chapters.every((item) => completedSet.has(item.chapterId));
   const soundtrack = soundscapes.find((track) => track.id === book.musicTrackId);
   const playingBookScore = music.playing && music.track.id === book.musicTrackId;
   const displayName = profile?.display_name || user?.user_metadata?.full_name || "Apprentice";
@@ -43,13 +40,7 @@ export function StorybookVolume({ book, completed, progressStatus, locked, onCom
   const finished = !!chapter && completedSet.has(chapter.chapterId);
   const previousChaptersComplete = !!chapter && book.chapters.slice(0, chapterIndex).every((item) => completedSet.has(item.chapterId));
   const canOpenChapter = (index: number) =>
-    !locked && (completedSet.has(book.chapters[index].chapterId) || book.chapters.slice(0, index).every((item) => completedSet.has(item.chapterId)));
-
-  useEffect(() => {
-    if (!chapter || !locked || canOpenChapter(chapterIndex)) return;
-    const next = book.chapters.find((item) => !completedSet.has(item.chapterId)) ?? book.chapters[0];
-    setSelectedId(next.chapterId);
-  }, [book, chapter, chapterIndex, completedSet, locked]);
+    completedSet.has(book.chapters[index].chapterId) || book.chapters.slice(0, index).every((item) => completedSet.has(item.chapterId));
 
   useEffect(() => () => {
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
@@ -87,7 +78,7 @@ export function StorybookVolume({ book, completed, progressStatus, locked, onCom
   }
 
   async function runSpell() {
-    if (!chapter || locked || !previousChaptersComplete || busy) return;
+    if (!chapter || !previousChaptersComplete || busy) return;
     setBusy(true);
     setNotice("");
     setErrorsById((current) => ({ ...current, [chapter.chapterId]: "" }));
@@ -114,25 +105,6 @@ export function StorybookVolume({ book, completed, progressStatus, locked, onCom
   function turnPage() {
     const next = book.chapters[chapterIndex + 1];
     if (next && completedSet.has(chapter?.chapterId ?? "")) setChapter(next.chapterId);
-    else if (book.id === "book-one" && isBookOneComplete) onChooseBook("book-two");
-  }
-
-  if (locked) {
-    return (
-      <section className={`sc-story-volume sc-volume--${book.theme}`} aria-labelledby="sc-volume-heading">
-        <header className="sc-volume-cover" data-background={book.background}>
-          <span className="sc-volume-cover__stamp">{book.volume}</span>
-          <BookOpen size={34} aria-hidden="true" />
-          <h2 id="sc-volume-heading">{book.title}</h2>
-          <p>{book.description}</p>
-        </header>
-        <div className="sc-volume-locked">
-          <LockKeyhole size={23} aria-hidden="true" />
-          <div><strong>This volume is sealed</strong><p>Finish all six chapters of Book I to open the next part of the story.</p></div>
-          <button className="sc-button" type="button" onClick={() => onChooseBook("book-one")}><ChevronLeft size={16} /> Return to Book I</button>
-        </div>
-      </section>
-    );
   }
 
   if (!chapter) return null;
@@ -141,7 +113,7 @@ export function StorybookVolume({ book, completed, progressStatus, locked, onCom
     <section className={`sc-story-volume sc-volume--${book.theme}`} aria-labelledby="sc-volume-heading">
       <header className="sc-volume-heading">
         <div>
-          <span className="sc-volume-kicker">{book.volume} <span aria-hidden="true">·</span> {book.subtitle}</span>
+          <span className="sc-volume-kicker">HARRY POTTER <span aria-hidden="true">·</span> CHAPTER {String(chapterIndex + 1).padStart(2, "0")} OF {book.chapters.length}</span>
           <h2 id="sc-volume-heading">{book.title}</h2>
           <p>{book.description}</p>
         </div>
@@ -151,7 +123,7 @@ export function StorybookVolume({ book, completed, progressStatus, locked, onCom
         </div>
       </header>
 
-      <nav className="sc-volume-index" aria-label={`${book.volume} chapter index`}>
+      <nav className="sc-volume-index" aria-label={`${book.title} chapter index`}>
         {book.chapters.map((item, index) => {
           const unlocked = canOpenChapter(index);
           const isDone = completedSet.has(item.chapterId);
@@ -171,9 +143,9 @@ export function StorybookVolume({ book, completed, progressStatus, locked, onCom
         })}
       </nav>
 
-      <div className="sc-volume-open" data-theme={book.theme}>
+      <div className="sc-volume-open" data-theme={book.theme} key={chapter.chapterId}>
         <article className="sc-volume-page sc-volume-page--story">
-          <div className="sc-volume-page__number">{book.volume} <span>·</span> Chapter {String(chapterIndex + 1).padStart(2, "0")}</div>
+          <div className="sc-volume-page__number">CHAPTER {String(chapterIndex + 1).padStart(2, "0")} <span>·</span> THE HORCRUX CODE</div>
           <h3>{chapter.chapterTitle}</h3>
           <p className="sc-volume-page__subtitle">{chapter.subtitle}</p>
           <p className="sc-volume-story">{chapter.story}</p>
@@ -210,9 +182,8 @@ export function StorybookVolume({ book, completed, progressStatus, locked, onCom
 
           <div className="sc-volume-tools">
             <button type="button" onClick={() => soundtrack && (playingBookScore ? music.pause() : void music.play(soundtrack, [soundtrack]))} disabled={!soundtrack}>
-              <Headphones size={15} /> {playingBookScore ? "Pause score" : `Play ${book.volume} score`}
+              <Headphones size={15} /> {playingBookScore ? "Pause score" : "Play this book’s score"}
             </button>
-            <span>{progressStatus}</span>
           </div>
 
           {finished ? (
@@ -220,9 +191,9 @@ export function StorybookVolume({ book, completed, progressStatus, locked, onCom
               <span className="sc-volume-page__number">THE PAGE TURNS</span>
               <h4>{chapter.title}</h4>
               <p>{chapter.outcome}</p>
-              {(chapterIndex < book.chapters.length - 1 || (book.id === "book-one" && isBookOneComplete)) && (
+              {chapterIndex < book.chapters.length - 1 && (
                 <button className="sc-button sc-volume-next" type="button" onClick={turnPage}>
-                  {chapterIndex < book.chapters.length - 1 ? "Turn to the next page" : "Open Book II"}
+                  Turn to the next page
                   <ArrowRight size={16} />
                 </button>
               )}
@@ -259,7 +230,7 @@ export function StorybookVolume({ book, completed, progressStatus, locked, onCom
 
       <footer className="sc-volume-footer">
         <span>{progressStatus}</span>
-        {book.id === "book-one" && isBookOneComplete && <button className="sc-link" type="button" onClick={() => onChooseBook("book-two")}>Continue to Book II <ChevronRight size={15} /></button>}
+        {chapterIndex === book.chapters.length - 1 && finished && <span role="status">This book is complete.</span>}
       </footer>
     </section>
   );

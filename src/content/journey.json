@@ -2,6 +2,7 @@
   {
     "title": "The Last Light",
     "place": "Lanternwood",
+    "summary": "You follow a fallen copper scale into a forest that has disappeared beneath the mist. There, a small dragon is waiting for help.",
     "theme": "dawn",
     "levels": [1, 2, 3],
     "stops": ["Find the spark", "Brew the lantern fuel", "Wake the roots"],
@@ -14,6 +15,7 @@
   {
     "title": "Across the Hollow",
     "place": "Moonlit Crossing",
+    "summary": "Cinder leads you to a shattered bridge and a sealed gate. Careful spells rebuild the crossing and uncover the next trail.",
     "theme": "moon",
     "levels": [4, 5, 6],
     "stops": ["Build the crossing", "Mend the ward", "Open the passage"],
@@ -26,6 +28,7 @@
   {
     "title": "The Borrowed Hours",
     "place": "Amber Ruins",
+    "summary": "A broken clock has frozen the forest in autumn. You help Cinder restore the missing hours and wake the seeds beneath the ruins.",
     "theme": "amber",
     "levels": [7, 8, 9],
     "stops": ["Order the hours", "Free the heart", "Plant tomorrow"],
@@ -38,6 +41,7 @@
   {
     "title": "A Road for Everyone",
     "place": "Dawnreach",
+    "summary": "Your village waits across a stream. You and Cinder build a safe road home that every neighbor can use.",
     "theme": "sunrise",
     "levels": [10, 11, 12],
     "stops": ["Bridge the stream", "Light the way", "Bring the dawn"],

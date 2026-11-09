@@ -9,7 +9,7 @@ Feature folders contain cohesive user-facing areas. Keep route wiring in `src/la
 | `learning/` | Home, quest progression, interpreter hook, post-quest scene, Spark wallet | `Dashboard.tsx`, `useQuestEngine.ts`, `QuestAftermath.tsx`, `useHintWallet.ts` |
 | `profile/` | Public player profile and onboarding | `ProfileContext.tsx`, `ProfileForm.tsx` |
 | `settings/` | Private preferences and account settings | `SettingsPage.tsx`, `PreferencesContext.tsx` |
-| `story/` | Cinder’s four-chapter reader plus optional themed storybook volumes with independent chapter progress | `StoryPage.tsx`, `JourneyCinema.tsx`, `StorybookVolume.tsx`, `useBookProgress.ts` |
+| `story/` | Standalone storybooks, each with its own theme and progress; Cinder’s quest-backed journey and the independent Harry Potter coding book | `StoryPage.tsx`, `JourneyCinema.tsx`, `StorybookVolume.tsx`, `useBookProgress.ts` |
 | `tools/` | Soundtrack, timer, notes, snippets, and references | `ToolsDrawer.tsx`, `MusicContext.tsx`, `StudyItems.tsx` |
 
 Prefer adding a feature to its existing owner over creating parallel implementations in `src/components/`. Keep server authority and data ownership in Supabase migrations/RPCs, not in UI state.

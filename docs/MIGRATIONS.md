@@ -13,7 +13,8 @@ Apply migrations in filename order on a clean project. Existing projects should 
 | `202611050007` | Protected hint/solution content and entitlement check | 006 |
 | `202611090008` | Hashed redemption codes, campaign attribution, admin tools, unlimited test access | 006–007 |
 | `202611090009` | Idempotent repair for wallet/ledger/unlock tables and trusted credit RPC | Auth users; safe after 008 |
-| `202611090010` | Two optional storybook volumes and chapter rows for independent progress sync | 002–004 |
+| `202611090010` | Seeds the early split Harry Potter adventure chapters | 002–004 |
+| `202611100011` | Consolidates those chapters into one Harry Potter book while preserving chapter IDs and progress | 010 |
 
 ## Current hosted project check
 
@@ -29,6 +30,9 @@ The user then applied migration 009 followed by migration 007. A second read-onl
 4. If repairing the same partial schema as this project had, run `supabase/migrations/202611090009_spark_wallet_foundation_repair.sql` first. It is idempotent and keeps existing account balances/ledger rows.
 5. Then run `supabase/migrations/202611050007_spark_content.sql` exactly once. It depends on the `spark_unlocks` table created by 009 and is not safe to replay after it succeeds.
 6. In a signed-in app session, refresh Settings → Sparks. Confirm a numeric balance loads, then test a code redemption and a purchased hint/solution.
+7. If migration 010 has already been applied, also run `supabase/migrations/202611100011_story_catalog.sql` to show the Harry Potter adventure as one twelve-chapter book. It moves the existing chapter rows without changing their IDs, so saved progress remains attached.
+
+Future storybook migrations should add one story row and its chapter rows under that story’s own stable ID. Keep chapter IDs unique across books, preserve old IDs once released, and do not edit or rerun an applied historical migration to change story content. See [the story authoring guide](STORY_WRITER.md) for the matching frontend catalog workflow.
 
 Add the project owner to `public.spark_admins` through SQL Editor. Use the email on the Supabase Auth account:
 

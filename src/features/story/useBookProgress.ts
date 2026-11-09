@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { STORY_BOOKS } from "../../content/storyBooks";
+import { isCodingStoryBook, STORY_BOOKS } from "../../content/storyBooks";
 import { useAuth } from "../../contexts/AuthContext";
 import { errorMessage, readLocal, writeLocal } from "../../lib/validation";
 import { supabase } from "../../lib/supabase";
 
-const chapterIds = STORY_BOOKS.flatMap((book) => book.chapters.map((chapter) => chapter.chapterId));
+const codingBooks = STORY_BOOKS.filter(isCodingStoryBook);
+const chapterIds = codingBooks.flatMap((book) => book.chapters.map((chapter) => chapter.chapterId));
 const chapterIdSet = new Set(chapterIds);
 const localKey = (userId?: string) => `storicode_book_progress_${userId ?? "guest"}`;
 function validChapters(value: unknown): string[] {
@@ -13,7 +14,7 @@ function validChapters(value: unknown): string[] {
     : [];
 }
 
-/** Book chapter IDs are stored in story_progress, independent of Cinder's lesson IDs. */
+/** Coding-book chapter IDs sync independently of Cinder's lesson progress. */
 export function useBookProgress() {
   const { user } = useAuth();
   const key = localKey(user?.id);
@@ -63,10 +64,9 @@ export function useBookProgress() {
   }, [user?.id, attempt]);
 
   const complete = useCallback(async (chapterId: string) => {
-    const book = STORY_BOOKS.find((item) => item.chapters.some((chapter) => chapter.chapterId === chapterId));
+    const book = codingBooks.find((item) => item.chapters.some((chapter) => chapter.chapterId === chapterId));
     const index = book?.chapters.findIndex((chapter) => chapter.chapterId === chapterId) ?? -1;
     if (!book || index < 0) return false;
-    if (book.id === "book-two" && !STORY_BOOKS[0].chapters.every((chapter) => current.current.includes(chapter.chapterId))) return false;
     if (index > 0 && !current.current.includes(book.chapters[index - 1].chapterId)) return false;
 
     const merged = [...new Set([...current.current, chapterId])];
@@ -83,7 +83,7 @@ export function useBookProgress() {
       .from("story_progress")
       .upsert({ user_id: user.id, chapter_id: chapterId, completed: true }, { onConflict: "user_id,chapter_id" });
     if (error) {
-      setStatus("Saved on this device · apply the storybooks database update to sync this volume");
+      setStatus("Saved on this device · apply the latest storybook migration to sync this book");
       return true;
     }
     setStatus("Synced to your account");

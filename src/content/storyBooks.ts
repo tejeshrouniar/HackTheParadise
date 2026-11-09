@@ -1,47 +1,72 @@
-import { BOOK_PUZZLES, type StorybookId } from "./codeCampaign";
+import { JOURNEY, type JourneyChapter } from "./journey";
+import { BOOK_PUZZLES, type BookPuzzle, type StorybookId } from "./codeCampaign";
 
-/** Adding a volume here gives it an independent cover, palette, backdrop,
- * soundtrack, and chapter sequence without coupling it to Cinder's campaign. */
-export interface StoryBook {
-  id: StorybookId;
-  storyId: string;
-  volume: string;
+interface StoryBookBase {
+  /** Stable catalog key used by the shelf and future book-specific settings. */
+  id: string;
   title: string;
   subtitle: string;
   description: string;
-  theme: "vellum" | "eclipse";
+  theme: string;
   background: string;
   musicTrackId: string;
-  chapters: typeof BOOK_PUZZLES;
+  coverMark: string;
 }
 
-export const STORY_BOOKS: StoryBook[] = [
+/** The main Cinder campaign remains backed by quest IDs and player_progress. */
+export interface JourneyStoryBook extends StoryBookBase {
+  id: "cinder";
+  kind: "journey";
+  chapters: readonly JourneyChapter[];
+}
+
+/** Optional coding adventures use stable chapter slugs and story_progress. */
+export interface CodingStoryBook extends StoryBookBase {
+  id: StorybookId;
+  kind: "coding";
+  storyId: string;
+  chapters: readonly BookPuzzle[];
+}
+
+export type StoryBook = JourneyStoryBook | CodingStoryBook;
+
+/**
+ * The Storybook shelf is the single catalog for every playable story. A new
+ * story gets its own entry, palette, scene backdrop, score, and progress scope;
+ * it is never presented as a second volume of another story by default.
+ */
+export const STORY_BOOKS: readonly StoryBook[] = [
   {
-    id: "book-one",
-    storyId: "ink-and-ember-book-one",
-    volume: "Book I",
-    title: "The Hidden Relics",
-    subtitle: "The Ink and Ember Cycle · Volume One",
-    description: "Six strange relics. One sealed academy. A mystery written in code.",
-    theme: "vellum",
-    background: "candlelit-archive",
-    musicTrackId: "volume-one-score",
-    chapters: BOOK_PUZZLES.filter((chapter) => chapter.bookId === "book-one"),
+    id: "cinder",
+    kind: "journey",
+    title: "The Last Light",
+    subtitle: "Cinder’s road home",
+    description: "A copper scale, a quiet forest, and a dragon waiting for a friend.",
+    theme: "cinder",
+    background: "lanternwood",
+    musicTrackId: "meadow",
+    coverMark: "C",
+    chapters: JOURNEY,
   },
   {
-    id: "book-two",
-    storyId: "ink-and-ember-book-two",
-    volume: "Book II",
-    title: "The Last Ward",
-    subtitle: "The Ink and Ember Cycle · Volume Two",
-    description: "The memories return. The final ward needs every key you found.",
-    theme: "eclipse",
-    background: "moonlit-observatory",
-    musicTrackId: "volume-two-score",
-    chapters: BOOK_PUZZLES.filter((chapter) => chapter.bookId === "book-two"),
+    id: "harry-potter",
+    kind: "coding",
+    storyId: "harry-potter-horcrux-code",
+    title: "The Horcrux Code",
+    subtitle: "Harry Potter · A twelve chapter coding adventure",
+    description: "Follow Harry’s trail through twelve magical puzzles, from the diary to one final spell.",
+    theme: "wizarding",
+    background: "wizarding-library",
+    musicTrackId: "volume-one-score",
+    coverMark: "HP",
+    chapters: BOOK_PUZZLES.filter((chapter) => chapter.bookId === "harry-potter"),
   },
 ];
 
+export function isCodingStoryBook(book: StoryBook): book is CodingStoryBook {
+  return book.kind === "coding";
+}
+
 export function isStorybookId(value: string): value is StorybookId {
-  return STORY_BOOKS.some((book) => book.id === value);
+  return STORY_BOOKS.some((book) => book.kind === "coding" && book.id === value);
 }

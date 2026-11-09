@@ -17,6 +17,7 @@ const realmAssets = import.meta.glob<string>("../../assets/realms/*.png", {
 });
 const prop = (name: string) => realmAssets[`../../assets/realms/${name}.png`];
 import { useMusic } from "../tools/MusicContext";
+import { soundscapes } from "../../services/music";
 import { PixelDragon } from "./PixelDragon";
 
 const backgrounds = [lanternwood, moonlit, amber, dawnreach];
@@ -371,7 +372,7 @@ export function JourneyScene({
   );
 }
 
-export function StoryCinema({ chapter }: { chapter: number }) {
+export function StoryCinema({ chapter, musicTrackId = "twilight" }: { chapter: number; musicTrackId?: string }) {
   const { completed } = useProgress();
   const realm = JOURNEY[chapter];
   const [beat, setBeat] = useState(0);
@@ -382,6 +383,7 @@ export function StoryCinema({ chapter }: { chapter: number }) {
   const [narrate, setNarrate] = useState(true);
   const [notice, setNotice] = useState("");
   const music = useMusic();
+  const soundtrack = soundscapes.find((track) => track.id === musicTrackId);
   const { preferences, update } = usePreferences();
   const audio = useRef<HTMLAudioElement>(null);
   const autoAdvance = useRef(false);
@@ -426,7 +428,8 @@ export function StoryCinema({ chapter }: { chapter: number }) {
 
   function startScene() {
     if (advanceTimer.current !== undefined) window.clearTimeout(advanceTimer.current);
-    if (!music.playing) void music.play();
+    if (soundtrack && (!music.playing || music.track.id !== soundtrack.id)) void music.play(soundtrack, [soundtrack]);
+    else if (!music.playing) void music.play();
     setNotice("");
     timelineStart.current = performance.now() - (progress >= 1 ? 0 : progress * duration);
     if (progress >= 1) {
