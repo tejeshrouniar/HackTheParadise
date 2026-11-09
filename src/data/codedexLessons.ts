@@ -22,15 +22,7 @@ export interface CodedexLesson {
   initialCode: string;
 
   // Stage configuration
-  stageType:
-    | "dragon"
-    | "potion"
-    | "garden"
-    | "bridge"
-    | "curse"
-    | "stargate"
-    | "chrono"
-    | "boss";
+  stageType: 'dragon' | 'potion' | 'garden' | 'bridge' | 'curse' | 'stargate' | 'chrono' | 'boss' | 'webpage' | 'styler' | 'layout';
   stageConfig: any;
 }
 
