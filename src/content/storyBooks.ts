@@ -37,29 +37,29 @@ export type StoryBook = JourneyStoryBook | CodingStoryBook;
  */
 export const STORY_BOOKS: readonly StoryBook[] = [
   {
-    id: "cinder",
-    kind: "journey",
-    title: "The Last Light",
-    subtitle: "Cinder’s road home",
-    description: "A copper scale, a quiet forest, and a dragon waiting for a friend.",
-    theme: "cinder",
-    background: "lanternwood",
-    musicTrackId: "meadow",
-    coverMark: "C",
-    chapters: JOURNEY,
-  },
-  {
     id: "harry-potter",
     kind: "coding",
     storyId: "harry-potter-horcrux-code",
-    title: "The Horcrux Code",
-    subtitle: "Harry Potter · A twelve chapter coding adventure",
+    title: "Harry Potter: The Horcrux Code",
+    subtitle: "Harry Potter · The featured coding adventure",
     description: "Follow Harry’s trail through twelve magical puzzles, from the diary to one final spell.",
     theme: "wizarding",
     background: "wizarding-library",
     musicTrackId: "volume-one-score",
     coverMark: "HP",
     chapters: BOOK_PUZZLES.filter((chapter) => chapter.bookId === "harry-potter"),
+  },
+  {
+    id: "cinder",
+    kind: "journey",
+    title: "The Last Light",
+    subtitle: "Cinder’s road home",
+    description: "A gentle starter adventure that teaches the controls and first coding ideas.",
+    theme: "cinder",
+    background: "lanternwood",
+    musicTrackId: "meadow",
+    coverMark: "C",
+    chapters: JOURNEY,
   },
 ];
 

@@ -16,6 +16,8 @@ import walkway from "../../assets/realms/walkway.png";
 
 const WIDTH = 1280;
 const VIEW = 480;
+const BACKGROUND_TILE_WIDTH = 540;
+const BACKGROUND_TILE_HEIGHT = 297;
 const POSITION_STORAGE_KEY = "storicode:journey-position-v2";
 const art = import.meta.glob<string>("../../assets/realms/*.png", {eager:true,query:"?url",import:"default"});
 const sprite = (name:string) => art[`../../assets/realms/${name}.png`];
@@ -119,7 +121,7 @@ export function JourneyTrail({completed,onQuest,onLocation}:{completed:number[];
           {BACKGROUNDS.map((asset,i)=> i<=progress.chapter && <g key={asset}>
             <defs><clipPath id={`${mistId}-realm-${i}`}><rect x={i*WIDTH} y="0" width={WIDTH} height="352"/></clipPath></defs>
             <g clipPath={`url(#${mistId}-realm-${i})`}>
-              {[-1,0,1,2].map(tile=><image key={tile} href={asset} x={snap(i*WIDTH+tile*640+(camera-i*WIDTH)*.12)} width="640" height="352"/>)}
+              {[-1,0,1,2].map(tile=><image key={tile} href={asset} x={snap(i*WIDTH+tile*BACKGROUND_TILE_WIDTH+(camera-i*WIDTH)*.12)} y="55" width={BACKGROUND_TILE_WIDTH} height={BACKGROUND_TILE_HEIGHT}/>)}
             </g>
             <image href={walkway} x={i*WIDTH} y="304" width={WIDTH} height="32"/>
             {Array.from({length:14},(_,j)=><animated.circle key={j} cx={i*WIDTH+70+j*87} cy={140+(j%4)*37} r={j%3===0?2:1} fill={i===1?"#a8dcdf":"#f5da91"} animate={reduced?{opacity:.4}:{y:[0,-12,0],opacity:[.2,.8,.2]}} transition={{duration:4+j%4,repeat:Infinity,delay:j*.3}}/>) }

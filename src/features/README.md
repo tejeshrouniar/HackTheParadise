@@ -4,12 +4,12 @@ Feature folders contain cohesive user-facing areas. Keep route wiring in `src/la
 
 | Folder | Responsibility | Entry points |
 | --- | --- | --- |
-| `adventure/` | Avatar selection, pixel character rendering, home trail movement, scene landmarks | `JourneyTrail.tsx`, `CharacterStudio.tsx`, `AvatarGraphic.tsx` |
+| `adventure/` | The Cinder walking route, avatar selection, pixel character rendering, and shared scene landmarks | `JourneyTrail.tsx`, `CharacterStudio.tsx`, `AvatarGraphic.tsx` |
 | `chat/` | Community rooms, realtime messages, reporting, suggestions | `ChatPage.tsx`, `Suggestions.tsx` |
-| `learning/` | Home, quest progression, interpreter hook, post-quest scene, Spark wallet | `Dashboard.tsx`, `useQuestEngine.ts`, `QuestAftermath.tsx`, `useHintWallet.ts` |
+| `learning/` | The single playable World Map for Cinder and Harry Potter, sequential level entry, quest progression, book-level route, interpreter hook, post-quest scene, Spark wallet | `Dashboard.tsx`, `WorldMap.tsx`, `WizardingWalk.tsx`, `BookLevelPage.tsx`, `useQuestEngine.ts`, `QuestAftermath.tsx`, `useHintWallet.ts` |
 | `profile/` | Public player profile and onboarding | `ProfileContext.tsx`, `ProfileForm.tsx` |
 | `settings/` | Private preferences and account settings | `SettingsPage.tsx`, `PreferencesContext.tsx` |
-| `story/` | Standalone storybooks, each with its own theme and progress; Cinder’s quest-backed journey and the independent Harry Potter coding book | `StoryPage.tsx`, `JourneyCinema.tsx`, `StorybookVolume.tsx`, `useBookProgress.ts` |
+| `story/` | Cinder’s chapter scenes and Harry Potter’s completed-level film reel; the Harry Potter coding spread is mounted on the book-level route | `StoryPage.tsx`, `JourneyCinema.tsx`, `BookCutscene.tsx`, `StorybookVolume.tsx`, `useBookProgress.ts` |
 | `tools/` | Soundtrack, timer, notes, snippets, and references | `ToolsDrawer.tsx`, `MusicContext.tsx`, `StudyItems.tsx` |
 
 Prefer adding a feature to its existing owner over creating parallel implementations in `src/components/`. Keep server authority and data ownership in Supabase migrations/RPCs, not in UI state.

@@ -6,7 +6,7 @@ Accessibility is part of the interaction model, not a final styling pass. These 
 
 - The application has a skip link, labeled route navigation, current-page state, semantic forms, and visible keyboard focus rules in `src/styles/tokens.css`.
 - Modal dialogs use the shared Radix-backed `src/components/ui/Modal.tsx` wrapper for focus handling, Escape, and background isolation.
-- The home trail has keyboard and pointer controls, named arrow buttons, a non-animated accessible route list, and a live status message.
+- The World Map uses labeled native buttons for book selection, movement, and level entry. Both routes support keyboard movement, pointer/touch controls, and a direct chapter list; locked landmarks announce the progression requirement and cannot be entered. The player can click-to-walk on the scene. Reduced-motion preferences suppress the animated chapter arrival, while the avatar animation follows the shared motion preference.
 - Quest completion, wallet errors, narration captions, and other changing status messages use live regions where appropriate.
 - The user preference and operating-system reduced-motion settings feed `MotionConfig`; CSS disables selected decorative loops and transitions.
 - The soundtrack does not autoplay. Bundled narration has native audio controls and visible story text remains available when playback fails.

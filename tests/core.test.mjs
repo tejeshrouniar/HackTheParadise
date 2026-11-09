@@ -234,7 +234,7 @@ test("writer content has stable, unique IDs and valid quest links", () => {
   }
 });
 
-test("the active Storybook shows only Cinder's four-chapter journey", () => {
+test("the World Map opens coding levels while Story only replays completed Harry films", () => {
   const storyPage = readFileSync(
     new URL("../src/features/story/StoryPage.tsx", import.meta.url),
     "utf8",
@@ -251,14 +251,44 @@ test("the active Storybook shows only Cinder's four-chapter journey", () => {
     new URL("../src/features/learning/WorldMap.tsx", import.meta.url),
     "utf8",
   );
+  const wizardingWalk = readFileSync(
+    new URL("../src/features/learning/WizardingWalk.tsx", import.meta.url),
+    "utf8",
+  );
+  const bookLevel = readFileSync(
+    new URL("../src/features/learning/BookLevelPage.tsx", import.meta.url),
+    "utf8",
+  );
+  const appShell = readFileSync(
+    new URL("../src/layouts/AppShell.tsx", import.meta.url),
+    "utf8",
+  );
 
   assert.match(storyPage, /from "\.\/JourneyCinema"/);
   assert.doesNotMatch(storyPage, /SagaArchive|Explore other story worlds/);
+  assert.match(storyPage, /BEGINNER TUTORIAL/);
+  assert.match(storyPage, /HarryStoryFilms/);
+  assert.doesNotMatch(storyPage, /<StorybookVolume/);
+  assert.match(storyPage, /completed\.includes\(item\.chapterId\)/);
+  assert.match(bookLevel, /<StorybookVolume/);
+  assert.match(appShell, /book-level\//);
+  assert.match(appShell, /navigate\(bookId === "cinder" \? "story" : `book-level/);
+  assert.doesNotMatch(storyPage, /sc-book-levels/);
   assert.match(journeyCinema, /import \{ PixelDragon \}/);
   assert.match(journeyCinema, /realm\.levels\[beat\] <= journeyProgress\(completed\)\.cleared/);
-  assert.match(journeyCinema, /Complete level \{realm\.levels\[beat\]\} below/);
+  assert.match(journeyCinema, /Complete level \{realm\.levels\[beat\]\} on the World Map/);
   assert.doesNotMatch(journeyCinema, /Play level \{realm\.levels\[beat\]\}/);
-  assert.match(worldMap, /from "\.\.\/story\/JourneyCinema"/);
+  assert.match(worldMap, /from "\.\.\/adventure\/JourneyTrail"/);
+  assert.match(worldMap, /from "\.\/WizardingWalk"/);
+  assert.match(worldMap, /sc-map-read-chapter/);
+  assert.match(worldMap, /sc-map-journey/);
+  assert.match(wizardingWalk, /useAppearance\(\)/);
+  assert.match(wizardingWalk, /arrowleft.*arrowright.*shift/i);
+  assert.match(wizardingWalk, /className="sc-wizard-levels"/);
+  assert.match(wizardingWalk, /CODE LEVEL/);
+  assert.match(wizardingWalk, /onOpenChapter\(stop\.chapter\.chapterId\)/);
+  assert.match(wizardingWalk, /aria-disabled=\{!stop\.unlocked\}/);
   assert.doesNotMatch(worldMap, /from "\.\.\/story\/StoryCinema"/);
+  assert.doesNotMatch(worldMap, /BOOK ONE|BOOK TWO/);
   assert.match(aftermath, /JourneyScene \} from "\.\.\/story\/JourneyCinema"/);
 });

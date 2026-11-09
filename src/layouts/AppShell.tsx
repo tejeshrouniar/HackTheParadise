@@ -7,7 +7,6 @@ import {
   ChevronRight,
   Compass,
   Headphones,
-  Home,
   LogIn,
   Menu,
   MessageCircle,
@@ -29,8 +28,11 @@ import { CODEDEX_LESSONS } from "../data/codedexLessons";
 import toast from "react-hot-toast";
 import { errorMessage } from "../lib/validation";
 import { MiniPlayer } from "../features/tools/MiniPlayer";
+import { STORY_BOOKS } from "../content/storyBooks";
+import { readLocal, writeLocal } from "../lib/validation";
 import "../styles/adventure.css";
 import "../styles/trail.css";
+import "../styles/storybooks.css";
 const CharacterStudio = lazy(() =>
   import("../features/adventure/CharacterStudio").then((module) => ({
     default: module.CharacterStudio,
@@ -42,6 +44,7 @@ const Quest = lazy(() =>
   })),
 );
 const Story = lazy(() => import("../features/story/StoryPage"));
+const BookLevel = lazy(() => import("../features/learning/BookLevelPage").then((module) => ({ default: module.BookLevelPage })));
 const Chat = lazy(() => import("../features/chat/ChatPage"));
 const Settings = lazy(() => import("../features/settings/SettingsPage"));
 const Tools = lazy(() => import("../features/tools/ToolsDrawer"));
@@ -52,18 +55,18 @@ const Playground = lazy(() =>
   })),
 );
 const links = [
-  { id: "home", label: "Home", Icon: Home },
-  { id: "learn", label: "World map", Icon: Compass },
-  { id: "story", label: "Storybook", Icon: BookOpen },
+  { id: "learn", label: "World Map", Icon: Compass },
+  { id: "story", label: "Story", Icon: BookOpen },
   { id: "community", label: "Community", Icon: MessageCircle },
 ];
 // Hash routes keep direct links working on static hosting without server rewrites.
-const routeFromHash = () =>
-  /^#\/(home|learn|story|community|settings|quest\/(?:[1-9]|1[0-2]))$/.test(
-    location.hash,
-  )
-    ? location.hash.slice(2)
-    : "home";
+const routeFromHash = () => {
+  const route = location.hash.slice(2);
+  if (route === "home" || !route) return "learn";
+  return /^(learn|story|community|settings|quest\/(?:[1-9]|1[0-2])|book-level\/[a-z0-9-]+)$/.test(route)
+    ? route
+    : "learn";
+};
 export function AppShell() {
   const { user, isPasswordRecovery, signOut } = useAuth();
   const { completed } = useProgress();
@@ -73,6 +76,11 @@ export function AppShell() {
     () => window.matchMedia("(max-width:760px)").matches,
   );
   const [route, setRoute] = useState(routeFromHash);
+  const [selectedBookId, setSelectedBookId] = useState(() => {
+    const saved = readLocal("storicode-active-book-v2", "harry-potter");
+    return STORY_BOOKS.some((book) => book.id === saved) ? saved : "harry-potter";
+  });
+  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
   const [mobile, setMobile] = useState(false);
   const [auth, setAuth] = useState(false);
   const [tools, setTools] = useState(false);
@@ -88,6 +96,10 @@ export function AppShell() {
     user?.user_metadata?.display_name ||
     "Curious learner";
   const avatar = profile?.avatar_url ?? user?.user_metadata?.avatar_url;
+  const selectedBook = STORY_BOOKS.find((book) => book.id === selectedBookId) ?? STORY_BOOKS[0];
+  useEffect(() => {
+    writeLocal("storicode-active-book-v2", selectedBookId);
+  }, [selectedBookId]);
   function navigate(next: string) {
     if (location.hash !== `#/${next}`) location.hash = `/${next}`;
     setRoute(next);
@@ -97,6 +109,21 @@ export function AppShell() {
   const openQuest = (id: number) => {
     if (canEnterLevel(id, completed)) navigate(`quest/${id}`);
     else toast("Finish the earlier levels to unlock this part of the story.");
+  };
+  const openBookChapter = (bookId: string, chapterId: string) => {
+    setSelectedBookId(bookId);
+    setSelectedChapterId(chapterId);
+    navigate(bookId === "cinder" ? "story" : `book-level/${chapterId}`);
+  };
+  const openBookMovie = (chapterId: string) => {
+    setSelectedBookId("harry-potter");
+    setSelectedChapterId(chapterId);
+    navigate("story");
+  };
+  const openBookLevel = (chapterId: string) => {
+    setSelectedBookId("harry-potter");
+    setSelectedChapterId(chapterId);
+    navigate(`book-level/${chapterId}`);
   };
   useEffect(() => {
     const listener = () => {
@@ -170,7 +197,8 @@ export function AppShell() {
       reducedMotion={preferences.reduced_motion ? "always" : "user"}
     >
       <div
-        className={`sc-app sc-adventure-shell ${route === "home" ? "sc-on-home" : ""} ${route === "story" ? "sc-on-story" : ""} ${route.startsWith("quest/") ? "sc-on-quest" : ""}`}
+        className={`sc-app sc-adventure-shell ${route === "learn" ? "sc-on-home sc-on-map" : ""} ${route === "story" ? "sc-on-story" : ""} ${route.startsWith("quest/") || route.startsWith("book-level/") ? "sc-on-quest" : ""} ${route.startsWith("book-level/") ? "sc-on-book-level" : ""}`}
+        data-book-theme={selectedBook.theme}
       >
         <a
           className="sc-skip"
@@ -194,7 +222,7 @@ export function AppShell() {
           aria-label="Main navigation"
           {...((small && !mobile) || tools ? { inert: "" } : {})}
         >
-          <button className="sc-brand" aria-label="Storicode home" onClick={() => navigate("home")}>
+          <button className="sc-brand" aria-label="Storicode world map" onClick={() => navigate("learn")}>
             <span>
               <WandSparkles size={23} />
             </span>
@@ -215,12 +243,12 @@ export function AppShell() {
               <button
                 key={id}
                 aria-current={
-                  route === id || (id === "learn" && route.startsWith("quest/"))
+                  route === id || (id === "learn" && (route.startsWith("quest/") || route.startsWith("book-level/")))
                     ? "page"
                     : undefined
                 }
                 className={
-                  route === id || (id === "learn" && route.startsWith("quest/"))
+                  route === id || (id === "learn" && (route.startsWith("quest/") || route.startsWith("book-level/")))
                     ? "active"
                     : ""
                 }
@@ -304,17 +332,37 @@ export function AppShell() {
           </header>
           <main id="main-content" tabIndex={-1}>
             <Suspense fallback={<Loading label="Opening your workspace…" />}>
-              {route.startsWith("quest/") && !canEnterLevel(Number(route.split("/")[1]), completed) ? (
+              {route.startsWith("book-level/") ? (
+                <BookLevel
+                  chapterId={route.slice("book-level/".length)}
+                  onWorldMap={() => navigate("learn")}
+                  onStoryFilm={openBookMovie}
+                  onChapterChange={(id) => {
+                    setSelectedChapterId(id);
+                    navigate(`book-level/${id}`);
+                  }}
+                />
+              ) : route.startsWith("quest/") && !canEnterLevel(Number(route.split("/")[1]), completed) ? (
                 <section className="sc-page sc-locked-scene"><h1>This level is still locked</h1><p>Follow the story in order to reach this place.</p><button className="sc-button" onClick={() => openQuest(journeyProgress(completed).next)}>Continue your story</button></section>
               ) : route.startsWith("quest/") ? (
                 <Quest
                   key={route}
                   initialLessonId={Number(route.split("/")[1])}
-                  onExit={() => navigate("home")}
+                  onExit={() => navigate("learn")}
                   onLessonChange={openQuest}
                 />
               ) : route === "story" ? (
-                <Story onQuest={openQuest} />
+                <Story
+                  selectedBookId={selectedBookId}
+                  chapterId={selectedChapterId}
+                  onBookChange={(id) => {
+                    setSelectedBookId(id);
+                    setSelectedChapterId(null);
+                  }}
+                  onChapterChange={setSelectedChapterId}
+                  onWorldMap={() => navigate("learn")}
+                  onCodeLevel={openBookLevel}
+                />
               ) : route === "community" ? (
                 <Chat onSignIn={() => setAuth(true)} />
               ) : route === "settings" ? (
@@ -324,12 +372,13 @@ export function AppShell() {
                 />
               ) : (
                 <Dashboard
-                  catalog={route === "learn"}
+                  bookId={selectedBookId}
+                  onBookChange={(id) => {
+                    setSelectedBookId(id);
+                    setSelectedChapterId(null);
+                  }}
                   onQuest={openQuest}
-                  onJournal={() => setJournal(true)}
-                  onTerminal={() => setPlayground(true)}
-                  onMap={() => navigate("learn")}
-                  onCharacter={() => setCharacter(true)}
+                  onOpenBookChapter={openBookChapter}
                 />
               )}
             </Suspense>

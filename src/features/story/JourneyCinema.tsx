@@ -372,7 +372,7 @@ export function JourneyScene({
   );
 }
 
-export function StoryCinema({ chapter, musicTrackId = "twilight" }: { chapter: number; musicTrackId?: string }) {
+export function StoryCinema({ chapter, musicTrackId = "twilight", onOpenMap }: { chapter: number; musicTrackId?: string; onOpenMap?: () => void }) {
   const { completed } = useProgress();
   const realm = JOURNEY[chapter];
   const [beat, setBeat] = useState(0);
@@ -514,7 +514,8 @@ export function StoryCinema({ chapter, musicTrackId = "twilight" }: { chapter: n
     return (
       <section className="sc-cinema sc-locked-scene">
         <h3>Scene {beat + 1} is locked</h3>
-        <p>Complete level {realm.levels[beat]} below to reveal this part of your story.</p>
+        <p>Complete level {realm.levels[beat]} on the World Map to reveal this scene.</p>
+        {onOpenMap && <button className="sc-button mint" onClick={onOpenMap}>Open World Map</button>}
         {beat > 0 && (
           <button className="sc-button secondary" onClick={() => selectScene(beat - 1)}>
             Previous scene

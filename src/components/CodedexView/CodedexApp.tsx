@@ -71,7 +71,7 @@ export const CodedexApp = ({
   if (questSuccess && !crossing) return <QuestAftermath key={lesson.id} id={lesson.id} code={code} logs={terminalLogs} onContinue={lesson.id < CODEDEX_LESSONS.length ? handleNextQuest : onExit}/>;
 
   return (
-    <div className="sc-page sc-simple-quest">
+    <div className="sc-page sc-simple-quest sc-coding-book--cinder">
       <div className="sc-quest-topline">
         <button className="sc-link sc-context-back" onClick={onExit}>
           <ArrowLeft size={16} />
@@ -101,6 +101,7 @@ export const CodedexApp = ({
         </button>
       </div>
       <header className="sc-quest-intro">
+        <span className="sc-coding-book__type">THE LAST LIGHT <i aria-hidden="true">·</i> LEVEL TYPE: {lesson.conceptName}</span>
         <h1>{lesson.title}</h1>
         <p>{lesson.taskObjective}</p>
         {FOREST_CHAPTERS.find((chapter) => chapter.id === lesson.id) && (
@@ -109,7 +110,7 @@ export const CodedexApp = ({
           </p>
         )}
       </header>
-      <div className="sc-coding-layout">
+      <div className="sc-coding-layout sc-coding-book-spread">
         <section className="sc-card sc-spell-editor">
           <header>
             <h2>Your spell</h2>

@@ -9,9 +9,9 @@ The active catalog is `src/content/storyBooks.ts`. `StoryPage.tsx` renders the s
 | Book | Content source | Progress owner | Reader |
 | --- | --- | --- | --- |
 | *The Last Light* (Cinder) | `src/content/journey.json` | Existing quest IDs in `ProgressContext` / `player_progress` | `CinderBook` in `StoryPage.tsx` with `JourneyCinema.tsx` |
-| *The Horcrux Code* (Harry Potter) | `src/content/codeCampaign.ts` | Stable chapter IDs in `useBookProgress.ts` / Supabase `story_progress` | Generic `StorybookVolume.tsx` |
+| *The Horcrux Code* (Harry Potter) | `src/content/codeCampaign.ts` | Stable chapter IDs in `useBookProgress.ts` / Supabase `story_progress` | `BookLevelPage.tsx` for coding; completed chapter films on `StoryPage.tsx` |
 
-The two books do not share chapter unlocks or completion state. Cinder’s twelve quests do not mark Harry Potter chapters complete; Harry Potter chapters do not advance Cinder’s journey.
+The two books do not share chapter unlocks or completion state. Cinder’s twelve quests do not mark Harry Potter chapters complete; Harry Potter chapters do not advance Cinder’s journey. The World Map opens code levels. The Story desk plays Cinder’s scenes and completed Harry Potter chapter films, so a chapter’s code task is not duplicated in the story reader.
 
 ## Add another story
 
