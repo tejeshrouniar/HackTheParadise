@@ -93,7 +93,7 @@ export const AcademyHome: React.FC<AcademyHomeProps> = ({
         {/* Hero Tag & Pill */}
         <div className="relative z-10 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-night-950/80 border border-spellPink/40 text-xs font-fantasy tracking-widest text-spellPink uppercase shadow-md mb-6">
           <Sparkles className="w-4 h-4 text-spellPink" />
-          <span>The Academy of SpellScript</span>
+          <span>The Academy of Storicode</span>
           <span className="text-white/40">•</span>
           <span className="text-manaMint">Version 1.0</span>
         </div>

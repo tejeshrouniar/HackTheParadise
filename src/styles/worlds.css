@@ -1,0 +1,198 @@
+/* Quest scenes are SVG, so terrain and spell objects stay crisp at every size. */
+.sc-world {
+  width: 100%;
+  margin: 0;
+  min-width: 0;
+}
+.sc-world > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+.world-pixel-backdrop {
+  image-rendering: pixelated;
+}
+.world-victory {
+  animation: world-victory 850ms steps(7, end) both;
+}
+@keyframes world-victory {
+  from { transform: translateY(16px); opacity: 0; }
+  45% { opacity: 1; }
+  to { transform: translateY(0); opacity: 1; }
+}
+:root[data-reduce-motion="true"] .world-victory {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .world-victory { animation: none; }
+}
+.sc-world text {
+  font:
+    15px "Nunito Sans",
+    sans-serif;
+  fill: #e3e8dd;
+  letter-spacing: 0.2px;
+}
+.sc-world .world-large-number {
+  font:
+    600 27px "Outfit",
+    sans-serif;
+}
+.sc-world .world-rune {
+  font:
+    64px Georgia,
+    serif;
+}
+.sc-world figcaption {
+  padding: 15px 18px;
+  text-align: center;
+  color: #c9d6d1;
+  font-size: 12px;
+  background: #142131;
+  border-top: 1px solid #a9c1bb20;
+}
+.world-grow {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: world-grow 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.world-build {
+  animation: world-build 0.85s cubic-bezier(0.18, 0.85, 0.3, 1.16) both;
+}
+.world-fill {
+  animation: world-grow 0.7s ease-out both;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+.world-hover {
+  animation: world-hover 4s ease-in-out infinite;
+}
+.world-motes {
+  animation: world-motes 2.8s ease-in-out infinite;
+}
+.world-bubble {
+  animation: world-bubble 2s ease-out infinite;
+}
+.world-impact {
+  animation: world-impact 0.7s ease-out;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.world-bolt {
+  animation: world-bolt 0.65s ease-out both;
+}
+.world-ring-burst {
+  animation: world-ring 0.9s ease-out both;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.world-gate-ring {
+  transform: rotate(35deg);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.world-gate-ring.aligned {
+  transform: rotate(0);
+}
+.world-meter {
+  transition: width 0.8s ease;
+}
+@keyframes world-grow {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes world-build {
+  from {
+    opacity: 0;
+    transform: translateY(55px);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes world-hover {
+  50% {
+    translate: 0 -7px;
+  }
+}
+@keyframes world-motes {
+  50% {
+    opacity: 0.3;
+    translate: 0 -5px;
+  }
+}
+@keyframes world-bubble {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+  30% {
+    opacity: 0.9;
+  }
+  to {
+    opacity: 0;
+    translate: 0 -65px;
+  }
+}
+@keyframes world-impact {
+  25% {
+    transform: scale(0.91);
+  }
+  60% {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes world-bolt {
+  from {
+    opacity: 0;
+  }
+  20%,
+  55% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes world-ring {
+  from {
+    opacity: 0.9;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+[data-reduce-motion="true"] .sc-world *,
+[data-reduce-motion="true"] .sc-world {
+  animation: none !important;
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sc-world * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.sc-page.sc-simple-quest {
+  padding-bottom: 108px;
+}

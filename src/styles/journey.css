@@ -1,0 +1,37 @@
+.sc-chapter-tabs { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0; }
+.sc-chapter-tabs button { padding:10px 15px; border:1px solid #647b6c; border-radius:4px; color:#d9dfce; }
+.sc-chapter-tabs button[aria-pressed="true"] { background:#e5cc90; color:#12271f; border-color:#e5cc90; }
+.sc-journey-scene { display:block; width:100%; height:auto; aspect-ratio:640/352; image-rendering:pixelated; background:#1d3429; }
+.realm-moon .sc-trail-art { filter:hue-rotate(65deg) brightness(.72) saturate(.7); }
+.realm-amber .sc-trail-art { filter:sepia(.5) hue-rotate(325deg) saturate(1.3); }
+.realm-sunrise .sc-trail-art { filter:sepia(.3) brightness(1.12); }
+.sc-realm-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; }
+.sc-realm-card { border:1px solid #536e60; border-radius:5px; overflow:hidden; background:#142b24; }
+.sc-realm-card > div { padding:20px; }
+.sc-realm-card h3 { font:28px Georgia,serif; margin:6px 0; }
+.sc-realm-card p { color:#b7cabb; margin-bottom:16px; }
+.sc-realm-card li button { display:flex; width:100%; gap:14px; padding:14px 0; border-top:1px solid #496050; text-align:left; align-items:center; }
+.sc-realm-card li button span:last-child { margin-left:auto; }
+.sc-site-footer { display:flex; flex-wrap:wrap; align-items:center; gap:16px 24px; border-top:1px solid #385548; margin:20px 32px 90px; padding:24px 0; color:#b2c5b7; font-size:12px; }
+.sc-site-footer strong { font:22px Georgia,serif; color:#e5cf9c; }
+.sc-site-footer a { text-decoration:underline; text-underline-offset:4px; }
+.sc-app .sc-mini-player { width:auto; max-width:calc(100vw - 32px); padding:8px 12px; border-radius:5px; background:#10271ff5; box-shadow:0 4px 18px #0005; gap:12px; }
+.sc-mini-info span { max-width:150px; }
+.sc-mini-volume { max-width:65px; }
+.sc-on-story .sc-mini-player { display:none; }
+.sc-cinema { overflow:hidden; border:1px solid #526e60; border-radius:5px; margin:18px 0; background:#10271f; }
+.sc-cinema-caption { min-height:unset; margin:0; padding:17px 20px; font-size:16px; line-height:1.65; background:#142b24; border-top:1px solid #385548; }
+.sc-story-narration { display:none !important; }
+.sc-cinema-controls { display:flex; flex-wrap:wrap; gap:10px; padding:14px; align-items:center; background:#10271f; }
+.sc-cinema-controls > span { padding:0 3px; color:#d7c78f; font-size:13px; }
+.sc-cinema-controls label { display:inline-flex; align-items:center; gap:5px; color:#c3d3c7; font-size:13px; }
+.sc-cinema-controls input { accent-color:#e5cc90; }
+.sc-cinema small { display:block; padding:10px 16px; }
+.sc-chapter-missions { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:20px 0; }
+.sc-chapter-missions button { display:grid; gap:10px; text-align:left; padding:18px; border:1px solid #526e60; background:#142b24; border-radius:4px; }
+.sc-chapter-missions button:disabled { opacity:.48; cursor:not-allowed; }
+.sc-journey-reader h2 { font:30px Georgia,serif; }
+@media(max-width:700px) { .sc-realm-grid,.sc-chapter-missions { grid-template-columns:1fr; } .sc-site-footer { margin:15px 16px 90px; } .sc-cinema-caption { font-size:14px; padding:14px; } }
+
+.sc-locked-scene { padding:32px; min-height:220px; display:flex; flex-wrap:wrap; align-content:center; gap:18px; }
+.sc-locked-scene h3,.sc-locked-scene p { width:100%; }

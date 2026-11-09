@@ -340,7 +340,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
 
         {/* Footer */}
         <div className="px-6 py-3 border-t border-magic/20 bg-night-900/90 flex items-center justify-between text-xs text-moonCream/60">
-          <span>SpellScript Academy Records</span>
+          <span>Storicode Academy Records</span>
           <button
             onClick={() => {
               sound.playClick();

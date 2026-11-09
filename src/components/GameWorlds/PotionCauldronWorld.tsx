@@ -1,5 +1,6 @@
 import React from 'react';
 import { FlaskConical, Sparkles, Trophy, Flame } from 'lucide-react';
+import alchemyDecor from '../../assets/props/alchemy_decor.png';
 
 export interface PotionCauldronProps {
   variables: Record<string, any>;
@@ -28,6 +29,11 @@ export const PotionCauldronWorld: React.FC<PotionCauldronProps> = ({
 
   return (
     <div className="relative w-full h-full min-h-[420px] rounded-2xl bg-gradient-to-b from-[#251733] via-[#1a1226] to-[#0d0915] border border-spellPink/30 p-6 flex flex-col justify-between overflow-hidden shadow-2xl">
+      {/* Background alchemy pixel art decor */}
+      <div className="absolute right-3 bottom-14 opacity-35 pointer-events-none">
+        <img src={alchemyDecor} alt="Alchemy Props" className="w-36 h-auto object-contain filter drop-shadow-xl" />
+      </div>
+
       {/* Background magical wisps */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
         <div className="absolute top-1/3 left-10 w-32 h-32 rounded-full bg-spellPink/20 blur-2xl animate-pulse" />

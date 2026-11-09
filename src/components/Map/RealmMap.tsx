@@ -31,7 +31,7 @@ export const RealmMap: React.FC<RealmMapProps> = ({
           <Sparkles className="w-3.5 h-3.5" /> The Five Arcane Realms
         </div>
         <h2 className="font-fantasy font-bold text-3xl md:text-4xl text-moonCream tracking-wider">
-          The SpellScript Realm Map
+          The Storicode Realm Map
         </h2>
         <p className="text-sm text-moonCream/70 max-w-xl mx-auto">
           Traverse the enchanted continents. Master each school of programming to break ancient seals and confront the Glitch Chimera.

@@ -65,7 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
           <div>
             <div className="font-fantasy font-black text-lg md:text-xl text-moonCream tracking-wider flex items-center gap-1.5 group-hover:text-spellPink transition-colors">
-              SpellScript <Sparkles className="w-4 h-4 text-spellPink animate-pulse" />
+              Storicode <Sparkles className="w-4 h-4 text-spellPink animate-pulse" />
             </div>
             <div className="text-[10px] text-magic-light font-code">Programming Through Magic</div>
           </div>

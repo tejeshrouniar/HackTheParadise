@@ -1,4 +1,4 @@
-// Web Audio API Synthesizer & Procedural Lo-Fi Ambient Music Engine for SpellScript
+// Web Audio API Synthesizer & Procedural Lo-Fi Ambient Music Engine for Storicode
 
 export interface BgmTrack {
   id: string;
@@ -9,72 +9,21 @@ export interface BgmTrack {
 }
 
 export const BGM_TRACKS: BgmTrack[] = [
-  // 💜 BTS Special Tracks
-  {
-    id: 'bts_dynamite',
-    name: 'Dynamite',
-    artist: 'BTS',
-    emoji: '🕺',
-    vibe: 'Upbeat Disco-Pop & Starlight Groove',
-  },
-  {
-    id: 'bts_butter',
-    name: 'Butter',
-    artist: 'BTS',
-    emoji: '🧈',
-    vibe: 'Smooth Synth-Pop Bassline & Summer Vibe',
-  },
-  {
-    id: 'bts_spring_day',
-    name: 'Spring Day (봄날)',
-    artist: 'BTS',
-    emoji: '🌸',
-    vibe: 'Emotional Nostalgic Lofi & Piano Chords',
-  },
-  {
-    id: 'bts_mikrokosmos',
-    name: 'Mikrokosmos (소우주)',
-    artist: 'BTS',
-    emoji: '🌌',
-    vibe: 'Ethereal Cosmic Starlight Anthem',
-  },
-  {
-    id: 'bts_life_goes_on',
-    name: 'Life Goes On',
-    artist: 'BTS',
-    emoji: '☕',
-    vibe: 'Cozy Acoustic Healing & Warm Melody',
-  },
-
-  // ✨ Original Fantasy Soundscapes
-  {
-    id: 'twilight',
-    name: 'Twilight Sanctuary',
-    emoji: '✨',
-    vibe: 'Dreamy Lo-Fi Chords & Starlight Bells',
-  },
-  {
-    id: 'citadel',
-    name: 'Cyber Citadel',
-    emoji: '🏰',
-    vibe: 'Warm Ethereal Synth Pads & Neon Flow',
-  },
-  {
-    id: 'meadow',
-    name: 'Arcane Meadow',
-    emoji: '🌿',
-    vibe: 'Peaceful Nature Harp & Gentle Breeze',
-  },
+ { id: 'twilight', name: 'Twilight Sanctuary', emoji: '✨', vibe: 'Synthesized lo-fi and bells' },
+ { id: 'citadel', name: 'Cyber Citadel', emoji: '🏰', vibe: 'Synthesized warm pads' },
+ { id: 'meadow', name: 'Arcane Meadow', emoji: '🌿', vibe: 'Synthesized soft harp' },
+ { id: 'archive', name: 'Candlelit Archive', emoji: '📖', vibe: 'Original synthesized chamber score' },
+ { id: 'eclipse', name: 'Midnight Observatory', emoji: '🌙', vibe: 'Original synthesized night score' },
 ];
 
 class SoundSystem {
   private ctx: AudioContext | null = null;
-  private isMuted: boolean = false;
+  private isMuted: boolean = true;
 
-  // Background Music (BGM) Engine State - Boosted Volume
+  // Background Music (BGM) Engine State - Independent volume
   private isBgmActive: boolean = false;
-  private bgmVolume: number = 0.85; // Boosted volume
-  private currentTrackId: string = 'bts_dynamite'; // Default to iconic BTS track!
+  private bgmVolume: number = 0.35; // Quiet initial volume
+  private currentTrackId: string = 'twilight';
   private bgmMasterGain: GainNode | null = null;
   private bgmFilter: BiquadFilterNode | null = null;
   private bgmIntervalId: any = null;
@@ -86,41 +35,6 @@ class SoundSystem {
 
   // Track Chords Definition (frequencies in Hz)
   private readonly trackChords: Record<string, number[][]> = {
-    // 💜 BTS: Dynamite (Bm7 -> Em7 -> A7 -> Dmaj7)
-    bts_dynamite: [
-      [123.47, 185.00, 220.00, 277.18, 369.99], // Bm7 (B2, F#3, A3, C#4, F#4)
-      [82.41, 164.81, 196.00, 246.94, 329.63],  // Em7 (E2, E3, G3, B3, E4)
-      [110.00, 164.81, 220.00, 277.18, 329.63], // A7 (A2, E3, A3, C#4, E4)
-      [146.83, 220.00, 277.18, 369.99, 440.00], // Dmaj7 (D3, A3, C#4, F#4, A4)
-    ],
-    // 💜 BTS: Butter (Ab -> Dbmaj7 -> Bbm7 -> Eb)
-    bts_butter: [
-      [103.83, 155.56, 207.65, 261.63, 311.13], // Ab (Ab2, Eb3, Ab3, C4, Eb4)
-      [138.59, 174.61, 207.65, 261.63, 329.63], // Dbmaj7 (Db3, F3, Ab3, C4, E4)
-      [116.54, 174.61, 233.08, 277.18, 349.23], // Bbm7 (Bb2, F3, Bb3, Db4, F4)
-      [155.56, 233.08, 311.13, 392.00, 466.16], // Eb7 (Eb3, Bb3, Eb4, G4, Bb4)
-    ],
-    // 💜 BTS: Spring Day (Ebmaj7 -> Gm7 -> Abmaj7 -> Bb)
-    bts_spring_day: [
-      [155.56, 233.08, 311.13, 392.00, 466.16], // Ebmaj7
-      [98.00, 146.83, 196.00, 293.66, 349.23],  // Gm7
-      [103.83, 155.56, 207.65, 261.63, 311.13], // Abmaj7
-      [116.54, 174.61, 233.08, 293.66, 349.23], // Bb
-    ],
-    // 💜 BTS: Mikrokosmos (G -> D/F# -> Em7 -> Cmaj7)
-    bts_mikrokosmos: [
-      [98.00, 196.00, 246.94, 293.66, 392.00],  // G
-      [92.50, 146.83, 220.00, 293.66, 369.99],  // D/F#
-      [82.41, 164.81, 196.00, 246.94, 329.63],  // Em7
-      [130.81, 196.00, 246.94, 261.63, 329.63], // Cmaj7
-    ],
-    // 💜 BTS: Life Goes On (Fmaj7 -> C -> Dm7 -> Bbmaj7)
-    bts_life_goes_on: [
-      [174.61, 261.63, 329.63, 349.23, 440.00], // Fmaj7
-      [130.81, 196.00, 261.63, 329.63, 392.00], // C
-      [146.83, 220.00, 261.63, 293.66, 349.23], // Dm7
-      [116.54, 174.61, 233.08, 293.66, 349.23], // Bbmaj7
-    ],
 
     // Original Lo-Fi tracks
     twilight: [
@@ -141,53 +55,42 @@ class SoundSystem {
       [146.83, 220.00, 261.63, 329.63, 392.00], // Dm7
       [196.00, 246.94, 293.66, 392.00, 440.00], // G6
     ],
+    archive: [
+      [110.00, 164.81, 220.00, 261.63, 329.63],
+      [98.00, 146.83, 196.00, 246.94, 293.66],
+      [130.81, 196.00, 246.94, 293.66, 392.00],
+      [116.54, 174.61, 220.00, 293.66, 349.23],
+    ],
+    eclipse: [
+      [92.50, 138.59, 185.00, 220.00, 277.18],
+      [82.41, 123.47, 164.81, 207.65, 246.94],
+      [98.00, 146.83, 196.00, 233.08, 293.66],
+      [87.31, 130.81, 174.61, 220.00, 261.63],
+    ],
   };
 
-  // Melody Hook sequences for recognizable tunes
+  // Generative melody scales
   private readonly melodyHooks: Record<string, number[]> = {
-    // Dynamite hook: "Cause I-I-I'm in the stars tonight..."
-    bts_dynamite: [
-      659.25, 659.25, 659.25, 587.33, 659.25, 783.99, 880.00, 659.25,
-      587.33, 659.25, 587.33, 493.88, 440.00, 493.88, 587.33, 659.25
-    ],
-    // Butter hook: "Smooth like butter, like a criminal undercover..."
-    bts_butter: [
-      554.37, 554.37, 622.25, 554.37, 466.16, 415.30, 466.16, 554.37,
-      622.25, 698.46, 622.25, 554.37, 466.16, 554.37, 622.25, 698.46
-    ],
-    // Spring Day hook: "보고 싶다... bogo sipda..."
-    bts_spring_day: [
-      622.25, 698.46, 783.99, 698.46, 622.25, 523.25, 587.33, 622.25,
-      783.99, 880.00, 932.33, 880.00, 783.99, 698.46, 622.25, 698.46
-    ],
-    // Mikrokosmos hook: "Shine, dream, smile... let us light up the night"
-    bts_mikrokosmos: [
-      392.00, 493.88, 587.33, 659.25, 587.33, 493.88, 392.00, 440.00,
-      493.88, 587.33, 659.25, 783.99, 659.25, 587.33, 493.88, 587.33
-    ],
-    // Life Goes On hook: "Like an echo in the forest..."
-    bts_life_goes_on: [
-      523.25, 587.33, 659.25, 587.33, 523.25, 440.00, 523.25, 587.33,
-      659.25, 783.99, 659.25, 587.33, 523.25, 440.00, 392.00, 440.00
-    ],
 
     // Generative scales for ambient tracks
     twilight: [523.25, 587.33, 659.25, 783.99, 880.00, 987.77, 1046.50],
     citadel: [587.33, 659.25, 739.99, 880.00, 987.77, 1108.73, 1174.66],
     meadow: [698.46, 783.99, 880.00, 1046.50, 1174.66, 1318.51],
+    archive: [392.00, 440.00, 523.25, 587.33, 659.25, 783.99],
+    eclipse: [293.66, 349.23, 392.00, 440.00, 523.25, 587.33],
   };
 
   constructor() {
-    // Restore saved volume preference or use high default (0.85)
+    // Restore saved volume preference or use a quiet default (0.35)
     try {
       const savedVol = localStorage.getItem('spellscript_bgm_volume');
       if (savedVol) {
-        this.bgmVolume = parseFloat(savedVol);
+        this.bgmVolume = Number.isFinite(Number(savedVol)) ? Math.max(0, Math.min(1, Number(savedVol))) : 0.35;
       } else {
-        this.bgmVolume = 0.85;
+        this.bgmVolume = 0.35;
       }
     } catch {
-      this.bgmVolume = 0.85;
+      this.bgmVolume = 0.35;
     }
   }
 
@@ -203,13 +106,13 @@ class SoundSystem {
     }
   }
 
+  public setEffectsEnabled(enabled: boolean) {
+    this.isMuted = !enabled;
+    window.dispatchEvent(new Event('storicode:sound'));
+  }
+
   public toggleMute(): boolean {
-    this.isMuted = !this.isMuted;
-    if (this.bgmMasterGain && this.ctx) {
-      const targetGain = this.isMuted ? 0 : this.bgmVolume;
-      this.bgmMasterGain.gain.setValueAtTime(this.bgmMasterGain.gain.value, this.ctx.currentTime);
-      this.bgmMasterGain.gain.linearRampToValueAtTime(targetGain, this.ctx.currentTime + 0.2);
-    }
+    this.setEffectsEnabled(this.isMuted);
     return this.isMuted;
   }
 
@@ -230,7 +133,7 @@ class SoundSystem {
 
     if (this.isBgmActive) {
       if (this.bgmMasterGain) {
-        const target = this.isMuted ? 0 : this.bgmVolume;
+        const target = this.bgmVolume;
         this.bgmMasterGain.gain.setValueAtTime(this.bgmMasterGain.gain.value, this.ctx.currentTime);
         this.bgmMasterGain.gain.linearRampToValueAtTime(target, this.ctx.currentTime + 0.3);
       }
@@ -241,7 +144,7 @@ class SoundSystem {
 
     // Master BGM Gain Node (Boosted for full volume richness)
     this.bgmMasterGain = this.ctx.createGain();
-    const initialGain = this.isMuted ? 0 : this.bgmVolume;
+    const initialGain = this.bgmVolume;
     this.bgmMasterGain.gain.setValueAtTime(0, this.ctx.currentTime);
     this.bgmMasterGain.gain.linearRampToValueAtTime(initialGain, this.ctx.currentTime + 0.6);
 
@@ -269,25 +172,16 @@ class SoundSystem {
   }
 
   public stopBgm() {
-    if (!this.isBgmActive || !this.ctx) return;
-
-    if (this.bgmMasterGain) {
-      this.bgmMasterGain.gain.setValueAtTime(this.bgmMasterGain.gain.value, this.ctx.currentTime);
-      this.bgmMasterGain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.5);
-    }
-
-    setTimeout(() => {
-      if (this.bgmIntervalId) {
-        clearInterval(this.bgmIntervalId);
-        this.bgmIntervalId = null;
-      }
-      if (this.bgmMelodyIntervalId) {
-        clearInterval(this.bgmMelodyIntervalId);
-        this.bgmMelodyIntervalId = null;
-      }
-      this.stopPadOscs();
-      this.isBgmActive = false;
-    }, 550);
+    if (this.bgmIntervalId) clearInterval(this.bgmIntervalId);
+    if (this.bgmMelodyIntervalId) clearInterval(this.bgmMelodyIntervalId);
+    this.bgmIntervalId = null;
+    this.bgmMelodyIntervalId = null;
+    this.stopPadOscs();
+    this.bgmMasterGain?.disconnect();
+    this.bgmFilter?.disconnect();
+    this.bgmMasterGain = null;
+    this.bgmFilter = null;
+    this.isBgmActive = false;
   }
 
   public toggleBgm(): boolean {
@@ -307,7 +201,7 @@ class SoundSystem {
     } catch {
       // Ignore
     }
-    if (this.bgmMasterGain && this.ctx && !this.isMuted) {
+    if (this.bgmMasterGain && this.ctx) {
       this.bgmMasterGain.gain.setValueAtTime(this.bgmMasterGain.gain.value, this.ctx.currentTime);
       this.bgmMasterGain.gain.linearRampToValueAtTime(this.bgmVolume, this.ctx.currentTime + 0.1);
     }
@@ -364,7 +258,7 @@ class SoundSystem {
   private playNextChord() {
     if (!this.ctx || !this.bgmFilter) return;
 
-    const chords = this.trackChords[this.currentTrackId] || this.trackChords.bts_dynamite;
+    const chords = this.trackChords[this.currentTrackId] || this.trackChords.twilight;
     const chord = chords[this.currentChordIndex % chords.length];
     this.currentChordIndex++;
 
@@ -429,7 +323,7 @@ class SoundSystem {
     const playNote = () => {
       if (!this.isBgmActive || !this.ctx || !this.bgmMasterGain) return;
 
-      const hook = this.melodyHooks[this.currentTrackId] || this.melodyHooks.bts_dynamite;
+      const hook = this.melodyHooks[this.currentTrackId] || this.melodyHooks.twilight;
       const note = hook[this.currentMelodyStep % hook.length];
       this.currentMelodyStep++;
 
@@ -438,7 +332,7 @@ class SoundSystem {
       const gain = this.ctx.createGain();
 
       // Pluck / Bell voice
-      osc.type = this.currentTrackId.startsWith('bts_') ? 'triangle' : 'sine';
+      osc.type = 'sine';
       osc.frequency.setValueAtTime(note, now);
 
       // Boosted hook note volume
@@ -454,7 +348,7 @@ class SoundSystem {
     };
 
     // Melody tempo: 420ms for BTS upbeat tracks, 750ms for ballads
-    const isBallad = this.currentTrackId === 'bts_spring_day' || this.currentTrackId === 'bts_life_goes_on' || this.currentTrackId === 'twilight';
+    const isBallad = ['twilight', 'archive', 'eclipse'].includes(this.currentTrackId);
     const tempoMs = isBallad ? 650 : 420;
 
     this.bgmMelodyIntervalId = setInterval(() => {

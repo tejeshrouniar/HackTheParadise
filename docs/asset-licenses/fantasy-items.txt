@@ -1,0 +1,16 @@
+LICENSE - Fantasy RPG Item Icons (Free)
+
+This pack is free, and will stay free. No sign-up or e-mail required.
+
+You MAY:
+- Use these assets in personal and commercial games/projects
+- Modify them to fit your project
+- Credit is appreciated but not required ("RetroLabStudioCo")
+
+You MAY NOT:
+- Resell or redistribute the assets as a standalone asset pack
+  (alone or bundled with other assets)
+
+Note: original pixel art, drawn entirely by code from one locked palette
+into game-ready, individually saved files. 100% original,
+no AI image generation used.

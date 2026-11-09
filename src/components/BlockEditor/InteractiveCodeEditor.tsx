@@ -313,7 +313,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
           <div className="flex items-center gap-2">
             <Terminal className="w-4 h-4 text-manaMint" />
             <span className="font-fantasy font-bold text-sm text-moonCream tracking-wider">
-              SpellScript Code Editor
+              Storicode Code Editor
             </span>
           </div>
           {/* Exact Quote Highlight */}

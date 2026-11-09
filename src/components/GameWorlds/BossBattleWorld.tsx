@@ -1,5 +1,7 @@
 import React from 'react';
 import { Swords, Shield, Trophy, Sparkles, Heart } from 'lucide-react';
+import hpBarRed from '../../assets/props/hp_bar_red.png';
+import manaBarBlue from '../../assets/props/mana_bar_blue.png';
 
 export interface BossBattleProps {
   bossHp: number;
@@ -54,6 +56,17 @@ export const BossBattleWorld: React.FC<BossBattleProps> = ({
 
         {/* Health Bars Row */}
         <div className="grid grid-cols-2 gap-4">
+          {/* Pixel Art Mini Banner */}
+          <div className="col-span-2 flex items-center justify-between px-2 py-1 bg-black/40 rounded-lg border border-white/5">
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-300">
+              <img src={manaBarBlue} alt="Mana" className="h-3 w-auto object-contain pixelated" />
+              <span>Sanctum Shield Energy</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-300">
+              <span>Glitch Titan Life</span>
+              <img src={hpBarRed} alt="Health" className="h-3 w-auto object-contain pixelated" />
+            </div>
+          </div>
           {/* Player HP */}
           <div className="bg-night-950/70 border border-manaMint/30 rounded-xl p-2.5">
             <div className="flex items-center justify-between text-xs mb-1">

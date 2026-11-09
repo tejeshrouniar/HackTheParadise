@@ -491,7 +491,7 @@ export const SpellScriptApp: React.FC = () => {
             <span className="text-2xl">🪄</span>
             <div>
               <h1 className="font-fantasy font-black text-lg text-moonCream tracking-wider flex items-center gap-1.5 leading-tight">
-                SpellScript <Sparkles className="w-3.5 h-3.5 text-spellPink" />
+                Storicode <Sparkles className="w-3.5 h-3.5 text-spellPink" />
               </h1>
               <p className="text-[10px] text-magic-light font-code">Learn Programming Through Magic</p>
             </div>
@@ -996,7 +996,7 @@ export const SpellScriptApp: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🪄</span>
                 <h3 className="font-fantasy font-bold text-lg text-moonCream">
-                  How to Play SpellScript
+                  How to Play Storicode
                 </h3>
               </div>
               <button

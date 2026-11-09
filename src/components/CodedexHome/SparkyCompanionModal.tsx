@@ -1,3 +1,4 @@
+import { Modal } from '../ui/Modal';
 import React, { useState, useEffect } from 'react';
 import {
   X,
@@ -133,7 +134,7 @@ export const SparkyCompanionModal: React.FC<SparkyCompanionModalProps> = ({
     ];
     setDialogue(petPhrases[Math.floor(Math.random() * petPhrases.length)]);
 
-    confetti({
+    confetti({ disableForReducedMotion: true,
       particleCount: 40,
       spread: 50,
       origin: { y: 0.5 },
@@ -159,7 +160,7 @@ export const SparkyCompanionModal: React.FC<SparkyCompanionModalProps> = ({
     ];
     setDialogue(feedPhrases[Math.floor(Math.random() * feedPhrases.length)]);
 
-    confetti({
+    confetti({ disableForReducedMotion: true,
       particleCount: 50,
       spread: 60,
       origin: { y: 0.5 },
@@ -178,7 +179,7 @@ export const SparkyCompanionModal: React.FC<SparkyCompanionModalProps> = ({
   const currentJoke = DEV_JOKES[currentJokeIndex];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn">
+    <Modal open={isOpen} onClose={onClose} title="Meet Sparky" wide>
       <div
         className={`w-full max-w-2xl max-h-[92vh] rounded-3xl border-2 flex flex-col shadow-2xl backdrop-blur-2xl overflow-hidden animate-scaleUp transition-colors ${
           isDarkMode
@@ -433,6 +434,6 @@ export const SparkyCompanionModal: React.FC<SparkyCompanionModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 };

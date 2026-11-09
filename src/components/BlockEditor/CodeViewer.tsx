@@ -9,7 +9,7 @@ export interface CodeViewerProps {
 export const CodeViewer: React.FC<CodeViewerProps> = ({ blocks }) => {
   const [copied, setCopied] = React.useState(false);
 
-  // Convert blocks to readable Python / SpellScript code
+  // Convert blocks to readable Python / Storicode code
   const generateCode = (blockList: SpellBlock[], indentLevel = 0): string => {
     const indent = '    '.repeat(indentLevel);
     const lines: string[] = [];
@@ -80,7 +80,7 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({ blocks }) => {
   };
 
   const codeText = blocks.length > 0
-    ? `# ✨ SpellScript Python Translation ✨\n${generateCode(blocks)}`
+    ? `# ✨ Storicode Python Translation ✨\n${generateCode(blocks)}`
     : '# Your spell parchment is empty.\n# Inscribe instructions to begin.';
 
   const handleCopy = () => {
@@ -117,7 +117,7 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({ blocks }) => {
       </pre>
 
       <div className="mt-2 text-[10px] text-moonCream/50 flex items-center justify-between">
-        <span>SpellScript Code Interpreter v1.0</span>
+        <span>Storicode Code Interpreter v1.0</span>
         <span className="text-magic-light">Safe Sandboxed Sandbox</span>
       </div>
     </div>

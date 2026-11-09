@@ -1,0 +1,26 @@
+# Accessibility notes
+
+Accessibility is part of the interaction model, not a final styling pass. These notes describe the support present in the current source; they are not a claim of WCAG certification.
+
+## Implemented patterns
+
+- The application has a skip link, labeled route navigation, current-page state, semantic forms, and visible keyboard focus rules in `src/styles/tokens.css`.
+- Modal dialogs use the shared Radix-backed `src/components/ui/Modal.tsx` wrapper for focus handling, Escape, and background isolation.
+- The home trail has keyboard and pointer controls, named arrow buttons, a non-animated accessible route list, and a live status message.
+- Quest completion, wallet errors, narration captions, and other changing status messages use live regions where appropriate.
+- The user preference and operating-system reduced-motion settings feed `MotionConfig`; CSS disables selected decorative loops and transitions.
+- The soundtrack does not autoplay. Bundled narration has native audio controls and visible story text remains available when playback fails.
+- The layout uses responsive breakpoints, touch-sized trail controls, and form labels. Pixel art uses crisp rendering while preserving the surrounding text interface.
+
+## When changing a screen
+
+1. Use a native button for an action and a link for navigation. Give icon-only controls an accessible name.
+2. Keep keyboard order aligned with the visual task order; do not remove focus outlines.
+3. Make locked/unavailable state clear in text, not only color or animation.
+4. Keep captions/transcripts visible when sound conveys story or result information.
+5. Honor reduced motion without skipping information or quest steps.
+6. Check narrow layouts and zoom; controls and status must not be clipped or covered by the floating player.
+
+## Validation limits
+
+The automated suite checks code, progression, sprite timing, and database permissions. It does not run axe-core or a screen reader, and this repository has no automated contrast certification. Before a public accessibility claim, perform a manual keyboard pass and test at least one screen reader/browser combination plus 200% zoom on the main routes.

@@ -7,9 +7,13 @@ import { CodedexHome } from '../CodedexHome/CodedexHome';
 export const ALL_CODEDEX_LESSONS: CodedexLesson[] = [...CODEDEX_LESSONS, ...HTML_CSS_LESSONS];
 import { sound } from '../../utils/sound';
 import {
-  Sparkles,
+  ArrowLeft,
+  Check,
+  Copy,
+  HelpCircle,
   Play,
   RotateCcw,
+  Square,
   Volume2,
   VolumeX,
   CheckCircle2,
@@ -686,61 +690,71 @@ export const CodedexApp: React.FC = () => {
     if (currIdx !== -1 && currIdx < ALL_CODEDEX_LESSONS.length - 1) {
       setCurrentLessonId(ALL_CODEDEX_LESSONS[currIdx + 1].id);
     }
-  };
-
-  // Check if a task is typed in code
-  const isTaskTyped = (keyword: string) => {
-    return code.includes(keyword);
-  };
-
-  // Smart Contextual Arrow Conditions
-  // 1. Is the editor clean/empty (only comments)?
-  const codeLinesWithoutComments = code
-    .split('\n')
-    .map((l) => l.trim())
-    .filter((l) => l && !l.startsWith('#'));
-  const isEditorEmpty = codeLinesWithoutComments.length === 0;
-
-  // 2. Which is the first incomplete task?
-  const nextIncompleteTaskIndex = lesson.tasks.findIndex((t) => !isTaskTyped(t.codeKeyword));
-  const allTasksTyped = nextIncompleteTaskIndex === -1;
-
-  // 3. Is user ready to run code?
-  const isReadyToRun = allTasksTyped && !questSuccess && !isExecuting && !errorPointer;
-
-  // Render Homepage if user is on 'home' view
-  if (currentView === 'home') {
-    return (
-      <CodedexHome
-        onStartAdventure={(lessonId) => {
-          if (lessonId) setCurrentLessonId(lessonId);
-          setCurrentView('quest');
-        }}
-      />
-    );
   }
+  if (questSuccess && !crossing) return <QuestAftermath key={lesson.id} id={lesson.id} code={code} logs={terminalLogs} onContinue={lesson.id < CODEDEX_LESSONS.length ? handleNextQuest : onExit}/>;
 
   return (
-    <div className="min-h-screen bg-[#0e0a19] text-[#FFF2D8] flex flex-col font-body selection:bg-magic selection:text-white">
-      {/* 1. TOP NAVBAR */}
-      <header className="w-full bg-[#151024]/95 backdrop-blur-md border-b border-purple-900/40 px-4 py-2.5 sticky top-0 z-40 shadow-md">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-          {/* Logo with click to return to home */}
-          <div
-            onClick={() => {
-              sound.playClick();
-              setCurrentView('home');
-            }}
-            className="flex items-center gap-2.5 select-none cursor-pointer group shrink-0"
-          >
-            <div className="w-8 h-8 rounded-lg bg-[#8B5CF6] border border-[#6D28D9] shadow-[0_2px_0_#4C1D95] flex items-center justify-center text-sm font-pixel text-white group-hover:scale-105 transition-transform">
-              🪄
-            </div>
+    <div className="sc-page sc-simple-quest">
+      <div className="sc-quest-topline">
+        <button className="sc-link sc-context-back" onClick={onExit}>
+          <ArrowLeft size={16} />
+          Quests
+        </button>
+        <span>
+          Quest {lesson.id} of {CODEDEX_LESSONS.length}
+        </span>
+        <button
+          className="sc-icon-button"
+          aria-label={
+            preferences.sound_effects
+              ? "Disable sound effects"
+              : "Enable sound effects"
+          }
+          onClick={() =>
+            void updatePreferences({
+              sound_effects: !preferences.sound_effects,
+            }).catch(() => {})
+          }
+        >
+          {preferences.sound_effects ? (
+            <Volume2 size={18} />
+          ) : (
+            <VolumeX size={18} />
+          )}
+        </button>
+      </div>
+      <header className="sc-quest-intro">
+        <h1>{lesson.title}</h1>
+        <p>{lesson.taskObjective}</p>
+        {FOREST_CHAPTERS.find((chapter) => chapter.id === lesson.id) && (
+          <p className="sc-chapter-story">
+            {FOREST_CHAPTERS.find((chapter) => chapter.id === lesson.id)?.story}
+          </p>
+        )}
+      </header>
+      <div className="sc-coding-layout">
+        <section className="sc-card sc-spell-editor">
+          <header>
+            <h2>Your spell</h2>
             <div>
-              <div className="font-fantasy font-black text-base text-moonCream tracking-wider flex items-center gap-1.5 leading-tight group-hover:text-spellPink transition-colors">
-                SpellScript <Sparkles className="w-3.5 h-3.5 text-spellPink" />
-              </div>
-              <div className="text-[10px] text-magic-light font-code">Codédex Magic Academy</div>
+              <button
+                className="sc-icon-button"
+                onClick={() => void copyCode()}
+                aria-label={copiedCode ? "Code copied" : "Copy code"}
+              >
+                {copiedCode ? <Check size={16} /> : <Copy size={16} />}
+              </button>
+              <button
+                className="sc-icon-button"
+                aria-label="Reset code and world"
+                disabled={isExecuting}
+                onClick={() => {
+                  resetStage();
+                  setCode(lesson.initialCode);
+                }}
+              >
+                <RotateCcw size={16} />
+              </button>
             </div>
           </div>
 
@@ -845,52 +859,54 @@ export const CodedexApp: React.FC = () => {
                 sound.playClick();
                 setCurrentView('home');
               }}
-              className="px-2.5 py-1.5 rounded-xl text-xs font-fantasy font-bold bg-white/5 hover:bg-white/10 text-moonCream/80 flex items-center gap-1 transition-all cursor-pointer"
-              title="Return to Home"
-            >
-              <span>🏠</span>
-              <span className="hidden sm:inline">Home</span>
-            </button>
+              spellCheck={false}
+              autoCapitalize="off"
+              autoCorrect="off"
+              placeholder="# Write your spell here"
+            />
           </div>
-        </div>
-      </header>
-
-      {/* 2. COMPACT OBJECTIVE HERO BAR (Clean & Focused) */}
-      <div className="w-full bg-[#130d22]/90 border-b border-purple-900/40 px-4 py-2.5">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <span className="px-2.5 py-0.5 rounded-md bg-magic/25 border border-magic/40 text-manaMint text-xs font-pixel uppercase tracking-wider">
-              {lesson.chapter}
-            </span>
-            <h1 className="font-fantasy font-black text-lg sm:text-xl text-moonCream">
-              {lesson.title}
-            </h1>
-            <span className="text-white/30 hidden sm:inline">•</span>
-            <p className="text-xs text-moonCream/80 font-medium hidden md:inline">
-              <span className="text-amber-400 font-semibold">Objective:</span> {lesson.taskObjective}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
+          {errorPointer && (
+            <div className="sc-code-error" role="alert">
+              <strong>
+                Line {errorPointer.lineIndex + 1}: {errorPointer.message}
+              </strong>
+              <p>{errorPointer.suggestion}</p>
+            </div>
+          )}
+          <div className="sc-spell-actions">
             <button
+              className="sc-button mint"
               onClick={() => {
-                sound.playClick();
-                setIsTutorialOpen(true);
+                if (window.matchMedia("(max-width: 1100px)").matches) {
+                  worldRef.current?.scrollIntoView({
+                    block: "start",
+                    behavior:
+                      preferences.reduced_motion ||
+                      window.matchMedia("(prefers-reduced-motion: reduce)")
+                        .matches
+                        ? "auto"
+                        : "smooth",
+                  });
+                }
+                void handleRunCode();
               }}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-magic/20 hover:bg-magic/35 border border-magic/40 text-xs text-spellPink font-fantasy font-bold transition-colors cursor-pointer shadow-sm"
+              disabled={isExecuting}
             >
-              <HelpCircle className="w-3.5 h-3.5" />
-              <span>How to play</span>
+              <Play size={16} />
+              {isExecuting ? "Running…" : "Run spell"}
             </button>
-
+            {isExecuting && (
+              <button className="sc-button secondary" onClick={state.stopRun}>
+                <Square size={14} />
+                Stop
+              </button>
+            )}
             <button
-              onClick={() => {
-                sound.playClick();
-                setShowSolution(!showSolution);
-              }}
-              className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-moonCream/70 font-fantasy transition-colors cursor-pointer"
+              className="sc-button secondary"
+              onClick={() => setIsTutorialOpen(true)}
             >
-              {showSolution ? 'Hide Solution' : 'Solution'}
+              <HelpCircle size={16} />
+              Quest guide
             </button>
           </div>
         </div>
@@ -1324,352 +1340,49 @@ export const CodedexApp: React.FC = () => {
             )}
           </div>
         </section>
-
-        {/* RIGHT COLUMN: CODE EDITOR & OUTPUT (7 cols) */}
-        <section className="lg:col-span-7 space-y-4">
-          {/* Quick Hint Card */}
-          {showHint && (
-            <div className="p-3 rounded-2xl bg-amber-950/60 border border-runeAmber/40 text-xs text-moonCream/95 animate-fadeIn flex items-start gap-2.5 shadow-lg">
-              <Lightbulb className="w-4 h-4 text-runeAmber shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <strong className="text-runeAmber">Hint:</strong> {lesson.hint}
-              </div>
-            </div>
-          )}
-
-          {/* Solution Banner */}
-          {showSolution && (
-            <div className="p-3.5 rounded-2xl bg-purple-950/80 border border-spellPink/50 text-xs space-y-2 animate-fadeIn shadow-xl">
-              <div className="font-fantasy font-bold text-spellPink flex items-center justify-between">
-                <span>📜 Solution Code</span>
-                <button
-                  onClick={() => {
-                    sound.playClick();
-                    setCode(lesson.solutionCode);
-                  }}
-                  className="text-[10px] px-2.5 py-1 rounded-lg bg-spellPink text-night-950 font-bold hover:bg-white transition-colors cursor-pointer"
-                >
-                  Insert to Editor
-                </button>
-              </div>
-              <pre className="p-2.5 rounded-xl bg-night-950 font-code text-xs text-manaMint overflow-x-auto">
-                <code>{lesson.solutionCode}</code>
-              </pre>
-            </div>
-          )}
-
-          {errorPointer && (
-            <div className="p-3.5 rounded-2xl bg-red-950/90 border-2 border-cursedRed text-xs shadow-lg animate-shake flex items-start gap-3">
-              <div className="p-1.5 rounded-xl bg-cursedRed/20 text-cursedRed shrink-0 mt-0.5">
-                <AlertTriangle className="w-4 h-4" />
-              </div>
-              <div className="flex-1 space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-fantasy font-bold text-white bg-cursedRed px-2 py-0.5 rounded">
-                    Line {errorPointer.lineIndex + 1}
-                  </span>
-                  <span className="text-spellPink font-bold text-xs">
-                    {errorPointer.message}
-                  </span>
-                </div>
-                <div className="text-moonCream font-medium flex items-center gap-1.5 text-[11px] pt-0.5">
-                  <span className="text-runeAmber font-bold">👉 How to Fix:</span>
-                  <span>{errorPointer.suggestion}</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* THE TEXT EDITOR ("type code here") */}
-          <div className="rounded-3xl bg-[#090610] border-2 border-magic/50 shadow-2xl overflow-hidden flex flex-col relative">
-            {/* Tab header */}
-            <div className="flex items-center justify-between px-4 py-2.5 bg-[#140e24] border-b border-purple-900/40 text-xs">
-              <div className="flex items-center gap-2">
-                <Code2 className="w-4 h-4 text-spellPink" />
-                <span className="font-code font-bold text-moonCream">main.py</span>
-                {/* The prominent "type code here" quote */}
-                <span className="text-[11px] font-code font-bold text-spellPink bg-spellPink/10 px-2 py-0.5 rounded border border-spellPink/30 ml-2">
-                  "type code here"
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    sound.playClick();
-                    navigator.clipboard.writeText(code);
-                    setCopiedCode(true);
-                    setTimeout(() => setCopiedCode(false), 2000);
-                  }}
-                  className="flex items-center gap-1 text-[11px] text-moonCream/70 hover:text-white px-2 py-1 rounded bg-white/5"
-                >
-                  {copiedCode ? <Check className="w-3 h-3 text-manaMint" /> : <Copy className="w-3 h-3" />}
-                  <span>{copiedCode ? 'Copied' : 'Copy'}</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    sound.playClick();
-                    setCode(lesson.initialCode);
-                    setErrorPointer(null);
-                  }}
-                  className="flex items-center gap-1 text-[11px] text-moonCream/70 hover:text-white px-2 py-1 rounded bg-white/5"
-                  title="Clear or reset to template"
-                >
-                  <RotateCcw className="w-3 h-3" /> Reset
-                </button>
-              </div>
-            </div>
-
-            {/* Editable Text Area with Line Numbers & Contextual Pointer */}
-            <div className="flex relative min-h-[190px]">
-              {/* Line Numbers */}
-              <div className="w-10 bg-[#0d0918] border-r border-white/5 p-3 select-none text-right font-code text-xs text-moonCream/30 leading-[20px]">
-                {Array.from({ length: Math.max(8, code.split('\n').length) }).map((_, i) => {
-                  const isErr = errorPointer?.lineIndex === i;
-                  const isActive = activeLine === i;
-
-                  return (
-                    <div
-                      key={i}
-                      className={
-                        isErr
-                          ? 'text-cursedRed font-bold bg-cursedRed/20 rounded'
-                          : isActive
-                          ? 'text-runeAmber font-bold animate-pulse'
-                          : ''
-                      }
-                    >
-                      {i + 1}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Textarea: User types code here */}
-              <div className="flex-1 relative">
-                <textarea
-                  ref={textareaRef}
-                  value={code}
-                  onChange={(e) => {
-                    setCode(e.target.value);
-                    if (errorPointer) setErrorPointer(null);
-                  }}
-                  spellCheck={false}
-                  placeholder={`# 🪄 "type code here" — Inscribe your instructions\n# Follow the tasks on the left!`}
-                  className="w-full h-full bg-transparent text-manaMint font-code text-xs p-3 focus:outline-none resize-none leading-[20px] selection:bg-magic selection:text-white"
-                />
-
-                {/* CONTEXTUAL ARROW: Points inside editor ONLY when editor is empty */}
-                {isEditorEmpty && (
-                  <div className="absolute top-14 left-4 flex items-center gap-2 pointer-events-none text-xs text-spellPink font-code bg-black/60 px-3 py-1.5 rounded-xl border border-spellPink/40 animate-pulse">
-                    <span className="text-base font-black">👉</span>
-                    <span>
-                      Start typing here: <code className="text-manaMint font-bold">{lesson.tasks[0]?.codeKeyword}</code>
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Run Code / Cast Spell Bar */}
-            <div className="p-3 bg-[#140e24] border-t border-purple-900/40 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleRunCode}
-                  disabled={isExecuting}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-magic via-spellPink to-manaMint text-night-950 font-fantasy font-black text-xs shadow-magic hover:opacity-95 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
-                >
-                  <Play className="w-4 h-4 fill-current" />
-                  <span>{isExecuting ? 'Running Magic...' : '▶ Cast Spell (Run Code)'}</span>
-                </button>
-
-                {/* CONTEXTUAL ARROW: Points to Cast Spell ONLY when ready to run */}
-                {isReadyToRun && (
-                  <div className="hidden sm:flex items-center gap-1.5 text-xs text-manaMint font-fantasy font-bold animate-pulse">
-                    <ArrowLeft className="w-3.5 h-3.5 text-manaMint animate-bounce" />
-                    <span>All set! Click Cast Spell!</span>
-                  </div>
-                )}
-              </div>
-
-              <button
-                onClick={resetStage}
+        <section className="sc-card sc-live-world" ref={worldRef}>
+          <header>
+            <h2>{currentStageInfo.name}</h2>
+            <span className={questSuccess ? "complete" : ""}>
+              {questSuccess ? "Complete" : isExecuting ? "Running" : "Ready"}
+            </span>
+          </header>
+          <div className="sc-playback-bar">
+            <span>
+              {state.executionStep.total
+                ? `Step ${state.executionStep.current} / ${state.executionStep.total}`
+                : "Watch your spell unfold"}
+            </span>
+            <label>
+              Pace{" "}
+              <select
+                aria-label="Animation pace"
+                value={state.stepDuration}
                 disabled={isExecuting}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-moonCream/80 text-xs border border-white/10"
+                onChange={(e) => state.setStepDuration(Number(e.target.value))}
               >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset Stage</span>
-              </button>
+                <option value={1100}>Relaxed</option>
+                <option value={750}>Steady</option>
+                <option value={450}>Quick</option>
+              </select>
+            </label>
+          </div>
+          <div className="sc-stage-canvas">
+
+            <div className="sc-stage-content">
+              <StageWorld key={lesson.id} state={state} bridgeCrossed={bridgeCrossed}
+                onBridgeCrossed={() => setBridgeCrossed(true)} />
             </div>
           </div>
+          <p className="sc-action-caption" role="status">
+            {questSuccess
+              ? crossing ? "Crossing the bridge…" : "Quest complete"
+              : state.executionStep.label}
+          </p>
 
-          {/* TERMINAL CONSOLE OUTPUT */}
-          <div className="rounded-3xl bg-[#090610] border border-white/10 overflow-hidden shadow-lg">
-            <div className="px-4 py-2 bg-[#120d1e] border-b border-white/5 flex items-center justify-between text-xs text-moonCream/50 font-code">
-              <span className="flex items-center gap-1.5">
-                <Terminal className="w-3.5 h-3.5 text-manaMint" /> Console Output
-              </span>
-              <span>Python 3.12 (SpellScript Engine)</span>
-            </div>
-
-            <div className="p-3 font-code text-xs space-y-1 max-h-36 overflow-y-auto leading-relaxed">
-              {terminalLogs.map((log, i) => (
-                <div
-                  key={i}
-                  className={
-                    log.includes('❌') || log.includes('Error')
-                      ? 'text-cursedRed font-semibold'
-                      : log.includes('🎉')
-                      ? 'text-manaMint font-bold'
-                      : log.startsWith('$')
-                      ? 'text-moonCream/40'
-                      : 'text-manaMint/90'
-                  }
-                >
-                  {log}
-                </div>
-              ))}
-            </div>
-          </div>
         </section>
-      </main>
-
-      {/* 4. TUTORIAL POPUP MODAL (Clean, Informative, Dismissible) */}
-      {isTutorialOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-          <div className="w-full max-w-2xl bg-[#151026] border-2 border-magic/50 rounded-3xl shadow-2xl p-6 sm:p-8 space-y-5 max-h-[90vh] overflow-y-auto relative text-moonCream">
-            {/* Header */}
-            <div className="flex items-start justify-between pb-4 border-b border-white/10">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-md bg-magic/20 border border-magic/40 text-spellPink text-xs font-pixel uppercase">
-                    {lesson.chapter}
-                  </span>
-                  <span className="text-xs font-code text-manaMint font-semibold">
-                    {completedLessons.includes(lesson.id) ? '✓ Completed' : 'In Progress'}
-                  </span>
-                </div>
-                <h2 className="font-fantasy font-black text-2xl text-moonCream">
-                  {lesson.title}
-                </h2>
-                <div className="text-xs text-magic-light">
-                  Concept: <strong className="text-moonCream">{lesson.conceptName}</strong>
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  setIsTutorialOpen(false);
-                }}
-                className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-white/70 hover:text-white transition-colors cursor-pointer"
-                title="Close Tutorial"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Section 1: Concept Explanation */}
-            <div className="space-y-2">
-              <h3 className="font-fantasy font-bold text-sm text-moonCream flex items-center gap-1.5">
-                <span>📖</span> {lesson.whatIsThisTitle}
-              </h3>
-              <p className="text-xs text-moonCream/85 leading-relaxed">
-                {lesson.whatIsThisBody}
-              </p>
-              {lesson.whatIsThisCallout && (
-                <div className="p-3 rounded-xl bg-magic/15 border border-magic/30 text-xs text-magic-light leading-snug">
-                  💡 <strong>Key Insight:</strong> {lesson.whatIsThisCallout}
-                </div>
-              )}
-            </div>
-
-            {/* Section 2: How to write it (Syntax Example) */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h3 className="font-fantasy font-bold text-sm text-moonCream flex items-center gap-1.5">
-                  <span>🪄</span> {lesson.howToWriteTitle}
-                </h3>
-                <button
-                  onClick={() => {
-                    sound.playClick();
-                    setCode(lesson.codeExample);
-                    setIsTutorialOpen(false);
-                  }}
-                  className="text-[10px] px-2.5 py-1 rounded-lg bg-magic/25 hover:bg-magic/40 border border-magic/50 text-spellPink font-bold transition-colors cursor-pointer"
-                >
-                  Insert Example into Editor
-                </button>
-              </div>
-              <p className="text-xs text-moonCream/85 leading-relaxed">
-                {lesson.howToWriteBody}
-              </p>
-              <pre className="p-3 rounded-2xl bg-[#090610] border border-purple-900/50 font-code text-xs text-manaMint overflow-x-auto leading-relaxed shadow-inner">
-                <code>{lesson.codeExample}</code>
-              </pre>
-            </div>
-
-            {/* Section 3: Quest Tasks */}
-            <div className="space-y-2.5 pt-3 border-t border-white/10">
-              <h3 className="font-fantasy font-bold text-sm text-moonCream flex items-center gap-1.5">
-                <span>🎯</span> Quest Tasks
-              </h3>
-              <p className="text-xs text-moonCream/80 font-medium">
-                {lesson.taskObjective}
-              </p>
-
-              <div className="space-y-2">
-                {lesson.tasks.map((task, idx) => {
-                  const typed = isTaskTyped(task.codeKeyword);
-
-                  return (
-                    <div
-                      key={task.id}
-                      className={
-                        "p-2.5 rounded-xl border text-xs flex items-start gap-2.5 transition-all " +
-                        (typed
-                          ? "bg-emerald-950/40 border-manaMint/40 text-moonCream"
-                          : "bg-night-950/60 border-white/10 text-moonCream/70")
-                      }
-                    >
-                      <div
-                        className={
-                          "w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-[10px] font-bold " +
-                          (typed ? "bg-manaMint text-night-950" : "border border-white/30 text-white/40")
-                        }
-                      >
-                        {typed ? "✓" : idx + 1}
-                      </div>
-                      <div className="flex-1">
-                        <span className={typed ? "text-manaMint font-semibold" : ""}>
-                          {task.description}
-                        </span>
-                        <div className="text-[10px] text-magic-light font-code mt-0.5">
-                          Code: <code>{task.codeKeyword}</code>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Modal Footer: Got it button */}
-            <div className="pt-4 border-t border-white/10 flex items-center justify-end">
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  setIsTutorialOpen(false);
-                }}
-                className="w-full sm:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-magic to-spellPink text-night-950 font-fantasy font-black text-xs uppercase tracking-wider shadow-magic hover:opacity-95 transition-all cursor-pointer text-center"
-              >
-                🚀 Got it, Let's Code!
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
+      <QuestDialogs state={state} />
     </div>
   );
 };

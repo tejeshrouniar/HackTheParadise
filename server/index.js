@@ -1,4 +1,4 @@
-// SpellScript Arcane Backend API Server
+// Storicode Arcane Backend API Server
 import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
@@ -28,7 +28,7 @@ const DEFAULT_DB = {
     {
       id: 'apprentice-1',
       name: 'Merlin the Coder',
-      email: 'merlin@spellscript.io',
+      email: 'merlin@example.com',
       language: 'Python',
       xp: 450,
       gems: 12,
@@ -41,7 +41,7 @@ const DEFAULT_DB = {
     {
       id: 'apprentice-2',
       name: 'Ada Lovelace',
-      email: 'ada@spellscript.io',
+      email: 'ada@example.com',
       language: 'Python',
       xp: 980,
       gems: 28,
@@ -54,7 +54,7 @@ const DEFAULT_DB = {
     {
       id: 'apprentice-3',
       name: 'Sparky Pyromancer',
-      email: 'sparky@spellscript.io',
+      email: 'sparky@example.com',
       language: 'JavaScript',
       xp: 260,
       gems: 6,
@@ -127,7 +127,7 @@ app.get('/api/health', (req, res) => {
   const db = readDb();
   res.json({
     status: 'ok',
-    server: 'SpellScript Arcane Engine v2.0',
+    server: 'Storicode Arcane Engine v2.0',
     uptimeSeconds: Math.floor(process.uptime()),
     activeWizards: db.stats.activeApprentices,
     totalSpellsCast: db.stats.totalSpellsCast,
@@ -234,7 +234,7 @@ app.post('/api/quests/execute', (req, res) => {
     .map((l) => l.trim())
     .filter((l) => l && !l.startsWith('#'));
 
-  logs.push('$ spellscript-backend-eval --strict');
+  logs.push('$ storicode-backend-eval --strict');
   logs.push(`> Parsing ${cleanLines.length} arcane instruction lines...`);
 
   // Basic Python Syntax Checks
@@ -363,6 +363,6 @@ app.get('/api/leaderboard', (req, res) => {
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`🪄 SpellScript Arcane Backend running on http://localhost:${PORT}`);
+  console.log(`🪄 Storicode Arcane Backend running on http://localhost:${PORT}`);
   console.log(`⚡ API ready at http://localhost:${PORT}/api/health`);
 });

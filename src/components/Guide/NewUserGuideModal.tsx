@@ -33,7 +33,7 @@ export const NewUserGuideModal: React.FC<NewUserGuideModalProps> = ({
 
   const steps = [
     {
-      title: 'Welcome to SpellScript Academy',
+      title: 'Welcome to Storicode Academy',
       subtitle: 'Where Every Line of Code Casts a Magical Spell',
       badge: 'Step 1 of 4: The Core Concept',
       icon: '🪄',

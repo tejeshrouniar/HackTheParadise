@@ -27,37 +27,21 @@ import { HTML_CSS_LESSONS } from '../../data/htmlCssLessons';
 import homeBg from '../../assets/home-bg-sharp.png';
 import { ArcaneTerminalModal } from './ArcaneTerminalModal';
 import { SparkyCompanionModal } from './SparkyCompanionModal';
+import { AuthModal } from '../Auth/AuthModal';
+import { useAuth } from '../../contexts/AuthContext';
 
 export interface CodedexHomeProps {
   onStartAdventure: (lessonId?: number) => void;
 }
 
 export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) => {
-  // Theme state with localStorage persistence
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    try {
-      const savedTheme = localStorage.getItem('spellscript_theme');
-      return savedTheme ? savedTheme === 'dark' : true;
-    } catch {
-      return true;
-    }
-  });
-
-  // Toggle theme
-  const toggleTheme = () => {
-    sound.playClick();
-    const newTheme = !isDarkMode;
-    setIsDarkMode(newTheme);
-    try {
-      localStorage.setItem('spellscript_theme', newTheme ? 'dark' : 'light');
-    } catch {
-      // ignore
-    }
-  };
+  // Always dark fantasy theme
+  const isDarkMode = true;
+  const { user, signOut, isPasswordRecovery } = useAuth();
 
   // Mascot Modal state
-  const [isTerminalOpen, setIsTerminalOpen] = useState<boolean>(false);
   const [isSparkyOpen, setIsSparkyOpen] = useState<boolean>(false);
+  const [isTerminalOpen, setIsTerminalOpen] = useState<boolean>(false);
 
   // Nav Dropdowns
   const [isLearnOpen, setIsLearnOpen] = useState<boolean>(false);
@@ -141,19 +125,6 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
     );
   });
 
-  const handleSignUpSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!signUpName.trim() || !signUpEmail.trim()) return;
-
-    sound.playVictoryFanfare();
-    confetti({
-      particleCount: 80,
-      spread: 70,
-      origin: { y: 0.6 },
-    });
-    setIsSignedUp(true);
-  };
-
   return (
     <div
       className={`min-h-screen flex flex-col font-body selection:bg-[#9274D8] selection:text-white overflow-x-hidden relative transition-colors duration-300 ${
@@ -188,250 +159,15 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
                   isDarkMode ? 'text-[#FFF7ED]' : 'text-[#231238]'
                 }`}
               >
-                SpellScript
+                Storicode
               </span>
-              <span className="text-[10px] font-pixel text-[#F472B6] hidden sm:inline">.io</span>
             </div>
           </div>
 
-          {/* Nav Links with Working Dropdowns */}
-          <div
-            className={`hidden md:flex items-center gap-5 text-sm font-semibold transition-colors ${
-              isDarkMode ? 'text-[#EDE9FE]' : 'text-[#3B1D66]'
-            }`}
-          >
-            {/* Learn Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  setIsLearnOpen(!isLearnOpen);
-                  setIsPracticeOpen(false);
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${
-                  isLearnOpen
-                    ? isDarkMode
-                      ? 'bg-[#8B5CF6]/20 text-white'
-                      : 'bg-[#DDD6FE]/40 text-[#6D28D9]'
-                    : isDarkMode
-                    ? 'hover:text-white hover:bg-white/5'
-                    : 'hover:text-[#6D28D9] hover:bg-purple-50'
-                }`}
-              >
-                <span>Learn</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isLearnOpen ? 'rotate-180' : ''}`} />
-              </button>
+          {/* Middle Nav Links */}
+          <div className="flex-1" />
 
-              {isLearnOpen && (
-                <div
-                  className={`absolute top-full left-0 mt-2 w-80 max-h-[480px] overflow-y-auto rounded-2xl p-2 shadow-2xl border backdrop-blur-xl z-50 animate-fadeIn ${
-                    isDarkMode
-                      ? 'bg-[#1A1230]/95 border-[#8B5CF6]/40 text-[#FFF7ED]'
-                      : 'bg-white/95 border-[#DDD6FE] text-[#231238]'
-                  }`}
-                >
-                  <div className="px-3 py-1 text-[10px] font-pixel uppercase tracking-wider text-[#A78BFA] flex items-center justify-between">
-                    <span>🐍 Python Spellcraft</span>
-                    <span className="text-[9px] opacity-70">8 Quests</span>
-                  </div>
-                  {CODEDEX_LESSONS.map((l) => (
-                    <button
-                      key={l.id}
-                      onClick={() => {
-                        sound.playWandCast();
-                        setIsLearnOpen(false);
-                        onStartAdventure(l.id);
-                      }}
-                      className={`w-full text-left px-3 py-1.5 rounded-xl flex items-center gap-2.5 transition-colors ${
-                        isDarkMode ? 'hover:bg-[#8B5CF6]/20' : 'hover:bg-purple-50'
-                      }`}
-                    >
-                      <span className="text-base">
-                        {l.stageType === 'dragon'
-                          ? '🐲'
-                          : l.stageType === 'potion'
-                          ? '⚗️'
-                          : l.stageType === 'garden'
-                          ? '🌸'
-                          : l.stageType === 'bridge'
-                          ? '🔮'
-                          : l.stageType === 'stargate'
-                          ? '🌌'
-                          : l.stageType === 'chrono'
-                          ? '⏳'
-                          : l.stageType === 'boss'
-                          ? '🏆'
-                          : '⚡'}
-                      </span>
-                      <div className="flex-1 overflow-hidden">
-                        <div className="text-xs font-bold truncate">{l.title}</div>
-                        <div className={`text-[10px] truncate ${isDarkMode ? 'text-[#A78BFA]' : 'text-[#6D28D9]'}`}>
-                          {l.conceptName}
-                        </div>
-                      </div>
-                      <ArrowRight className="w-3 h-3 opacity-50 shrink-0" />
-                    </button>
-                  ))}
-
-                  <div className="mt-2 pt-2 border-t border-white/10 px-3 py-1 text-[10px] font-pixel uppercase tracking-wider text-[#F472B6] flex items-center justify-between">
-                    <span>🌐 HTML & CSS Enchanter</span>
-                    <span className="text-[9px] opacity-70">12 Quests</span>
-                  </div>
-                  {HTML_CSS_LESSONS.map((l) => (
-                    <button
-                      key={l.id}
-                      onClick={() => {
-                        sound.playWandCast();
-                        setIsLearnOpen(false);
-                        onStartAdventure(l.id);
-                      }}
-                      className={`w-full text-left px-3 py-1.5 rounded-xl flex items-center gap-2.5 transition-colors ${
-                        isDarkMode ? 'hover:bg-[#EC4899]/20' : 'hover:bg-pink-50'
-                      }`}
-                    >
-                      <span className="text-base">
-                        {l.id === 101
-                          ? '📜'
-                          : l.id === 102
-                          ? '🪨'
-                          : l.id === 103
-                          ? '🌀'
-                          : l.id === 104
-                          ? '📜'
-                          : l.id === 105
-                          ? '🧪'
-                          : l.id === 106
-                          ? '🚪'
-                          : l.id === 107
-                          ? '👗'
-                          : l.id === 108
-                          ? '💎'
-                          : l.id === 109
-                          ? '📦'
-                          : l.id === 110
-                          ? '⚔️'
-                          : l.id === 111
-                          ? '🏛️'
-                          : '🪞'}
-                      </span>
-                      <div className="flex-1 overflow-hidden">
-                        <div className="text-xs font-bold truncate">{l.title}</div>
-                        <div className={`text-[10px] truncate ${isDarkMode ? 'text-[#F472B6]' : 'text-[#DB2777]'}`}>
-                          {l.conceptName}
-                        </div>
-                      </div>
-                      <ArrowRight className="w-3 h-3 opacity-50 shrink-0" />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Practice Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  setIsPracticeOpen(!isPracticeOpen);
-                  setIsLearnOpen(false);
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${
-                  isPracticeOpen
-                    ? isDarkMode
-                      ? 'bg-[#8B5CF6]/20 text-white'
-                      : 'bg-[#DDD6FE]/40 text-[#6D28D9]'
-                    : isDarkMode
-                    ? 'hover:text-white hover:bg-white/5'
-                    : 'hover:text-[#6D28D9] hover:bg-purple-50'
-                }`}
-              >
-                <span>Practice</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isPracticeOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {isPracticeOpen && (
-                <div
-                  className={`absolute top-full left-0 mt-2 w-64 rounded-2xl p-2 shadow-2xl border backdrop-blur-xl z-50 animate-fadeIn ${
-                    isDarkMode
-                      ? 'bg-[#1A1230]/95 border-[#8B5CF6]/40 text-[#FFF7ED]'
-                      : 'bg-white/95 border-[#DDD6FE] text-[#231238]'
-                  }`}
-                >
-                  <div className="px-3 py-1.5 text-[10px] font-pixel uppercase tracking-wider text-[#A78BFA]">
-                    Interactive Trials
-                  </div>
-                  <button
-                    onClick={() => {
-                      sound.playWandCast();
-                      setIsPracticeOpen(false);
-                      onStartAdventure(1);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-xl flex items-center gap-2.5 text-xs font-bold transition-colors ${
-                      isDarkMode ? 'hover:bg-[#8B5CF6]/20' : 'hover:bg-purple-50'
-                    }`}
-                  >
-                    <span>🐉</span>
-                    <span>Dragon Movement Trial</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      sound.playWandCast();
-                      setIsPracticeOpen(false);
-                      onStartAdventure(2);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-xl flex items-center gap-2.5 text-xs font-bold transition-colors ${
-                      isDarkMode ? 'hover:bg-[#8B5CF6]/20' : 'hover:bg-purple-50'
-                    }`}
-                  >
-                    <span>⚗️</span>
-                    <span>Potion Variable Lab</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      sound.playWandCast();
-                      setIsPracticeOpen(false);
-                      onStartAdventure(3);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-xl flex items-center gap-2.5 text-xs font-bold transition-colors ${
-                      isDarkMode ? 'hover:bg-[#8B5CF6]/20' : 'hover:bg-purple-50'
-                    }`}
-                  >
-                    <span>🌸</span>
-                    <span>Blossom Loop Repetition</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Build Button */}
-            <button
-              onClick={() => {
-                sound.playVictoryFanfare();
-                onStartAdventure(4);
-              }}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${
-                isDarkMode ? 'hover:text-white hover:bg-white/5' : 'hover:text-[#6D28D9] hover:bg-purple-50'
-              }`}
-            >
-              Build
-            </button>
-
-            {/* Curse Breaker Button */}
-            <button
-              onClick={() => {
-                sound.playWandCast();
-                onStartAdventure(5);
-              }}
-              className={`px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors ${
-                isDarkMode ? 'hover:text-white hover:bg-white/5' : 'hover:text-[#6D28D9] hover:bg-purple-50'
-              }`}
-            >
-              <Zap className="w-3.5 h-3.5 text-[#F472B6]" />
-              <span>Curse Breaker</span>
-            </button>
-          </div>
-
-          {/* Right actions: Search, Theme, Sign up button */}
+          {/* Right actions: Search and Sign up button */}
           <div className="flex items-center gap-2.5">
             {/* Search Button */}
             <button
@@ -439,47 +175,33 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
                 sound.playClick();
                 setIsSearchOpen(true);
               }}
-              className={`p-2 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-semibold ${
-                isDarkMode
-                  ? 'border-[#8B5CF6]/30 bg-[#1A1230]/60 text-[#EDE9FE] hover:text-white hover:border-[#8B5CF6]/60 hover:bg-[#8B5CF6]/10'
-                  : 'border-[#DDD6FE] bg-purple-50/60 text-[#3B1D66] hover:text-[#6D28D9] hover:border-[#8B5CF6]/50 hover:bg-white'
-              }`}
+              className="p-2 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-semibold border-[#8B5CF6]/30 bg-[#1A1230]/60 text-[#EDE9FE] hover:text-white hover:border-[#8B5CF6]/60 hover:bg-[#8B5CF6]/10 cursor-pointer"
               title="Search spells and chapters (Press / or Cmd+K)"
             >
               <Search className="w-4 h-4 text-[#F472B6]" />
               <span className="hidden sm:inline opacity-80">Search</span>
-              <kbd
-                className={`hidden lg:inline text-[9px] px-1.5 py-0.5 rounded font-code border ${
-                  isDarkMode ? 'bg-black/40 border-white/10 text-white/60' : 'bg-gray-100 border-gray-200 text-gray-500'
-                }`}
-              >
+              <kbd className="hidden lg:inline text-[9px] px-1.5 py-0.5 rounded font-code border bg-black/40 border-white/10 text-white/60">
                 /
               </kbd>
             </button>
 
-            {/* Dark & Light Theme Toggle Button */}
-            <button
-              onClick={toggleTheme}
-              className={`p-2 rounded-xl border transition-all ${
-                isDarkMode
-                  ? 'border-[#8B5CF6]/30 bg-[#1A1230]/60 text-amber-300 hover:bg-[#8B5CF6]/10 hover:border-[#8B5CF6]/60'
-                  : 'border-[#DDD6FE] bg-purple-50/60 text-indigo-700 hover:bg-white hover:border-[#8B5CF6]/50'
-              }`}
-              title={isDarkMode ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
-            >
-              {isDarkMode ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-indigo-700" />}
-            </button>
-
-            {/* Sign Up Retro Magic Button */}
-            <button
-              onClick={() => {
-                sound.playWandCast();
-                setIsSignUpOpen(true);
-              }}
-              className="px-4 py-2 rounded-xl bg-[#8B5CF6] hover:bg-[#9B6DF7] text-[#FFF7ED] font-bold text-xs tracking-wider uppercase border-2 border-[#6D28D9] shadow-[0_3px_0_#4C1D95] hover:translate-y-[1px] hover:shadow-[0_2px_0_#4C1D95] active:translate-y-[3px] active:shadow-none transition-all font-pixel cursor-pointer"
-            >
-              Sign up
-            </button>
+            {user ? (
+              <div className="flex items-center gap-2 rounded-xl border border-[#5EEAD4]/25 bg-[#5EEAD4]/[.07] px-2 py-1.5">
+                {user.user_metadata.avatar_url ? <img src={user.user_metadata.avatar_url} alt="" className="h-7 w-7 rounded-lg object-cover" /> : <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#5EEAD4]/15 text-xs font-bold text-[#5EEAD4]">{(user.user_metadata.display_name || user.email || 'S').slice(0, 1).toUpperCase()}</span>}
+                <span className="hidden max-w-28 truncate text-xs font-semibold text-[#D6FFF7] sm:block">{user.user_metadata.display_name || user.email?.split('@')[0]}</span>
+                <button onClick={() => void signOut()} className="rounded-lg px-2 py-1 text-[10px] font-semibold text-white/50 transition hover:bg-white/10 hover:text-white" title="Sign out">Sign out</button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  sound.playWandCast();
+                  setIsSignUpOpen(true);
+                }}
+                className="rounded-xl border-2 border-[#6D28D9] bg-[#8B5CF6] px-4 py-2 font-pixel text-xs font-bold uppercase tracking-wider text-[#FFF7ED] shadow-[0_3px_0_#4C1D95] transition-all hover:translate-y-[1px] hover:bg-[#9B6DF7] hover:shadow-[0_2px_0_#4C1D95] active:translate-y-[3px] active:shadow-none"
+              >
+                Join free
+              </button>
+            )}
           </div>
         </div>
       </nav>
@@ -490,7 +212,7 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
         <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
           <img
             src={homeBg}
-            alt="SpellScript Enchanted Cyber Citadel"
+            alt="Storicode Enchanted Cyber Citadel"
             className="w-full h-full object-cover object-center select-none pointer-events-none"
             style={{
               imageRendering: '-webkit-optimize-contrast',
@@ -532,56 +254,11 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
           />
         </div>
 
-        {/* 🖥️ Retro Computer Mascot Button → Opens Arcane Terminal Sandbox */}
-        <div className="absolute bottom-6 sm:bottom-10 left-6 sm:left-14 z-20 hidden md:flex items-end gap-3 drop-shadow-2xl">
-          {/* Computer terminal button */}
+        {/* 🐲 Sparky Dragon Mascot Companion Button */}
+        <div className="absolute bottom-6 sm:bottom-10 left-6 sm:left-14 z-20 flex items-end drop-shadow-2xl">
           <div className="flex flex-col items-center gap-1 group">
             <div
-              className={`opacity-0 group-hover:opacity-100 transition-all duration-200 -translate-y-1 group-hover:translate-y-0 pointer-events-none whitespace-nowrap px-2.5 py-1 rounded-lg text-[11px] font-pixel font-bold shadow-lg border ${
-                isDarkMode
-                  ? 'bg-[#120C22]/95 border-[#5EEAD4]/50 text-[#5EEAD4]'
-                  : 'bg-white border-teal-400/60 text-teal-700'
-              }`}
-            >
-              ⌨️ Terminal Sandbox
-            </div>
-            <button
-              onClick={() => {
-                sound.playClick();
-                setIsTerminalOpen(true);
-              }}
-              className={`relative animate-float cursor-pointer select-none rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 group-hover:shadow-[0_0_24px_rgba(94,234,212,0.7)] focus:outline-none focus:ring-2 focus:ring-[#5EEAD4]`}
-              title="Open Arcane Terminal Sandbox (⌨️)"
-              aria-label="Open Arcane Terminal Code Sandbox"
-            >
-              <div
-                className={`w-[72px] h-[64px] backdrop-blur-md border-2 rounded-xl shadow-xl p-2 flex flex-col items-center justify-between transition-colors ${
-                  isDarkMode
-                    ? 'bg-[#1E1338]/90 border-[#5EEAD4]/60 shadow-[0_6px_0_#140B28] group-hover:border-[#5EEAD4]'
-                    : 'bg-white/90 border-[#A78BFA] shadow-[0_6px_0_#C4B5FD] group-hover:border-teal-400'
-                }`}
-              >
-                <div className="w-full h-[44px] bg-[#5EEAD4] border border-[#6D28D9] rounded-lg flex items-center justify-center font-pixel text-[#120C22] font-bold text-xs select-none shadow-inner">
-                  (•‿•)
-                </div>
-                <div className="w-3 h-1 bg-[#8B5CF6] rounded-full self-end mr-1" />
-              </div>
-              <div
-                className={`w-12 h-3 border rounded-md mx-auto -mt-1 shadow-md ${
-                  isDarkMode ? 'bg-[#160D2A] border-[#6D28D9]' : 'bg-gray-200 border-[#A78BFA]'
-                }`}
-              />
-            </button>
-          </div>
-
-          {/* Sparky Dragon button */}
-          <div className="flex flex-col items-center gap-1 group">
-            <div
-              className={`opacity-0 group-hover:opacity-100 transition-all duration-200 -translate-y-1 group-hover:translate-y-0 pointer-events-none whitespace-nowrap px-2.5 py-1 rounded-lg text-[11px] font-pixel font-bold shadow-lg border ${
-                isDarkMode
-                  ? 'bg-[#120C22]/95 border-[#F472B6]/50 text-[#F472B6]'
-                  : 'bg-white border-pink-400/60 text-pink-700'
-              }`}
+              className="opacity-0 group-hover:opacity-100 transition-all duration-200 -translate-y-1 group-hover:translate-y-0 pointer-events-none whitespace-nowrap px-2.5 py-1 rounded-lg text-[11px] font-pixel font-bold shadow-lg border bg-[#120C22]/95 border-[#F472B6]/50 text-[#F472B6]"
             >
               🐲 Talk to Sparky!
             </div>
@@ -605,7 +282,7 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
         </div>
 
         {/* HERO TITLE & TEXT */}
-        <div className="relative z-20 max-w-4xl px-4 mx-auto space-y-4">
+        <div className="relative z-20 w-full max-w-6xl px-4 mx-auto space-y-4 translate-y-4 sm:translate-y-5">
           {/* Small Pixel Sub-Heading */}
           <div
             className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full backdrop-blur-md shadow-lg font-pixel text-[11px] sm:text-xs font-black tracking-widest uppercase transition-colors ${
@@ -619,9 +296,9 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
           </div>
 
           {/* HUGE CHUNKY 3D TITLE: "Coding Adventure" */}
-          <h1 className="font-pixelify font-black text-5xl sm:text-7xl md:text-8xl tracking-tight leading-none select-none">
+          <h1 className="w-full font-pixelify font-extrabold text-[clamp(2rem,8.5vw,6rem)] tracking-tight leading-[1.3] select-none">
             <span
-              className={`inline-block hover:scale-105 transition-transform bg-clip-text text-transparent ${
+              className={`inline-block px-1 py-2 transition-transform bg-clip-text text-transparent ${
                 isDarkMode
                   ? 'bg-gradient-to-b from-[#FFFFFF] via-[#F472B6] to-[#A78BFA] filter drop-shadow-[0_4px_0_#3B1D66] drop-shadow-[0_12px_24px_rgba(0,0,0,0.9)]'
                   : 'bg-gradient-to-b from-[#1E1B4B] via-[#701A75] to-[#4338CA] filter drop-shadow-[0_4px_0_#DDD6FE] drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]'
@@ -630,7 +307,7 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
               Coding
             </span>{' '}
             <span
-              className={`inline-block hover:scale-105 transition-transform bg-clip-text text-transparent ${
+              className={`inline-block px-1 py-2 transition-transform bg-clip-text text-transparent ${
                 isDarkMode
                   ? 'bg-gradient-to-b from-[#6EE7B7] via-[#38BDF8] to-[#818CF8] filter drop-shadow-[0_4px_0_#1E3A8A] drop-shadow-[0_12px_24px_rgba(0,0,0,0.9)]'
                   : 'bg-gradient-to-b from-[#0F766E] via-[#2563EB] to-[#4F46E5] filter drop-shadow-[0_4px_0_#DDD6FE] drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]'
@@ -1019,179 +696,18 @@ export const CodedexHome: React.FC<CodedexHomeProps> = ({ onStartAdventure }) =>
         </div>
       )}
 
-      {/* 5. APPRENTICE SIGN UP MODAL */}
-      {isSignUpOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn">
-          <div
-            className={`w-full max-w-md rounded-3xl border-2 p-6 md:p-8 shadow-2xl backdrop-blur-2xl animate-scaleUp relative ${
-              isDarkMode
-                ? 'bg-[#1A1230]/95 border-[#8B5CF6]/60 text-[#FFF7ED] shadow-[0_0_50px_rgba(139,92,246,0.35)]'
-                : 'bg-white/95 border-[#DDD6FE] text-[#231238] shadow-2xl'
-            }`}
-          >
-            {/* Close button */}
-            <button
-              onClick={() => {
-                sound.playClick();
-                setIsSignUpOpen(false);
-                setIsSignedUp(false);
-              }}
-              className="absolute top-5 right-5 p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {!isSignedUp ? (
-              <form onSubmit={handleSignUpSubmit} className="space-y-4">
-                {/* Header */}
-                <div className="text-center space-y-1.5 pb-2">
-                  <div className="w-12 h-12 mx-auto rounded-2xl bg-[#8B5CF6] border-2 border-[#6D28D9] flex items-center justify-center text-2xl shadow-lg">
-                    🪄
-                  </div>
-                  <h3 className="font-pixelify font-black text-2xl tracking-wide">
-                    Join the Academy
-                  </h3>
-                  <p className={`text-xs ${isDarkMode ? 'text-[#CBD5E1]' : 'text-[#475569]'}`}>
-                    Register your apprentice wand to start learning Python through play!
-                  </p>
-                </div>
-
-                {/* Name */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold flex items-center gap-1.5 opacity-80">
-                    <User className="w-3.5 h-3.5 text-[#F472B6]" />
-                    <span>Apprentice Name</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={signUpName}
-                    onChange={(e) => setSignUpName(e.target.value)}
-                    placeholder="e.g. Merlin the Coder"
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-medium outline-none transition-colors ${
-                      isDarkMode
-                        ? 'bg-black/30 border-[#8B5CF6]/40 focus:border-[#F472B6] text-white'
-                        : 'bg-gray-50 border-gray-200 focus:border-[#8B5CF6] text-gray-900'
-                    }`}
-                  />
-                </div>
-
-                {/* Email */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold flex items-center gap-1.5 opacity-80">
-                    <Mail className="w-3.5 h-3.5 text-[#5EEAD4]" />
-                    <span>Arcane Email</span>
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={signUpEmail}
-                    onChange={(e) => setSignUpEmail(e.target.value)}
-                    placeholder="wizard@spellscript.io"
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-medium outline-none transition-colors ${
-                      isDarkMode
-                        ? 'bg-black/30 border-[#8B5CF6]/40 focus:border-[#F472B6] text-white'
-                        : 'bg-gray-50 border-gray-200 focus:border-[#8B5CF6] text-gray-900'
-                    }`}
-                  />
-                </div>
-
-                {/* Magic Language School */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold flex items-center gap-1.5 opacity-80">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Primary Spell Language</span>
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(['Python', 'JavaScript', 'SpellScript'] as const).map((lang) => (
-                      <button
-                        key={lang}
-                        type="button"
-                        onClick={() => setSelectedLanguage(lang)}
-                        className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all ${
-                          selectedLanguage === lang
-                            ? 'bg-[#8B5CF6] text-white border-[#6D28D9] shadow-md'
-                            : isDarkMode
-                            ? 'bg-black/20 border-white/10 hover:bg-white/10 text-gray-300'
-                            : 'bg-gray-100 border-gray-200 hover:bg-gray-200 text-gray-700'
-                        }`}
-                      >
-                        {lang === 'Python' ? '🐍 Python' : lang === 'JavaScript' ? '⚡ JS' : '🪄 Spells'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold flex items-center gap-1.5 opacity-80">
-                    <Lock className="w-3.5 h-3.5 text-[#F472B6]" />
-                    <span>Secret Incantation (Password)</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={signUpPassword}
-                      onChange={(e) => setSignUpPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-medium outline-none transition-colors pr-10 ${
-                        isDarkMode
-                          ? 'bg-black/30 border-[#8B5CF6]/40 focus:border-[#F472B6] text-white'
-                          : 'bg-gray-50 border-gray-200 focus:border-[#8B5CF6] text-gray-900'
-                      }`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-gray-400 hover:text-white"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Submit button */}
-                <button
-                  type="submit"
-                  className="w-full mt-2 py-3 rounded-xl bg-[#8B5CF6] hover:bg-[#9B6DF7] text-white font-pixel font-bold text-xs uppercase border-2 border-[#6D28D9] shadow-[0_4px_0_#4C1D95] hover:translate-y-[1px] active:translate-y-[4px] active:shadow-none transition-all flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Register Apprentice Wand</span>
-                </button>
-              </form>
-            ) : (
-              <div className="text-center py-6 space-y-4 animate-scaleUp">
-                <div className="w-16 h-16 mx-auto rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-3xl">
-                  ✨
-                </div>
-                <div className="space-y-1">
-                  <h3 className="font-pixelify font-black text-2xl text-emerald-400">
-                    Welcome, {signUpName}!
-                  </h3>
-                  <p className={`text-xs ${isDarkMode ? 'text-[#CBD5E1]' : 'text-[#475569]'}`}>
-                    Your apprentice wand has been registered and attuned to <strong>{selectedLanguage}</strong>.
-                  </p>
-                </div>
-                <div className="pt-2">
-                  <button
-                    onClick={() => {
-                      sound.playVictoryFanfare();
-                      setIsSignUpOpen(false);
-                      setIsSignedUp(false);
-                      onStartAdventure(1);
-                    }}
-                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-night-950 font-pixel font-bold text-xs uppercase shadow-lg transition-transform hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    <Play className="w-4 h-4 fill-current" />
-                    <span>Enter Chapter 1: Dragon's Lair</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <AuthModal
+        isOpen={isSignUpOpen}
+        onClose={() => setIsSignUpOpen(false)}
+        onGuest={() => {
+          setIsSignUpOpen(false);
+          onStartAdventure(1);
+        }}
+        onAuthenticated={() => {
+          sound.playVictoryFanfare();
+          confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+        }}
+      />
 
       {/* 6. ARCANE TERMINAL SANDBOX MODAL */}
       <ArcaneTerminalModal
