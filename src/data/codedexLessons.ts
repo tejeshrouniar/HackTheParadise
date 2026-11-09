@@ -20,10 +20,14 @@ export interface CodedexLesson {
   taskObjective: string;
   // Editor initial code (clean with "type code here")
   initialCode: string;
+  hint?: string;
+  solutionCode?: string;
 
   // Stage configuration
   stageType: 'dragon' | 'potion' | 'garden' | 'bridge' | 'curse' | 'stargate' | 'chrono' | 'boss' | 'webpage' | 'styler' | 'layout';
   stageConfig: any;
+  // Optional checklist used by the separate HTML/CSS lesson collection.
+  tasks?: Array<{ id: string; description: string; codeKeyword: string }>;
 }
 
 export const CODEDEX_LESSONS: CodedexLesson[] = [

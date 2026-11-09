@@ -156,6 +156,8 @@ export function StageWorld({ state: s, bridgeCrossed, onBridgeCrossed }: {
   const id = useId().replace(/:/g, "");
   const ref = (name: string) => `url(#${id}-${name})`;
   const kind = s.lesson.stageType;
+  const victoryAnchor =
+    victoryAnchors[kind as keyof typeof victoryAnchors] ?? [400, 220];
   const spellAction: SpriteAction = s.isExecuting && s.executionStep.current > 0
     ? "interact" : "idle";
   const caption =
@@ -862,7 +864,7 @@ export function StageWorld({ state: s, bridgeCrossed, onBridgeCrossed }: {
           </>
         )}
         {s.questSuccess && (kind !== "bridge" || bridgeCrossed) && (
-          <g transform={`translate(${victoryAnchors[kind].join(" ")})`} pointerEvents="none" aria-hidden="true">
+          <g transform={`translate(${victoryAnchor.join(" ")})`} pointerEvents="none" aria-hidden="true">
             <g className="world-victory" shapeRendering="crispEdges">
               <path d="M-3-29h6v8h8v6H3v8h-6v-8h-8v-6h8z" fill="#fff0af" />
               <rect x="-28" y="-36" width="5" height="5" fill="#aaf1d1" />
