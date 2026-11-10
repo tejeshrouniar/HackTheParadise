@@ -255,8 +255,12 @@ test("the bookshelf opens a shared book hub for levels or story", () => {
     new URL("../src/features/learning/WorldMap.tsx", import.meta.url),
     "utf8",
   );
-  const wizardingWalk = readFileSync(
-    new URL("../src/features/learning/WizardingWalk.tsx", import.meta.url),
+  const walkableBookMap = readFileSync(
+    new URL("../src/features/learning/WalkableBookMap.tsx", import.meta.url),
+    "utf8",
+  );
+  const bookWalkPresets = readFileSync(
+    new URL("../src/features/learning/bookWalkPresets.ts", import.meta.url),
     "utf8",
   );
   const bookLevel = readFileSync(
@@ -288,16 +292,19 @@ test("the bookshelf opens a shared book hub for levels or story", () => {
   assert.match(journeyCinema, /realm\.levels\[beat\] <= journeyProgress\(completed\)\.cleared/);
   assert.match(journeyCinema, /Complete level \{realm\.levels\[beat\]\} from Play levels/);
   assert.doesNotMatch(journeyCinema, /Play level \{realm\.levels\[beat\]\}/);
-  assert.match(worldMap, /from "\.\.\/adventure\/JourneyTrail"/);
-  assert.match(worldMap, /from "\.\/WizardingWalk"/);
-  assert.match(worldMap, /sc-map-read-chapter/);
-  assert.match(worldMap, /sc-map-journey/);
-  assert.match(wizardingWalk, /useAppearance\(\)/);
-  assert.match(wizardingWalk, /arrowleft.*arrowright.*shift/i);
-  assert.match(wizardingWalk, /className="sc-wizard-levels"/);
-  assert.match(wizardingWalk, /CODE LEVEL/);
-  assert.match(wizardingWalk, /onOpenChapter\(stop\.chapter\.chapterId\)/);
-  assert.match(wizardingWalk, /aria-disabled=\{!stop\.unlocked\}/);
+  assert.match(worldMap, /BOOK_WALK_PRESETS/);
+  assert.match(worldMap, /<WalkableBookMap/);
+  assert.match(worldMap, /THE LAST LIGHT · TUTORIAL/);
+  assert.doesNotMatch(worldMap, /from "\.\.\/adventure\/JourneyTrail"/);
+  assert.doesNotMatch(worldMap, /from "\.\/WizardingWalk"/);
+  assert.match(bookWalkPresets, /bookId: "cinder"/);
+  assert.match(bookWalkPresets, /bookId: "harry-potter"/);
+  assert.match(bookWalkPresets, /questId: levelId/);
+  assert.match(bookWalkPresets, /chapterId/);
+  assert.match(walkableBookMap, /arrowleft.*arrowright.*shift/i);
+  assert.match(walkableBookMap, /Browse levels without walking/);
+  assert.match(walkableBookMap, /Complete the previous level to unlock this one/);
+  assert.match(walkableBookMap, /aria-current=\{nearestIndex === stop\.index \? "step" : undefined\}/);
   assert.doesNotMatch(worldMap, /from "\.\.\/story\/StoryCinema"/);
   assert.doesNotMatch(worldMap, /BOOK ONE|BOOK TWO/);
   assert.match(aftermath, /JourneyScene \} from "\.\.\/story\/JourneyCinema"/);

@@ -13,6 +13,8 @@ The active catalog is `src/content/storyBooks.ts`. `StoryPage.tsx` renders only 
 
 The two books do not share chapter unlocks or completion state. Cinder’s twelve quests do not mark Harry Potter chapters complete; Harry Potter chapters do not advance Cinder’s journey. The book hub’s **Play levels** action opens the selected book’s walkable level route. **Read story** opens that book’s reader, so a chapter’s code task is not duplicated in the story reader.
 
+Both active routes use `src/features/learning/WalkableBookMap.tsx`. Add region groups, stable stop IDs, and per-region background/landmark art in `src/features/learning/bookWalkPresets.ts`; the renderer owns avatar movement, chapter group navigation, sequential fog gates, keyboard/touch/pointer controls, and the non-walking level directory. A region is a navigation area and may contain several code levels. Do not implement a separate map component for a new book unless its interaction model truly differs.
+
 ## Add another story
 
 1. **Choose the progress model.** Reuse the quest-backed journey model only when the story is composed of existing playable quest IDs. For an independent coding story, use the coding-book model so its chapter slugs and completions live in `story_progress`.
