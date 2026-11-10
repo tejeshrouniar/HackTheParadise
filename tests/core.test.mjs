@@ -267,6 +267,14 @@ test("the bookshelf opens a shared book hub for levels or story", () => {
     new URL("../src/features/learning/BookLevelPage.tsx", import.meta.url),
     "utf8",
   );
+  const bookCompletion = readFileSync(
+    new URL("../src/features/learning/BookCompletionSpread.tsx", import.meta.url),
+    "utf8",
+  );
+  const storybookVolume = readFileSync(
+    new URL("../src/features/story/StorybookVolume.tsx", import.meta.url),
+    "utf8",
+  );
   const appShell = readFileSync(
     new URL("../src/layouts/AppShell.tsx", import.meta.url),
     "utf8",
@@ -284,6 +292,11 @@ test("the bookshelf opens a shared book hub for levels or story", () => {
   assert.match(bookHub, /Read story/);
   assert.match(bookHub, /STORY_BOOKS\.find/);
   assert.match(bookLevel, /<StorybookVolume/);
+  assert.match(aftermath, /BookCompletionSpread/);
+  assert.match(storybookVolume, /BookCompletionSpread/);
+  assert.match(bookCompletion, /Example solution/);
+  assert.match(bookCompletion, /type="range"/);
+  assert.doesNotMatch(bookCompletion, /<audio\s+[^>]*controls/);
   assert.match(appShell, /book-level\//);
   assert.match(appShell, /navigate\(bookId === "cinder" \? "book-story\/cinder" : `book-level/);
   assert.doesNotMatch(appShell, /label: "World Map"/);

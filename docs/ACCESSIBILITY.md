@@ -9,7 +9,7 @@ Accessibility is part of the interaction model, not a final styling pass. These 
 - The World Map uses labeled native buttons for book selection, movement, and level entry. Both routes support keyboard movement, pointer/touch controls, and a direct chapter list; locked landmarks announce the progression requirement and cannot be entered. The player can click-to-walk on the scene. Reduced-motion preferences suppress the animated chapter arrival, while the avatar animation follows the shared motion preference.
 - Quest completion, wallet errors, narration captions, and other changing status messages use live regions where appropriate.
 - The user preference and operating-system reduced-motion settings feed `MotionConfig`; CSS disables selected decorative loops and transitions.
-- The soundtrack does not autoplay. Bundled narration has native audio controls and visible story text remains available when playback fails.
+- The soundtrack does not autoplay. Bundled narration uses labeled play and seek controls; visible story text remains available when playback fails. Browser text-to-speech controls remain keyboard operable.
 - The layout uses responsive breakpoints, touch-sized trail controls, and form labels. Pixel art uses crisp rendering while preserving the surrounding text interface.
 - The bookshelf uses labeled native buttons to select books. Route and book page turns honor reduced-motion preferences; the shelf changes to a compact two-column layout on narrow screens.
 

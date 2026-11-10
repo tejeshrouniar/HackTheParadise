@@ -8,11 +8,13 @@ import { formatPuzzleValue, PuzzleCodeError, runPuzzleTests, type PuzzleTestResu
 import { BookCutscene } from "./BookCutscene";
 import { BOOK_SCENE_ART, BOOK_SCENE_CHARACTERS, DEFAULT_BOOK_SCENE_ART } from "./bookSceneAssets";
 import { CodingEditorPanel, type CodingEditorError } from "../learning/CodingEditorPanel";
+import { BookCompletionSpread } from "../learning/BookCompletionSpread";
 
 interface StorybookVolumeProps {
   book: CodingStoryBook;
   completed: string[];
   progressStatus: string;
+  onLevels: () => void;
   onComplete: (chapterId: string) => Promise<boolean>;
   initialChapterId?: string | null;
   onChapterChange?: (chapterId: string) => void;
@@ -21,7 +23,7 @@ interface StorybookVolumeProps {
 
 const starterCode = (functionName: string, parameters: readonly string[]) =>
   `def ${functionName}(${parameters.join(", ")}):\n    # Write your spell here.\n    return None\n`;
-export function StorybookVolume({ book, completed, progressStatus, onComplete, initialChapterId, onChapterChange, onWatchMovie }: StorybookVolumeProps) {
+export function StorybookVolume({ book, completed, progressStatus, onLevels, onComplete, initialChapterId, onChapterChange, onWatchMovie }: StorybookVolumeProps) {
   const music = useMusic();
   const [selectedId, setSelectedId] = useState(() =>
     initialChapterId && book.chapters.some((item) => item.chapterId === initialChapterId)
@@ -37,6 +39,7 @@ export function StorybookVolume({ book, completed, progressStatus, onComplete, i
   const [speaking, setSpeaking] = useState(false);
   const [sceneSequence, setSceneSequence] = useState(0);
   const [localOutcomeId, setLocalOutcomeId] = useState<string | null>(null);
+  const [showCompletion, setShowCompletion] = useState(false);
   const chapterGuideRef = useRef<HTMLDetailsElement>(null);
   const chapter = book.chapters.find((item) => item.chapterId === selectedId) ?? book.chapters[0];
   const completedSet = useMemo(() => new Set(completed), [completed]);
@@ -55,6 +58,7 @@ export function StorybookVolume({ book, completed, progressStatus, onComplete, i
   useEffect(() => {
     if (initialChapterId && book.chapters.some((item) => item.chapterId === initialChapterId)) {
       setSelectedId(initialChapterId);
+      setShowCompletion(false);
     }
   }, [book, initialChapterId]);
 
@@ -67,6 +71,7 @@ export function StorybookVolume({ book, completed, progressStatus, onComplete, i
     onChapterChange?.(id);
     setNotice("");
     setSpeaking(false);
+    setShowCompletion(false);
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   }
 
@@ -138,7 +143,8 @@ export function StorybookVolume({ book, completed, progressStatus, onComplete, i
         const saved = await onComplete(chapter.chapterId);
         if (saved) {
           setLocalOutcomeId(chapter.chapterId);
-          setNotice("The goal is reached. Your progress is saved.");
+          setShowCompletion(true);
+          setNotice("");
         } else setNotice("This chapter is still locked. Complete the earlier pages first.");
       } else {
         setNotice("Some checks still need work. Open Hints and solution for a clue, then try again.");
@@ -159,6 +165,44 @@ export function StorybookVolume({ book, completed, progressStatus, onComplete, i
   const relicImage = BOOK_SCENE_ART[chapter.chapterId] ?? DEFAULT_BOOK_SCENE_ART;
   const sceneCharacter = BOOK_SCENE_CHARACTERS[chapter.chapterId];
   const chapterSparkId = chapter.sparkLessonId;
+
+  if (goalReached && showCompletion) {
+    const nextChapter = book.chapters[chapterIndex + 1];
+    const completionSteps = (results ?? []).map((result) => `✓ ${result.label} · ${formatPuzzleValue(result.actual)}`);
+
+    return (
+      <BookCompletionSpread
+        theme="wizarding"
+        bookId={book.id}
+        bookTitle={book.title}
+        chapterLabel={`SPELL COMPLETE · CHAPTER ${String(chapterIndex + 1).padStart(2, "0")}`}
+        title={chapter.chapterTitle}
+        outcome={chapter.outcome}
+        explanation={chapter.lesson}
+        code={code}
+        lessonId={chapterSparkId}
+        executionSteps={completionSteps}
+        scene={(
+          <BookCutscene
+            chapter={chapter}
+            relicImage={relicImage}
+            characterImage={sceneCharacter}
+            completed
+            sequence={sceneSequence}
+            mode="level"
+            onNarrate={readScene}
+            narrating={speaking}
+          />
+        )}
+        onContinue={() => nextChapter ? setChapter(nextChapter.chapterId) : onLevels()}
+        continueLabel={nextChapter ? "Continue to next chapter →" : "Return to levels →"}
+        onReview={() => setShowCompletion(false)}
+        onReadAloud={readScene}
+        speaking={speaking}
+        narrationNotice={notice}
+      />
+    );
+  }
 
   return (
     <section className={`sc-story-volume sc-simple-quest sc-volume--${book.theme} sc-coding-book--${book.theme}`} aria-labelledby="sc-volume-heading">

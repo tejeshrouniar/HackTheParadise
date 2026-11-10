@@ -990,6 +990,7 @@ html[data-reduce-motion="true"] .sc-book-cutscene .sc-book-cutscene__magic { opa
   color: #30291e;
   scroll-margin-top: 80px;
 }
+.sc-adventure-shell .sc-coding-book-page > .sc-completion-page { width:100%; max-width:none; margin:0; padding:0 0 24px; }
 .sc-adventure-shell .sc-completion-spread {
   --completion-paper: #eee3c7;
   --completion-ink: #30291e;
@@ -1007,6 +1008,9 @@ html[data-reduce-motion="true"] .sc-book-cutscene .sc-book-cutscene__magic { opa
   background: linear-gradient(90deg, #704c31, #bd9560 48%, #c39a65 51%, #67452d);
   box-shadow: 0 18px 42px #02040788, inset 0 0 0 3px #a57a43;
 }
+.sc-adventure-shell .sc-completion-page--cinder { --page-bg:#f0e4c7; --page-text:#2c281d; --page-muted:#71614a; --page-rule:#baa272; --page-accent:#92562e; --scene-glow:#f6cb70; }
+.sc-adventure-shell .sc-completion-page--wizarding { --page-bg:#e9e1c7; --page-text:#20271e; --page-muted:#5d6251; --page-rule:#a79968; --page-accent:#395f4c; --scene-glow:#e9d178; }
+.sc-adventure-shell .sc-completion-page--wizarding .sc-completion-spread { --completion-paper:var(--page-bg); --completion-ink:var(--page-text); --completion-muted:var(--page-muted); --completion-rule:var(--page-rule); }
 .sc-adventure-shell .sc-completion-page__leaf {
   display: flex;
   flex-direction: column;
@@ -1025,12 +1029,30 @@ html[data-reduce-motion="true"] .sc-book-cutscene .sc-book-cutscene__magic { opa
 .sc-adventure-shell .sc-completion-page__leaf h2 small { color: var(--completion-muted); font: 11px Georgia, serif; }
 .sc-adventure-shell .sc-completion-page__leaf p { margin: 0; color: var(--completion-muted); font: 14px/1.7 Georgia, serif; }
 .sc-adventure-shell .sc-completion-page__leaf .sc-completion-page__outcome { color: var(--completion-ink); font-size: 17px; }
-.sc-adventure-shell .sc-completion-page__narration { display: grid; justify-items: start; gap: 8px; margin-top: auto; padding-top: 16px; border-top: 1px solid var(--completion-rule); }
-.sc-adventure-shell .sc-completion-page__narration audio { display: block; width: 100%; max-width: 480px; }
+.sc-adventure-shell .sc-completion-page__explanation { display:grid; gap:5px; padding:9px 0; border-top:1px solid var(--completion-rule); border-bottom:1px solid var(--completion-rule); }
+.sc-adventure-shell .sc-completion-page__explanation h2 { font-size:18px; }
+.sc-adventure-shell .sc-completion-page__explanation p { font-size:13px; line-height:1.55; }
+.sc-adventure-shell .sc-completion-page__narration { display: grid; justify-items: start; gap: 8px; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--completion-rule); }
+.sc-adventure-shell .sc-completion-page__narration > .sc-button { display:inline-flex; align-items:center; gap:8px; min-height:38px; }
+.sc-adventure-shell .sc-completion-page__narration audio { display: none; }
+.sc-adventure-shell .sc-book-audio { display:grid; grid-template-columns:36px minmax(0,1fr) auto; align-items:center; gap:4px 9px; width:min(100%, 480px); min-height:48px; padding:5px 9px; color:var(--completion-ink); border:1px solid var(--completion-rule); background:#fff9e366; }
+.sc-adventure-shell .sc-book-audio > button { display:grid; width:34px; height:34px; place-items:center; color:var(--completion-ink); border:1px solid var(--completion-rule); background:#e4ca81; cursor:pointer; }
+.sc-adventure-shell .sc-book-audio > button:focus-visible,
+.sc-adventure-shell .sc-book-audio input:focus-visible { outline:3px solid #4d9787; outline-offset:2px; }
+.sc-adventure-shell .sc-book-audio__label { font-size:11px; font-weight:800; }
+.sc-adventure-shell .sc-book-audio__time { color:var(--completion-muted); font:10px ui-monospace, SFMono-Regular, Consolas, monospace; white-space:nowrap; }
+.sc-adventure-shell .sc-book-audio input[type="range"] { grid-column:2 / 4; width:100%; height:18px; margin:0; accent-color:#8a6b37; cursor:pointer; }
+.sc-adventure-shell .sc-book-audio input[type="range"]:disabled { cursor:wait; opacity:.5; }
 .sc-adventure-shell .sc-completion-page__narration .sc-button { min-height: 42px; color: var(--completion-ink); border-color: var(--completion-rule); background: #fff9e344; border-radius: 0; }
 .sc-adventure-shell .sc-completion-page__narration small { color: #8b342a; line-height: 1.5; }
-.sc-adventure-shell .sc-completion-page__scene { margin: 0; overflow: hidden; border: 1px solid #ae935d; background: #182822; box-shadow: 0 5px 12px #2d271833; }
+.sc-adventure-shell .sc-completion-page__scene { display:flex; flex:1; flex-direction:column; justify-content:center; min-height:0; margin:0; overflow:hidden; border:1px solid #ae935d; background:#182822; box-shadow:0 5px 12px #2d271833; }
 .sc-adventure-shell .sc-completion-page__scene .sc-journey-scene { display: block; width: 100%; max-height: 390px; border: 0; aspect-ratio: 640 / 352; object-fit: cover; }
+.sc-adventure-shell .sc-completion-page__scene--wizarding { padding:clamp(7px, 1vw, 12px); border-color:var(--page-rule); background:#8a704711; }
+.sc-adventure-shell .sc-completion-page__scene--wizarding .sc-book-cutscene { display:flex; flex:1; flex-direction:column; }
+.sc-adventure-shell .sc-completion-page__scene--wizarding .sc-book-cutscene .sc-volume-scene { flex:1; height:clamp(300px, 40vh, 500px); }
+.sc-adventure-shell .sc-completion-page__scene--wizarding .sc-book-cutscene__caption { min-height:70px; }
+.sc-adventure-shell .sc-completion-page__scene--cinder { border-color:var(--completion-rule); background:#183126; }
+.sc-adventure-shell .sc-completion-page__scene--cinder > .sc-journey-scene { max-height:none; }
 .sc-adventure-shell .sc-completion-code { grid-template-columns: minmax(0, 1fr); gap: 13px; }
 .sc-adventure-shell .sc-completion-code section { min-width: 0; padding-top: 10px; border-top: 1px solid var(--completion-rule); }
 .sc-adventure-shell .sc-completion-code pre { overflow: auto; max-height: 190px; margin: 8px 0 0; padding: 12px; color: #e8e3d3; border: 1px solid #46584d; background: #17231d; font: 12px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; }
@@ -1043,8 +1065,9 @@ html[data-reduce-motion="true"] .sc-book-cutscene .sc-book-cutscene__magic { opa
 .sc-adventure-shell .sc-completion-page__steps summary { min-height: 44px; padding: 13px 0; color: var(--completion-ink); cursor: pointer; font: 13px Georgia, serif; }
 .sc-adventure-shell .sc-completion-page__steps ol { max-height: 150px; overflow: auto; margin: 0; padding: 0 0 12px 20px; }
 .sc-adventure-shell .sc-completion-page__steps li { color: var(--completion-muted); font: 11px/1.55 ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
-.sc-adventure-shell .sc-completion-page__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: auto; padding-top: 6px; }
+.sc-adventure-shell .sc-completion-page__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: auto; padding-top: 12px; }
 .sc-adventure-shell .sc-completion-page__actions .sc-button { min-height: 44px; color: #241d13; border: 1px solid #f0d891; background: #dfc584; border-radius: 0; }
+.sc-adventure-shell .sc-completion-page__actions .sc-button:disabled { color:#635b48; border-color:#bca978; background:#d6c9a6; cursor:wait; opacity:.8; }
 .sc-adventure-shell .sc-completion-page__actions .sc-link { min-height: 44px; color: #5b513a; }
 
 /* Keep the starter tutorial readable when its legacy quest theme is also active. */

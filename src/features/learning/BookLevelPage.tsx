@@ -32,6 +32,7 @@ export function BookLevelPage({ bookId, chapterId, onLevels, onStoryFilm, onChap
         book={book}
         completed={progress.completed}
         progressStatus={progress.status}
+        onLevels={onLevels}
         onComplete={progress.complete}
         initialChapterId={chapterId}
         onChapterChange={onChapterChange}
