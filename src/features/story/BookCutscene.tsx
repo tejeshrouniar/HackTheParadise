@@ -26,7 +26,7 @@ const phaseAction: Record<ScenePhase, SpriteAction> = {
   settle: "idle",
 };
 
-/** Reusable story beat for coding chapters; the player's saved avatar acts in each scene. */
+/** Reusable story beat for coding chapters; book-specific cast stays separate from the map avatar. */
 export function BookCutscene({
   chapter,
   relicImage,
@@ -41,6 +41,7 @@ export function BookCutscene({
   const { preferences } = usePreferences();
   const [phase, setPhase] = useState<ScenePhase>("still");
   const [replay, setReplay] = useState(0);
+  const sceneLead = chapter.bookId === "harry-potter" ? "Harry" : "Your avatar";
 
   useEffect(() => {
     if (preferences.reduced_motion) {
@@ -70,7 +71,7 @@ export function BookCutscene({
     : phase === "approach"
       ? `You arrive at ${chapter.subtitle.split(" · ")[0]}. The clue leads toward the relic.`
       : phase === "inspect"
-        ? `Your avatar tests the seal. ${chapter.lesson}`
+        ? `${sceneLead} tests the seal. ${chapter.lesson}`
         : completed
           ? chapter.outcome
           : chapter.story;
@@ -89,18 +90,31 @@ export function BookCutscene({
         <div className="sc-volume-scene__tower sc-volume-scene__tower--right" aria-hidden="true" />
         <div className="sc-volume-scene__ridge" aria-hidden="true" />
         <img className="sc-volume-scene__relic-art" src={relicImage} alt="" aria-hidden="true" />
-        {characterImage && <img className="sc-volume-scene__character" src={characterImage} alt="" aria-hidden="true" />}
+        {characterImage && <img
+          className="sc-volume-scene__character"
+          src={characterImage}
+          alt={chapter.chapterId === "relics-book-two-03" ? "Dobby" : "Lord Voldemort"}
+        />}
         <span className="sc-book-cutscene__magic" aria-hidden="true" />
-        <div className="sc-volume-scene__player" aria-hidden="true">
-          <AvatarGraphic
-            appearance={appearance}
-            action={phaseAction[phase]}
-            direction="right"
-            size={80}
-            playId={sequence + replay}
-            directControl={phaseAction[phase] !== "idle"}
+        {chapter.bookId === "harry-potter" ? (
+          <span
+            className="sc-volume-scene__harry"
+            data-phase={phase}
+            role="img"
+            aria-label="Harry Potter"
           />
-        </div>
+        ) : (
+          <div className="sc-volume-scene__player" aria-hidden="true">
+            <AvatarGraphic
+              appearance={appearance}
+              action={phaseAction[phase]}
+              direction="right"
+              size={80}
+              playId={sequence + replay}
+              directControl={phaseAction[phase] !== "idle"}
+            />
+          </div>
+        )}
         <div className="sc-volume-scene__caption" aria-hidden="true">
           <span>{chapter.subtitle.split(" · ")[0]}</span>
           <strong>{chapter.chapterTitle}</strong>

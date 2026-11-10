@@ -6,10 +6,12 @@ import { useHintWallet } from "./useHintWallet";
 type UnlockKind = "hint" | "solution";
 
 export function SparkUnlock({
+  bookId = "cinder",
   id,
   kind,
   onUse,
 }: {
+  bookId?: string;
   id: number;
   kind: UnlockKind;
   onUse?: (code: string) => void;
@@ -17,9 +19,10 @@ export function SparkUnlock({
   const wallet = useHintWallet();
   const price = kind === "hint" ? 10 : 20;
   const { user } = useAuth();
-  const owned = wallet.owns(id, kind);
+  const owned = wallet.owns(id, kind, bookId);
   const [content, setContent] = useState<{
     owner: string;
+    bookId: string;
     id: number;
     kind: UnlockKind;
     text: string;
@@ -33,21 +36,21 @@ export function SparkUnlock({
     if (!owned || !user || !supabase) return;
 
     let active = true;
-    void supabase.rpc("get_spark_content", { lesson: id, item: kind }).then(({ data, error: requestError }) => {
+    void supabase.rpc("get_spark_content", { book_key: bookId, lesson: id, item: kind }).then(({ data, error: requestError }) => {
       if (!active) return;
       if (requestError || typeof data !== "string") {
         setError("Your unlock is saved, but its content could not load.");
       } else {
-        setContent({ owner: user.id, id, kind, text: data });
+        setContent({ owner: user.id, bookId, id, kind, text: data });
       }
     });
     return () => {
       active = false;
     };
-  }, [owned, user?.id, id, kind, attempt]);
+  }, [owned, user?.id, bookId, id, kind, attempt]);
 
   const text =
-    content && content.owner === user?.id && content.id === id && content.kind === kind
+    content && content.owner === user?.id && content.bookId === bookId && content.id === id && content.kind === kind
       ? content.text
       : null;
 
@@ -85,7 +88,7 @@ export function SparkUnlock({
           <button
             className="sc-button"
             disabled={wallet.busy || wallet.balance === null || (!wallet.unlimited && wallet.balance < price)}
-            onClick={() => void wallet.buy(id, kind)}
+            onClick={() => void wallet.buy(bookId, id, kind)}
           >
             {wallet.busy
               ? "Opening…"

@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, Headphones, LockKeyhole, RotateCcw, Target, Volume2, VolumeX } from "lucide-react";
+import toast from "react-hot-toast";
 import { useMusic } from "../tools/MusicContext";
 import { soundscapes } from "../../services/music";
 import type { CodingStoryBook } from "../../content/storyBooks";
 import { formatPuzzleValue, PuzzleCodeError, runPuzzleTests, type PuzzleTestResult } from "../learning/puzzleRunner";
 import { BookCutscene } from "./BookCutscene";
 import { BOOK_SCENE_ART, BOOK_SCENE_CHARACTERS, DEFAULT_BOOK_SCENE_ART } from "./bookSceneAssets";
+import { CodingEditorPanel, type CodingEditorError } from "../learning/CodingEditorPanel";
 
 interface StorybookVolumeProps {
   book: CodingStoryBook;
@@ -28,12 +30,14 @@ export function StorybookVolume({ book, completed, progressStatus, onComplete, i
   );
   const [codeById, setCodeById] = useState<Record<string, string>>({});
   const [resultsById, setResultsById] = useState<Record<string, PuzzleTestResult[]>>({});
-  const [errorsById, setErrorsById] = useState<Record<string, string>>({});
+  const [errorsById, setErrorsById] = useState<Record<string, CodingEditorError | null>>({});
+  const [consoleById, setConsoleById] = useState<Record<string, string[]>>({});
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [speaking, setSpeaking] = useState(false);
   const [sceneSequence, setSceneSequence] = useState(0);
   const [localOutcomeId, setLocalOutcomeId] = useState<string | null>(null);
+  const chapterGuideRef = useRef<HTMLDetailsElement>(null);
   const chapter = book.chapters.find((item) => item.chapterId === selectedId) ?? book.chapters[0];
   const completedSet = useMemo(() => new Set(completed), [completed]);
   const chapterIndex = Math.max(0, book.chapters.findIndex((item) => item.chapterId === chapter?.chapterId));
@@ -86,23 +90,48 @@ export function StorybookVolume({ book, completed, progressStatus, onComplete, i
     return true;
   }
 
-  function readPage() {
+  function readTask() {
     if (speaking) {
       window.speechSynthesis.cancel();
       setSpeaking(false);
       return;
     }
-    speak(`${chapter?.chapterTitle}. ${chapter?.story} Lesson: ${chapter?.lesson} Your task: ${chapter?.taskObjective}${finished ? ` ${chapter?.outcome}` : ""}`);
+    speak(`${chapter?.chapterTitle}. Your task: ${chapter?.taskObjective} Lesson: ${chapter?.lesson}`);
+  }
+
+  function readScene() {
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      setSpeaking(false);
+      return;
+    }
+    speak(`${chapter?.chapterTitle}. ${chapter?.story}${goalReached ? ` ${chapter?.outcome}` : ""}`);
+  }
+
+  async function copyCode() {
+    try {
+      await navigator.clipboard.writeText(code);
+      toast.success("Code copied");
+    } catch {
+      toast.error("Copy was blocked. Select and copy the code instead.");
+    }
   }
 
   async function runSpell() {
     if (!chapter || !previousChaptersComplete || busy) return;
     setBusy(true);
     setNotice("");
-    setErrorsById((current) => ({ ...current, [chapter.chapterId]: "" }));
+    setErrorsById((current) => ({ ...current, [chapter.chapterId]: null }));
     try {
       const outcome = runPuzzleTests(code, chapter.functionName, chapter.tests);
       setResultsById((current) => ({ ...current, [chapter.chapterId]: outcome }));
+      setConsoleById((current) => ({
+        ...current,
+        [chapter.chapterId]: [
+          `$ storicode run · ${chapter.title}`,
+          ...outcome.map((item) => `${item.passed ? "✓" : "✕"} ${item.label}${item.passed ? "" : ` · got ${formatPuzzleValue(item.actual)}`}`),
+        ],
+      }));
       if (outcome.every((item) => item.passed)) {
         setSceneSequence((value) => value + 1);
         speak(`${chapter.chapterTitle}. All ${outcome.length} code checks passed. ${chapter.lesson} ${chapter.outcome}`);
@@ -112,12 +141,14 @@ export function StorybookVolume({ book, completed, progressStatus, onComplete, i
           setNotice("The goal is reached. Your progress is saved.");
         } else setNotice("This chapter is still locked. Complete the earlier pages first.");
       } else {
-        setNotice("Some checks still need work. Use the journal clue and try again.");
+        setNotice("Some checks still need work. Open Hints and solution for a clue, then try again.");
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "The spell could not be read.";
-      const line = error instanceof PuzzleCodeError && error.line >= 0 ? `Line ${error.line + 1}: ` : "";
-      setErrorsById((current) => ({ ...current, [chapter.chapterId]: `${line}${message}` }));
+      const lineIndex = error instanceof PuzzleCodeError && error.line > 0 ? error.line - 1 : 0;
+      const line = error instanceof PuzzleCodeError && error.line > 0 ? `Line ${error.line}: ${message}` : message;
+      setErrorsById((current) => ({ ...current, [chapter.chapterId]: { lineIndex, message, suggestion: "Check the highlighted line and compare it with the task." } }));
+      setConsoleById((current) => ({ ...current, [chapter.chapterId]: [`$ storicode run · ${chapter.title}`, `Error: ${line}`] }));
       setResultsById((current) => ({ ...current, [chapter.chapterId]: [] }));
     } finally {
       setBusy(false);
@@ -127,9 +158,10 @@ export function StorybookVolume({ book, completed, progressStatus, onComplete, i
   if (!chapter) return null;
   const relicImage = BOOK_SCENE_ART[chapter.chapterId] ?? DEFAULT_BOOK_SCENE_ART;
   const sceneCharacter = BOOK_SCENE_CHARACTERS[chapter.chapterId];
+  const chapterSparkId = chapter.sparkLessonId;
 
   return (
-    <section className={`sc-story-volume sc-volume--${book.theme}`} aria-labelledby="sc-volume-heading">
+    <section className={`sc-story-volume sc-simple-quest sc-volume--${book.theme} sc-coding-book--${book.theme}`} aria-labelledby="sc-volume-heading">
       <nav className="sc-volume-index" aria-label={`${book.title} chapter index`}>
         {book.chapters.map((item, index) => {
           const unlocked = canOpenChapter(index);
@@ -150,53 +182,90 @@ export function StorybookVolume({ book, completed, progressStatus, onComplete, i
         })}
       </nav>
 
-      <div className="sc-volume-open" data-theme={book.theme} key={chapter.chapterId}>
-        <article className="sc-volume-page sc-volume-page--story">
-          <div className="sc-volume-page__number">CHAPTER {String(chapterIndex + 1).padStart(2, "0")} <span>·</span> THE HORCRUX CODE</div>
-          <h3 id="sc-volume-heading">{chapter.chapterTitle}</h3>
-          <p className="sc-volume-page__subtitle">{chapter.subtitle}</p>
-          <p className="sc-volume-story">{chapter.story}</p>
-          <div className="sc-volume-lesson">
-            <span>LEVEL TYPE</span>
-            <strong>{chapter.conceptName}</strong>
+      <div className="sc-quest-topline">
+        <span>Chapter {String(chapterIndex + 1).padStart(2, "0")} of {book.chapters.length}</span>
+        <span>{progressStatus}</span>
+      </div>
+      <header className="sc-quest-intro">
+        <span className="sc-coding-book__type">{book.title.toUpperCase()} <i aria-hidden="true">·</i> LEVEL TYPE: {chapter.conceptName}</span>
+        <h1 id="sc-volume-heading">{chapter.chapterTitle}</h1>
+        <p>{chapter.taskObjective}</p>
+        <button className="sc-volume-read" type="button" onClick={readTask}>
+          {speaking ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          {speaking ? "Stop narration" : "Read task aloud"}
+        </button>
+      </header>
+
+      <div className="sc-coding-layout sc-coding-book-spread" key={chapter.chapterId}>
+        <CodingEditorPanel
+          code={code}
+          onCodeChange={(next) => {
+            setCodeById((current) => ({ ...current, [chapter.chapterId]: next }));
+            setErrorsById((current) => ({ ...current, [chapter.chapterId]: null }));
+            setNotice("");
+          }}
+          onRun={() => void runSpell()}
+          onReset={() => {
+            setCodeById((current) => ({ ...current, [chapter.chapterId]: starterCode(chapter.functionName, chapter.parameters) }));
+            setResultsById((current) => {
+              const next = { ...current };
+              delete next[chapter.chapterId];
+              return next;
+            });
+            setErrorsById((current) => ({ ...current, [chapter.chapterId]: null }));
+            setConsoleById((current) => {
+              const next = { ...current };
+              delete next[chapter.chapterId];
+              return next;
+            });
+            setNotice("");
+          }}
+          onCopy={() => void copyCode()}
+          onGuide={() => {
+            if (chapterGuideRef.current) chapterGuideRef.current.open = true;
+          }}
+          onSolutionUse={(next) => {
+            setCodeById((current) => ({ ...current, [chapter.chapterId]: next }));
+            setErrorsById((current) => ({ ...current, [chapter.chapterId]: null }));
+            setNotice("Solution loaded into the editor. Run it to watch the spell unfold.");
+          }}
+          sparkBookId={book.id}
+          sparkLessonId={chapterSparkId}
+          canRun={previousChaptersComplete}
+          isRunning={busy}
+          runLabel={finished ? "Run again" : "Run spell"}
+          error={errorsById[chapter.chapterId]}
+          consoleLogs={consoleById[chapter.chapterId] ?? [`$ storicode load · ${chapter.title}`, "> Type your solution, then run the spell."]}
+        >
+          <details className="sc-quest-disclosure" ref={chapterGuideRef}>
+            <summary>Chapter guide</summary>
             <p>{chapter.lesson}</p>
-          </div>
-          <aside className="sc-volume-objective">
-            <span>YOUR TASK</span>
-            <p id={`objective-${chapter.chapterId}`}>{chapter.taskObjective}</p>
-          </aside>
-          <button className="sc-volume-read" type="button" onClick={readPage}>
-            {speaking ? <VolumeX size={16} /> : <Volume2 size={16} />}
-            {speaking ? "Stop reading" : "Read this page aloud"}
-          </button>
-          <div className="sc-volume-editor">
-            <label htmlFor={`spell-${chapter.chapterId}`}>{finished ? "Your spell" : "Write the spell"} <code>{chapter.functionName}({chapter.parameters.join(", ")})</code></label>
-            <textarea
-              id={`spell-${chapter.chapterId}`}
-              spellCheck={false}
-              autoCapitalize="off"
-              autoCorrect="off"
-              value={code}
-              onChange={(event) => setCodeById((current) => ({ ...current, [chapter.chapterId]: event.target.value }))}
-              aria-describedby={`objective-${chapter.chapterId}`}
-            />
-            <details className="sc-volume-guide">
-              <summary>Need a clue?</summary>
-              <p>{chapter.lesson}</p>
-            </details>
-            <button className="sc-button sc-volume-run" type="button" onClick={() => void runSpell()} disabled={busy || !previousChaptersComplete}>
-              {busy ? "Checking…" : finished ? "Run again" : "Run spell"}
-              <ArrowRight size={16} />
+          </details>
+          {notice && <p className="sc-volume-notice" role="status">{notice}</p>}
+        </CodingEditorPanel>
+
+        <section className="sc-card sc-live-world sc-volume-live-world" aria-label={`${chapter.chapterTitle} live scene`}>
+          <header>
+            <h2>{chapter.subtitle.split(" · ")[0]}</h2>
+            <span className={goalReached ? "complete" : ""}>{goalReached ? "Complete" : busy ? "Checking" : "Ready"}</span>
+          </header>
+          <div className="sc-playback-bar">
+            <span>{goalReached ? "Your code opened the next story beat" : "Write and run the spell to reveal the clue"}</span>
+            <button type="button" onClick={() => soundtrack && (playingBookScore ? music.pause() : void music.play(soundtrack, [soundtrack]))} disabled={!soundtrack}>
+              <Headphones size={15} /> {playingBookScore ? "Pause score" : "Play book score"}
             </button>
-            {errorsById[chapter.chapterId] && <p className="sc-volume-feedback sc-volume-feedback--error" role="alert">{errorsById[chapter.chapterId]}</p>}
-            {notice && <p className="sc-volume-notice" role="status">{notice}</p>}
           </div>
-        </article>
-
-        <div className="sc-volume-spine" aria-hidden="true" />
-
-        <article className="sc-volume-page sc-volume-page--play" aria-label={`${chapter.chapterTitle} coding page`}>
-          <p className="sc-volume-goal" data-complete={finished || localOutcomeId === chapter.chapterId} role="status">
+          <BookCutscene
+            chapter={chapter}
+            relicImage={relicImage}
+            characterImage={sceneCharacter}
+            completed={goalReached}
+            sequence={sceneSequence}
+            mode="level"
+            onNarrate={readScene}
+            narrating={speaking}
+          />
+          <p className="sc-action-caption sc-volume-goal" data-complete={goalReached} role="status">
             {goalReached ? <Check size={15} aria-hidden="true" /> : <Target size={15} aria-hidden="true" />}
             {goalReached
               ? `Goal reached · ${chapter.tests.length} of ${chapter.tests.length} checks passed`
@@ -204,25 +273,8 @@ export function StorybookVolume({ book, completed, progressStatus, onComplete, i
                 ? `Goal · ${passedChecks} of ${chapter.tests.length} checks passed`
                 : `Goal · pass all ${chapter.tests.length} chapter checks`}
           </p>
-          <BookCutscene
-            chapter={chapter}
-            relicImage={relicImage}
-            characterImage={sceneCharacter}
-            completed={finished || localOutcomeId === chapter.chapterId}
-            sequence={sceneSequence}
-            mode="level"
-            onNarrate={readPage}
-            narrating={speaking}
-          />
-
-          <div className="sc-volume-tools">
-            <button type="button" onClick={() => soundtrack && (playingBookScore ? music.pause() : void music.play(soundtrack, [soundtrack]))} disabled={!soundtrack}>
-              <Headphones size={15} /> {playingBookScore ? "Pause score" : "Play this book’s score"}
-            </button>
-          </div>
-
           <section className="sc-volume-checks" aria-label="Level goal checks" aria-live="polite">
-            <h4><span>Goal checks</span><small>{goalReached ? chapter.tests.length : passedChecks} / {chapter.tests.length}</small></h4>
+            <h3><span>Goal checks</span><small>{goalReached ? chapter.tests.length : passedChecks} / {chapter.tests.length}</small></h3>
             <ol>
               {chapter.tests.map((test, index) => {
                 const result = results?.[index];
@@ -239,20 +291,18 @@ export function StorybookVolume({ book, completed, progressStatus, onComplete, i
               })}
             </ol>
           </section>
-
-          {finished && (
+          {goalReached && (
             <div className="sc-volume-aftermath" role="status">
-              <span className="sc-volume-page__number">THE PAGE TURNS</span>
-              <h4>{chapter.title}</h4>
+              <span className="sc-page-kicker">THE STORY CONTINUES</span>
+              <h3>{chapter.title}</h3>
               <p>{chapter.outcome}</p>
-              <p className="sc-volume-aftermath__lesson"><strong>What the code did:</strong> {chapter.lesson}</p>
+              <p className="sc-volume-aftermath__lesson"><strong>What your code did:</strong> {chapter.lesson}</p>
               <button className="sc-button sc-volume-next" type="button" onClick={() => onWatchMovie(chapter.chapterId)}>
-                Watch this chapter’s film
-                <ArrowRight size={16} />
+                Watch this chapter’s film <ArrowRight size={16} />
               </button>
             </div>
           )}
-        </article>
+        </section>
       </div>
 
       <footer className="sc-volume-footer">

@@ -234,9 +234,13 @@ test("writer content has stable, unique IDs and valid quest links", () => {
   }
 });
 
-test("the World Map opens coding levels while Story only replays completed Harry films", () => {
+test("the bookshelf opens a shared book hub for levels or story", () => {
   const storyPage = readFileSync(
     new URL("../src/features/story/StoryPage.tsx", import.meta.url),
+    "utf8",
+  );
+  const bookHub = readFileSync(
+    new URL("../src/features/story/BookHubPage.tsx", import.meta.url),
     "utf8",
   );
   const journeyCinema = readFileSync(
@@ -270,13 +274,19 @@ test("the World Map opens coding levels while Story only replays completed Harry
   assert.match(storyPage, /HarryStoryFilms/);
   assert.doesNotMatch(storyPage, /<StorybookVolume/);
   assert.match(storyPage, /completed\.includes\(item\.chapterId\)/);
+  assert.doesNotMatch(storyPage, /HarryBookOpening|Enter the World Map/);
+  assert.match(storyPage, /mode === "shelf"/);
+  assert.match(bookHub, /Play levels/);
+  assert.match(bookHub, /Read story/);
+  assert.match(bookHub, /STORY_BOOKS\.find/);
   assert.match(bookLevel, /<StorybookVolume/);
   assert.match(appShell, /book-level\//);
-  assert.match(appShell, /navigate\(bookId === "cinder" \? "story" : `book-level/);
+  assert.match(appShell, /navigate\(bookId === "cinder" \? "book-story\/cinder" : `book-level/);
+  assert.doesNotMatch(appShell, /label: "World Map"/);
   assert.doesNotMatch(storyPage, /sc-book-levels/);
   assert.match(journeyCinema, /import \{ PixelDragon \}/);
   assert.match(journeyCinema, /realm\.levels\[beat\] <= journeyProgress\(completed\)\.cleared/);
-  assert.match(journeyCinema, /Complete level \{realm\.levels\[beat\]\} on the World Map/);
+  assert.match(journeyCinema, /Complete level \{realm\.levels\[beat\]\} from Play levels/);
   assert.doesNotMatch(journeyCinema, /Play level \{realm\.levels\[beat\]\}/);
   assert.match(worldMap, /from "\.\.\/adventure\/JourneyTrail"/);
   assert.match(worldMap, /from "\.\/WizardingWalk"/);

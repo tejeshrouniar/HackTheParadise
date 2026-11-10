@@ -4,14 +4,14 @@
 
 **One story is one book.** Every story on the shelf has its own title, cover, colour theme, backgrounds, soundtrack, chapter order, and progress. A new story is a new book entry; it is not automatically labeled Book I or Book II of an existing story. Only use multiple volumes when the story itself is intentionally a sequel.
 
-The active catalog is `src/content/storyBooks.ts`. `StoryPage.tsx` renders the shelf and chooses the reader. The page surfaces and page-turn effect are in `src/styles/storybooks.css`; the Windows book-page-turn utility is not required by the website and must not be shipped as a runtime executable.
+The active catalog is `src/content/storyBooks.ts`. `StoryPage.tsx` renders only the shelf or the story reader, depending on route. Every book opens `BookHubPage.tsx`, the shared entry spread with **Play levels** and **Read story** actions. The page surfaces and page-turn effect are in `src/styles/storybooks.css` and `src/styles/library-ui.css`; the Windows book-page-turn utility is not required by the website and must not be shipped as a runtime executable.
 
 | Book | Content source | Progress owner | Reader |
 | --- | --- | --- | --- |
-| *The Last Light* (Cinder) | `src/content/journey.json` | Existing quest IDs in `ProgressContext` / `player_progress` | `CinderBook` in `StoryPage.tsx` with `JourneyCinema.tsx` |
-| *The Horcrux Code* (Harry Potter) | `src/content/codeCampaign.ts` | Stable chapter IDs in `useBookProgress.ts` / Supabase `story_progress` | `BookLevelPage.tsx` for coding; completed chapter films on `StoryPage.tsx` |
+| *The Last Light* (Cinder) | `src/content/journey.json` | Existing quest IDs in `ProgressContext` / `player_progress` | `CinderBook` in the Story reader with `JourneyCinema.tsx` |
+| *The Horcrux Code* (Harry Potter) | `src/content/codeCampaign.ts` | Stable chapter IDs in `useBookProgress.ts` / Supabase `story_progress` | `BookLevelPage.tsx` for coding; completed chapter films in the Story reader |
 
-The two books do not share chapter unlocks or completion state. Cinder’s twelve quests do not mark Harry Potter chapters complete; Harry Potter chapters do not advance Cinder’s journey. The World Map opens code levels. The Story desk plays Cinder’s scenes and completed Harry Potter chapter films, so a chapter’s code task is not duplicated in the story reader.
+The two books do not share chapter unlocks or completion state. Cinder’s twelve quests do not mark Harry Potter chapters complete; Harry Potter chapters do not advance Cinder’s journey. The book hub’s **Play levels** action opens the selected book’s walkable level route. **Read story** opens that book’s reader, so a chapter’s code task is not duplicated in the story reader.
 
 ## Add another story
 
@@ -25,7 +25,7 @@ The two books do not share chapter unlocks or completion state. Cinder’s twelv
 
 ## Coding chapter content
 
-`BookPuzzle` in `codeCampaign.ts` contains short story copy, one lesson, a clear objective, a function name, and `PuzzleTestCase` values. `puzzleRunner.ts` is a bounded Python-inspired interpreter, not CPython. Write objectives and examples using constructs it supports; never execute arbitrary Python or JavaScript. A passing solution completes the chapter. Keep expected outputs in tests, not completed code examples in the app.
+`BookPuzzle` in `codeCampaign.ts` contains short story copy, one lesson, a clear objective, a function name, a per-book `sparkLessonId`, and `PuzzleTestCase` values. `puzzleRunner.ts` is a bounded Python-inspired interpreter, not CPython. Write objectives and examples using constructs it supports; never execute arbitrary Python or JavaScript. A passing solution completes the chapter. Keep expected outputs in tests, not completed code examples in the app. Seed paid hints and solutions in a new migration with `(book_id, lesson_id, kind)` keys; every book may start at lesson 1, and its wallet unlocks stay separate from other books.
 
 The earlier merge stored Harry Potter’s twelve existing chapters as `relics-book-one-01` through `relics-book-one-06` and `relics-book-two-01` through `relics-book-two-06`. Keep those IDs: migration 011 moves them into one book without resetting learners’ progress.
 

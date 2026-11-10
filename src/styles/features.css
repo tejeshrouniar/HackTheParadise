@@ -2789,13 +2789,6 @@
     transition: none;
   }
 }
-.sc-chapter-story {
-  max-width: 800px;
-  margin-top: 10px;
-  padding-left: 14px;
-  border-left: 2px solid #c9ad75;
-  color: #d0d9cb !important;
-}
 .sc-forest-campaign {
   padding: 28px 0 14px;
 }

@@ -2,12 +2,20 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { PGlite } from "@electric-sql/pglite";
+import typescript from "typescript";
 
 const A = "00000000-0000-0000-0000-000000000001";
 const B = "00000000-0000-0000-0000-000000000002";
 const C = "00000000-0000-0000-0000-000000000003";
 const migration = (name) =>
   readFileSync(new URL(`../supabase/migrations/${name}`, import.meta.url), "utf8");
+const importTypeScriptModule = async (path) => {
+  const source = readFileSync(new URL(path, import.meta.url), "utf8");
+  const { outputText } = typescript.transpileModule(source, {
+    compilerOptions: { module: typescript.ModuleKind.ESNext, target: typescript.ScriptTarget.ES2022 },
+  });
+  return import(`data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`);
+};
 
 test("Spark codes work and migration 009 repairs a missing wallet foundation", async (t) => {
   const db = new PGlite();
@@ -51,6 +59,9 @@ test("Spark codes work and migration 009 repairs a missing wallet foundation", a
     await db.exec(repair);
     await db.exec(repair); // Reapplying it must preserve data and remain safe.
     await db.exec(migration("202611050007_spark_content.sql"));
+    const booksMigration = migration("202611100012_book_scoped_spark_content.sql");
+    await db.exec(booksMigration);
+    await db.exec(booksMigration); // Book scoping can safely be reapplied.
 
     async function as(role, user = "") {
       await db.exec("reset role");
@@ -155,6 +166,33 @@ test("Spark codes work and migration 009 repairs a missing wallet foundation", a
       const paidWithSparks = (await db.query("select public.spend_sparks(2, 'hint') as wallet")).rows[0].wallet;
       assert.equal(paidWithSparks.balance, 20);
       assert.equal(paidWithSparks.unlimited, false);
+    });
+
+    await t.test("each book starts its own Spark lesson range and all Harry Potter solutions pass", async () => {
+      await db.exec("reset role");
+      const [content, { BOOK_PUZZLES }, { runPuzzleTests }] = await Promise.all([
+        db.query("select lesson_id, kind, body from public.spark_content where book_id = 'harry-potter' order by lesson_id, kind"),
+        importTypeScriptModule("../src/content/codeCampaign.ts"),
+        importTypeScriptModule("../src/features/learning/puzzleRunner.ts"),
+      ]);
+      assert.equal(content.rows.length, 24);
+      assert.deepEqual(BOOK_PUZZLES.map((puzzle) => puzzle.sparkLessonId), Array.from({ length: 12 }, (_, i) => i + 1));
+      for (const puzzle of BOOK_PUZZLES) {
+        const solution = content.rows.find((row) => row.lesson_id === puzzle.sparkLessonId && row.kind === "solution");
+        assert.ok(solution, `missing protected solution for ${puzzle.chapterId}`);
+        assert.ok(runPuzzleTests(solution.body, puzzle.functionName, puzzle.tests).every((result) => result.passed), `${puzzle.chapterId} solution must pass every sandbox check`);
+      }
+
+      await as("authenticated", B);
+      const before = await wallet();
+      assert.equal(before.balance, 330);
+      assert.equal((await db.query("select public.spend_sparks('harry-potter', 1, 'hint') as wallet")).rows[0].wallet.balance, 320);
+      const afterBookSolution = (await db.query("select public.spend_sparks('harry-potter', 1, 'solution') as wallet")).rows[0].wallet;
+      assert.equal(afterBookSolution.balance, 300);
+      assert.ok(afterBookSolution.unlocks.some((unlock) => unlock.book_id === "harry-potter" && unlock.lesson_id === 1 && unlock.kind === "solution"));
+      assert.match((await db.query("select public.get_spark_content('harry-potter', 1, 'solution') as body")).rows[0].body, /def reveal_diary_secret/);
+      await assert.rejects(db.query("select public.get_spark_content(1, 'solution')"), /Purchase required/);
+      await assert.rejects(db.query("select public.get_spark_content('harry-potter', 2, 'solution')"), /Purchase required/);
     });
 
     await t.test("only the trusted service role can issue idempotent account credits", async () => {

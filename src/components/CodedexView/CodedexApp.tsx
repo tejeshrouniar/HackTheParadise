@@ -1,16 +1,10 @@
-import { SparkUnlock } from "../../features/learning/SparkUnlock";
+import { CodingEditorPanel } from "../../features/learning/CodingEditorPanel";
 import { QuestAftermath } from "../../features/learning/QuestAftermath";
 import { realmForLesson } from "../../content/journey";
 import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
-  Check,
-  Copy,
-  HelpCircle,
-  Play,
-  RotateCcw,
-  Square,
   Volume2,
   VolumeX,
 } from "lucide-react";
@@ -111,125 +105,46 @@ export const CodedexApp = ({
         )}
       </header>
       <div className="sc-coding-layout sc-coding-book-spread">
-        <section className="sc-card sc-spell-editor">
-          <header>
-            <h2>Your spell</h2>
-            <div>
-              <button
-                className="sc-icon-button"
-                onClick={() => void copyCode()}
-                aria-label={copiedCode ? "Code copied" : "Copy code"}
-              >
-                {copiedCode ? <Check size={16} /> : <Copy size={16} />}
-              </button>
-              <button
-                className="sc-icon-button"
-                aria-label="Reset code and world"
-                disabled={isExecuting}
-                onClick={() => {
-                  resetStage();
-                  setCode(lesson.initialCode);
-                }}
-              >
-                <RotateCcw size={16} />
-              </button>
-            </div>
-          </header>
-          <div className="sc-code-input">
-            <div className="sc-code-lines" aria-hidden="true">
-              {Array.from(
-                { length: Math.max(12, code.split("\n").length) },
-                (_, i) => (
-                  <div
-                    key={i}
-                    className={
-                      errorPointer?.lineIndex === i
-                        ? "error"
-                        : activeLine === i
-                          ? "active"
-                          : ""
-                    }
-                  >
-                    {i + 1}
-                  </div>
-                ),
-              )}
-            </div>
-            <textarea
-              aria-label="Quest code editor"
-              ref={textareaRef}
-              maxLength={20000}
-              value={code}
-              readOnly={isExecuting}
-              onChange={(e) => {
-                setCode(e.target.value);
-                if (errorPointer) setErrorPointer(null);
-              }}
-              spellCheck={false}
-              autoCapitalize="off"
-              autoCorrect="off"
-              placeholder="# Write your spell here"
-            />
-          </div>
-          {errorPointer && (
-            <div className="sc-code-error" role="alert">
-              <strong>
-                Line {errorPointer.lineIndex + 1}: {errorPointer.message}
-              </strong>
-              <p>{errorPointer.suggestion}</p>
-            </div>
-          )}
-          <div className="sc-spell-actions">
-            <button
-              className="sc-button mint"
-              onClick={() => {
-                if (window.matchMedia("(max-width: 1100px)").matches) {
-                  worldRef.current?.scrollIntoView({
-                    block: "start",
-                    behavior:
-                      preferences.reduced_motion ||
-                      window.matchMedia("(prefers-reduced-motion: reduce)")
-                        .matches
-                        ? "auto"
-                        : "smooth",
-                  });
-                }
-                void handleRunCode();
-              }}
-              disabled={isExecuting}
-            >
-              <Play size={16} />
-              {isExecuting ? "Running…" : "Run spell"}
-            </button>
-            {isExecuting && (
-              <button className="sc-button secondary" onClick={state.stopRun}>
-                <Square size={14} />
-                Stop
-              </button>
-            )}
-            <button
-              className="sc-button secondary"
-              onClick={() => setIsTutorialOpen(true)}
-            >
-              <HelpCircle size={16} />
-              Quest guide
-            </button>
-          </div>
-          <details className="sc-quest-disclosure">
-            <summary>Hints and solution</summary>
-            <SparkUnlock id={lesson.id} kind="hint" />
-            <details>
-              <summary>Show solution</summary>
-              <SparkUnlock id={lesson.id} kind="solution" onUse={isExecuting?undefined:(code)=>{setCode(code);setErrorPointer(null);}} />
-            </details>
-          </details>
-          <details className="sc-quest-disclosure">
-            <summary>Console</summary>
-            <pre className="sc-code-log" aria-live="polite">
-              {terminalLogs.join("\n")}
-            </pre>
-          </details>
-        </section>
+        <CodingEditorPanel
+          code={code}
+          onCodeChange={(next) => {
+            setCode(next);
+            if (errorPointer) setErrorPointer(null);
+          }}
+          onRun={() => {
+            if (window.matchMedia("(max-width: 1100px)").matches) {
+              worldRef.current?.scrollIntoView({
+                block: "start",
+                behavior:
+                  preferences.reduced_motion ||
+                  window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                    ? "auto"
+                    : "smooth",
+              });
+            }
+            void handleRunCode();
+          }}
+          onReset={() => {
+            resetStage();
+            setCode(lesson.initialCode);
+          }}
+          onCopy={() => void copyCode()}
+          onGuide={() => setIsTutorialOpen(true)}
+          onStop={state.stopRun}
+          onSolutionUse={(next) => {
+            if (isExecuting) return;
+            setCode(next);
+            setErrorPointer(null);
+          }}
+          sparkBookId="cinder"
+          sparkLessonId={lesson.id}
+          isRunning={isExecuting}
+          copied={copiedCode}
+          activeLine={activeLine}
+          error={errorPointer}
+          textareaRef={textareaRef}
+          consoleLogs={terminalLogs}
+        />
         <section className="sc-card sc-live-world" ref={worldRef}>
           <header>
             <h2>{currentStageInfo.name}</h2>

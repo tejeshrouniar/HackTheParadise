@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="180" viewBox="0 0 512 180" shape-rendering="crispEdges">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1">
+      <stop stop-color="#263b4b" />
+      <stop offset=".72" stop-color="#192c32" />
+      <stop offset="1" stop-color="#68563d" />
+    </linearGradient>
+    <pattern id="stone" width="16" height="16" patternUnits="userSpaceOnUse">
+      <path d="M0 15.5h16M8 0v8M0 8h16M3 8v8" fill="none" stroke="#d7c69b" stroke-opacity=".09" />
+    </pattern>
+  </defs>
+  <rect width="512" height="180" fill="url(#sky)" />
+  <path d="M0 125h46v-25h26V78h28V54h20V32h19v42h17V61h20v33h31v-22h22V55h18V24h17V9h18v32h13v36h25V64h16V43h19V28h16v43h28v-22h20v19h22v33h20v24h23v23H0z" fill="#111c26" />
+  <path d="M291 9h18v32h13v36h25V64h16V43h19V28h16v43h28v-22h20v19h22v33h20v24H265v-25h26z" fill="#1b292e" />
+  <path d="M0 0h512v180H0z" fill="url(#stone)" />
+  <g fill="#e9c878">
+    <path d="M102 73h6v20h-6zM100 69h10v5h-10zM186 78h6v16h-6zM184 74h10v5h-10zM337 51h6v17h-6zM335 47h10v5h-10zM400 59h6v13h-6zM398 55h10v5h-10zM455 65h6v16h-6zM453 61h10v5h-10z" />
+  </g>
+  <g fill="#a8d5d0">
+    <path d="M282 45h10v21h-10zM297 45h10v21h-10zM282 72h10v21h-10zM297 72h10v21h-10z" />
+    <path d="M359 82h10v18h-10zM374 82h10v18h-10zM420 89h10v17h-10zM435 89h10v17h-10z" />
+  </g>
+  <path d="M0 143h512v37H0z" fill="#342a27" />
+  <path d="M0 143h512v5H0zM0 169h512v3H0z" fill="#b68b53" />
+  <path d="M0 149h512v20H0z" fill="url(#stone)" opacity=".75" />
+  <g fill="#ead9a7" opacity=".8">
+    <path d="M44 22h3v3h-3zM72 47h2v2h-2zM157 19h3v3h-3zM230 38h2v2h-2zM251 18h2v2h-2zM476 26h3v3h-3z" />
+  </g>
+</svg>

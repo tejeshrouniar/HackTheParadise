@@ -8,6 +8,11 @@ import "./index.css";
 import "./styles/tokens.css";
 import "./styles/shell.css";
 import "./styles/features.css";
+// Quest worlds are lazy-loaded; load their base styles here so the shared layer
+// still remains last when a player opens a coding level for the first time.
+import "./styles/worlds.css";
+// Keep the shared book-led visual system after feature CSS so routes stay consistent.
+import "./styles/library-ui.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

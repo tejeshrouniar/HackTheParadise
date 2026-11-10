@@ -514,8 +514,8 @@ export function StoryCinema({ chapter, musicTrackId = "twilight", onOpenMap }: {
     return (
       <section className="sc-cinema sc-locked-scene">
         <h3>Scene {beat + 1} is locked</h3>
-        <p>Complete level {realm.levels[beat]} on the World Map to reveal this scene.</p>
-        {onOpenMap && <button className="sc-button mint" onClick={onOpenMap}>Open World Map</button>}
+        <p>Complete level {realm.levels[beat]} from Play levels to reveal this scene.</p>
+        {onOpenMap && <button className="sc-button mint" onClick={onOpenMap}>Play levels</button>}
         {beat > 0 && (
           <button className="sc-button secondary" onClick={() => selectScene(beat - 1)}>
             Previous scene

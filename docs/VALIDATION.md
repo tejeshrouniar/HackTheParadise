@@ -89,3 +89,27 @@
 - `npm test`: **48 passing tests**, including checks that Storybook and the world map do not link to the archived UI.
 - `npm run build`: TypeScript and Vite production build pass; 2,557 modules transformed.
 - Confirmed that no archived saga titles appear in the 16 generated JavaScript bundles. `git diff --check` passes.
+
+## Standalone wizarding book and shared coding interface — 10 November 2026
+
+- Harry’s story is a separate book with visible chapter numbers 01–12 and independent progress; it does not continue Cinder as chapters 13–24. Existing lesson IDs remain stable.
+- Reused the shared coding editor, hint, solution-unlock, console, and scene systems for both books. Spark content is namespaced by book in migration `202611100012_book_scoped_spark_content.sql`.
+- `npm test`: **50 passing tests**, including checks that all 12 wizarding-book solutions pass their chapter validators and remain separate from Cinder’s content.
+- `npm run build`: TypeScript and Vite production build pass. `git diff --check` passes.
+- Local browser review confirmed the chapter strip and editor remain usable at a narrow mobile viewport. No hosted Supabase migration or deployment was performed; migration 012 still requires application and verification in the hosted project.
+
+## Bookshelf landing and wizarding book opening pages — 10 November 2026
+
+- The empty/default route and `#/home` now open the storybook shelf. The brand and Bookshelf navigation return to that shelf; World Map remains the level-entry screen.
+- Added a Harry Potter opening spread with the story premise, current chapter, twelve-chapter contents, and a direct World Map action. Harry is the story protagonist; the map continues to use the saved player avatar, with Dobby and Voldemort kept as chapter-specific supporting characters.
+- Added a crisp pixel-art Hogwarts opening scene and resized the shelf covers so their descriptions and actions fit in the first desktop view. The narrow layout stacks open-book pages without horizontal overflow.
+- `npm test`: **50 passing tests**. `npm run build`: TypeScript and Vite production build pass; 2,585 modules transformed after the visual refinements.
+- Local browser review showed the bookshelf, Harry opening spread, chapter contents, and character sprite at desktop and 390px mobile widths. No hosted auth, database, or deployment checks were performed.
+
+## Shelf-only library and shared book hub — 10 November 2026
+
+- Replaced the shelf-plus-open-book landing with a shelf-only screen. The beginner tutorial is listed first; selecting either cover opens the same shared, themed book hub.
+- Each hub offers the same two actions: **Play levels** opens the selected book's level route, and **Read story** opens that book's reader. The World Map is no longer a top-level navigation item; level maps remain reachable from each book hub.
+- Verified in the local browser accessibility tree that the shelf contains only the two book entries, both hubs expose the same two actions, both chapter lists are present, and the Harry Potter hub opens its own 12-level map. The active book is initialized from a direct book URL to avoid a first-render theme mismatch.
+- `npm test`: **50 passing tests**. `npm run build`: TypeScript and Vite production build pass. `git diff --check` passes.
+- This was an accessibility-tree and route-flow check, not a screenshot-based visual comparison or cross-browser audit. No hosted Supabase checks, database writes, migration, or deployment were performed.

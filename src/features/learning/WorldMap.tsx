@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { ArrowRight, BookOpen, Check, Map, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Map, Sparkles } from "lucide-react";
 import { JOURNEY } from "../../content/journey";
-import { STORY_BOOKS, type StoryBook } from "../../content/storyBooks";
+import { STORY_BOOKS } from "../../content/storyBooks";
 import greatHall from "../../assets/storybooks/relics/great-hall.webp";
 import dobby from "../../assets/storybooks/relics/dobby-idle.webp";
-import lantern from "../../assets/realms/lantern.png";
 import { JourneyTrail } from "../adventure/JourneyTrail";
 import { useBookProgress } from "../story/useBookProgress";
 import { WizardingWalk } from "./WizardingWalk";
@@ -13,12 +12,12 @@ import { useProgress } from "./ProgressContext";
 
 interface WorldMapProps {
   bookId: string;
-  onBookChange: (id: string) => void;
   onQuest: (id: number) => void;
   onOpenBookChapter: (bookId: string, chapterId: string) => void;
+  onBack: () => void;
 }
 
-export function WorldMap({ bookId, onBookChange, onQuest, onOpenBookChapter }: WorldMapProps) {
+export function WorldMap({ bookId, onQuest, onOpenBookChapter, onBack }: WorldMapProps) {
   const { completed } = useProgress();
   const bookProgress = useBookProgress();
   const [cinderChapter, setCinderChapter] = useState(0);
@@ -32,27 +31,16 @@ export function WorldMap({ bookId, onBookChange, onQuest, onOpenBookChapter }: W
     <div className={`sc-world-map sc-world-map--${selectedBook.theme}`} data-book-theme={selectedBook.theme}>
       <header className="sc-world-map-heading">
         <div>
-          <span><Map size={14} /> THE WORLDS INSIDE YOUR BOOKS</span>
-          <h1>World map</h1>
-          <p>Choose a book, then follow its path to the next chapter.</p>
+          <span><Map size={14} /> {selectedBook.kind === "journey" ? "THE LAST LIGHT · TUTORIAL" : "THE HORCRUX CODE · MAIN STORY"}</span>
+          <h1>Play levels</h1>
+          <p>Walk the path, open each chapter, and write the code that moves the story forward.</p>
         </div>
         <div className="sc-world-map-heading__progress" aria-live="polite">
+          <button className="sc-button secondary" type="button" onClick={onBack}><ArrowLeft size={15} /> Book details</button>
           <strong>{selectedBook.kind === "journey" ? cinderProgress.cleared : harryCompleted}</strong>
           <span>/ 12 {selectedBook.kind === "journey" ? "spells" : "chapters"} complete</span>
         </div>
       </header>
-
-      <nav className="sc-map-books" aria-label="Choose a story world">
-        {STORY_BOOKS.map((book) => (
-          <BookChoice
-            key={book.id}
-            book={book}
-            active={book.id === selectedBook.id}
-            progress={book.kind === "journey" ? cinderProgress.cleared : bookProgress.completed.length}
-            onSelect={() => onBookChange(book.id)}
-          />
-        ))}
-      </nav>
 
       {selectedBook.kind === "journey" ? (
         <section className="sc-map-journey" aria-label="The Last Light walking map">
@@ -85,21 +73,5 @@ export function WorldMap({ bookId, onBookChange, onQuest, onOpenBookChapter }: W
         </section>
       )}
     </div>
-  );
-}
-
-function BookChoice({ book, active, progress, onSelect }: { book: StoryBook; active: boolean; progress: number; onSelect: () => void }) {
-  const image = book.id === "harry-potter" ? greatHall : lantern;
-  const total = book.kind === "journey" ? 12 : book.chapters.length;
-  return (
-    <button type="button" className={`sc-map-book ${active ? "is-selected" : ""} sc-map-book--${book.theme}`} aria-pressed={active} onClick={onSelect}>
-      <span className="sc-map-book__art"><img src={image} alt="" /></span>
-      <span className="sc-map-book__details">
-        <small>{book.kind === "journey" ? "BEGINNER TUTORIAL" : "FEATURED STORY"}</small>
-        <strong>{book.title}</strong>
-        <span>{Math.min(progress, total)} / {total} {book.kind === "journey" ? "spells" : "chapters"}</span>
-      </span>
-      <span className="sc-map-book__mark" aria-hidden="true">{active ? <Check size={17} /> : <ArrowRight size={17} />}</span>
-    </button>
   );
 }

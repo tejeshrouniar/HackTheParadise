@@ -1,24 +1,24 @@
 import { WorldMap } from "./WorldMap";
 
-/** The World Map is the only progression hub; the old Home trail duplicated it. */
+/** The book hub opens this shared, book-scoped level selection. */
 export default function Dashboard({
   bookId,
-  onBookChange,
   onQuest,
   onOpenBookChapter,
+  onBack,
 }: {
   bookId: string;
-  onBookChange: (id: string) => void;
   onQuest: (id: number) => void;
   onOpenBookChapter: (bookId: string, chapterId: string) => void;
+  onBack: () => void;
 }) {
   return (
     <div className="sc-page sc-world-map-page">
       <WorldMap
         bookId={bookId}
-        onBookChange={onBookChange}
         onQuest={onQuest}
         onOpenBookChapter={onOpenBookChapter}
+        onBack={onBack}
       />
     </div>
   );

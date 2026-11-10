@@ -11,6 +11,7 @@ Accessibility is part of the interaction model, not a final styling pass. These 
 - The user preference and operating-system reduced-motion settings feed `MotionConfig`; CSS disables selected decorative loops and transitions.
 - The soundtrack does not autoplay. Bundled narration has native audio controls and visible story text remains available when playback fails.
 - The layout uses responsive breakpoints, touch-sized trail controls, and form labels. Pixel art uses crisp rendering while preserving the surrounding text interface.
+- The bookshelf uses labeled native buttons to select books. Route and book page turns honor reduced-motion preferences; the shelf changes to a compact two-column layout on narrow screens.
 
 ## When changing a screen
 

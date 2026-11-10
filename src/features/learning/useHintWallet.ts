@@ -5,7 +5,7 @@ import { supabase } from "../../lib/supabase";
 type WalletSnapshot = {
   balance: number;
   unlimited?: boolean;
-  unlocks: { lesson_id: number; kind: string }[];
+  unlocks: { book_id?: string; lesson_id: number; kind: string }[];
 };
 
 /** Wallet state comes from authenticated RPCs; currency is never calculated or persisted in the browser. */
@@ -49,7 +49,7 @@ export function useHintWallet() {
     };
   }, [user?.id, attempt]);
 
-  async function buy(lesson: number, item: "hint" | "solution") {
+  async function buy(bookId: string, lesson: number, item: "hint" | "solution") {
     if (!user || !supabase || busy) return;
     const client = supabase;
     const id = user.id;
@@ -57,6 +57,7 @@ export function useHintWallet() {
     setError("");
     try {
       const { data, error: requestError } = await client.rpc("spend_sparks", {
+        book_key: bookId,
         lesson,
         item,
       });
@@ -91,7 +92,7 @@ export function useHintWallet() {
     signedIn: !!user,
     buy,
     refresh: () => retry((count) => count + 1),
-    owns: (id: number, kind: string) =>
-      !!current?.unlocks.some((unlock) => unlock.lesson_id === id && unlock.kind === kind),
+    owns: (id: number, kind: string, bookId = "cinder") =>
+      !!current?.unlocks.some((unlock) => (unlock.book_id ?? "cinder") === bookId && unlock.lesson_id === id && unlock.kind === kind),
   };
 }
