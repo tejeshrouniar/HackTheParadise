@@ -1,3 +1,8 @@
+import { GrimoireHeaderSlot } from "../features/library/Grimoire";
+import { LibraryHeader } from "../features/library/LibraryHeader";
+import { MagicalBookshelf } from "../features/library/MagicalBookshelf";
+import { LibraryUtilityPage } from "../features/library/LibraryUtilityPage";
+import { LIBRARY } from "../content/library";
 import { useProgress } from "../features/learning/ProgressContext";
 import { canEnterLevel, journeyProgress } from "../features/learning/journeyProgress";
 import { lazy, Suspense, useEffect, useState } from "react";
@@ -64,7 +69,7 @@ const routeFromHash = () => {
   if (route === "home" || !route) return "story";
   const bookRoute = route.match(/^book(?:-story)?\/([a-z0-9-]+)$/);
   const knownBookRoute = bookRoute && STORY_BOOKS.some((book) => book.id === bookRoute[1]);
-  if (knownBookRoute) return route;
+  if (knownBookRoute || /^library\/(theme|lore|profile|account|contact)$/.test(route)) return route;
   return /^(learn|story|community|settings|quest\/(?:[1-9]|1[0-2])|book-level\/[a-z0-9-]+)$/.test(route)
     ? route
     : "story";
@@ -78,6 +83,7 @@ export function AppShell() {
     () => window.matchMedia("(max-width:760px)").matches,
   );
   const [route, setRoute] = useState(routeFromHash);
+  const [headerSlot, setHeaderSlot] = useState<HTMLDivElement | null>(null);
   const [selectedBookId, setSelectedBookId] = useState<string>(() => {
     const routeMatch = routeFromHash().match(/^book(?:-story)?\/([a-z0-9-]+)$/);
     const routeBook = routeMatch && STORY_BOOKS.find((book) => book.id === routeMatch[1]);
@@ -106,6 +112,9 @@ export function AppShell() {
     writeLocal("storicode-active-book-v2", selectedBookId);
   }, [selectedBookId]);
   useEffect(() => {
+    if (route.startsWith("quest/")) setSelectedBookId("cinder");
+    const levelBook = STORY_BOOKS.find((book) => book.kind === "coding" && book.chapters.some((chapter) => `book-level/${chapter.chapterId}` === route));
+    if (levelBook) setSelectedBookId(levelBook.id);
     const match = route.match(/^book(?:-story)?\/([a-z0-9-]+)$/);
     if (match && STORY_BOOKS.some((book) => book.id === match[1])) setSelectedBookId(match[1]);
   }, [route]);
@@ -116,7 +125,7 @@ export function AppShell() {
     window.scrollTo({ top: 0, behavior: "instant" });
   }
   const openQuest = (id: number) => {
-    if (canEnterLevel(id, completed)) navigate(`quest/${id}`);
+    if (canEnterLevel(id, completed)) { setSelectedBookId("cinder"); navigate(`quest/${id}`); }
     else toast("Finish the earlier levels to unlock this part of the story.");
   };
   const openBookChapter = (bookId: string, chapterId: string) => {
@@ -162,37 +171,6 @@ export function AppShell() {
     media.addEventListener("change", changed);
     return () => media.removeEventListener("change", changed);
   }, []);
-  useEffect(() => {
-    if (!small || !mobile) return;
-    const previous = document.activeElement as HTMLElement | null;
-    const sidebar = document.querySelector<HTMLElement>(".sc-sidebar");
-    const items = () =>
-      Array.from(
-        sidebar?.querySelectorAll<HTMLElement>("button,a[href]") ?? [],
-      ).filter((e) => e.getClientRects().length);
-    items()[0]?.focus();
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const trap = (e: KeyboardEvent) => {
-      if (e.key !== "Tab") return;
-      const list = items(),
-        first = list[0],
-        last = list[list.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last?.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first?.focus();
-      }
-    };
-    document.addEventListener("keydown", trap);
-    return () => {
-      document.removeEventListener("keydown", trap);
-      document.body.style.overflow = overflow;
-      previous?.focus();
-    };
-  }, [small, mobile]);
   const openTools = () => {
     setMobile(false);
     setToolsMounted(true);
@@ -206,7 +184,7 @@ export function AppShell() {
       reducedMotion={preferences.reduced_motion ? "always" : "user"}
     >
       <div
-        className={`sc-app sc-adventure-shell ${route === "learn" ? "sc-on-home sc-on-map" : ""} ${route === "story" ? "sc-on-story" : ""} ${route.startsWith("quest/") || route.startsWith("book-level/") ? "sc-on-quest" : ""} ${route.startsWith("book-level/") ? "sc-on-book-level" : ""}`}
+        className={`sc-app sc-adventure-shell sc-magical-app ${route === "learn" ? "sc-on-home sc-on-map" : ""} ${route === "story" ? "sc-on-story" : ""} ${route.startsWith("quest/") || route.startsWith("book-level/") ? "sc-on-quest" : ""} ${route.startsWith("book-level/") ? "sc-on-book-level" : ""}`}
         data-book-theme={selectedBook.theme}
       >
         <a
@@ -219,124 +197,15 @@ export function AppShell() {
         >
           Skip to content
         </a>
-        {mobile && (
-          <button
-            className="sc-mobile-scrim"
-            aria-label="Close navigation"
-            onClick={() => setMobile(false)}
-          />
-        )}
-        <aside
-          className={`sc-sidebar ${mobile ? "open" : ""}`}
-          aria-label="Main navigation"
-          {...((small && !mobile) || tools ? { inert: "" } : {})}
-        >
-          <button className="sc-brand" aria-label="Storicode bookshelf" onClick={() => navigate("story")}>
-            <span>
-              <WandSparkles size={23} />
-            </span>
-            <strong>
-              storicode<span>.</span>
-            </strong>
-          </button>
-          <button
-            className="sc-mobile-close sc-icon-button"
-            aria-label="Close navigation"
-            onClick={() => setMobile(false)}
-          >
-            <X size={20} />
-          </button>
-
-          <nav>
-            {links.map(({ id, label, Icon }) => (
-              <button
-                key={id}
-                aria-current={id === "story" ? (route === "story" || route.startsWith("book/") || route.startsWith("book-story/")) ? "page" : undefined : route === id ? "page" : undefined}
-                className={id === "story" ? (route === "story" || route.startsWith("book/") || route.startsWith("book-story/")) ? "active" : "" : route === id ? "active" : ""}
-                onClick={() => navigate(id)}
-              >
-                <Icon size={20} />
-                <span>{label}</span>
-              </button>
-            ))}
-          </nav>
-          <div className="sc-sidebar-bottom">
-            <button
-              className="sc-sidebar-profile"
-              onClick={() => navigate("settings")}
-              aria-current={route === "settings" ? "page" : undefined}
-            >
-              {user ? (
-                <Avatar name={String(name)} url={avatar} />
-              ) : (
-                <Settings2 size={20} />
-              )}
-              <span>
-                <strong>{user ? name : "Settings"}</strong>
-                {user && <small>Account & settings</small>}
-              </span>
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        </aside>
-        <div
-          className="sc-workspace"
-          {...((small && mobile) || tools ? { inert: "" } : {})}
-        >
-          <header className="sc-topbar">
-            <div className="sc-topbar-location">
-              <button
-                className="sc-mobile-menu sc-icon-button"
-                aria-label="Open navigation"
-                aria-expanded={mobile}
-                onClick={() => setMobile(!mobile)}
-              >
-                <Menu size={22} />
-              </button>
-              <span className="sc-breadcrumb">
-                <strong>
-                  {route.startsWith("quest/")
-                    ? "Coding quest"
-                    : route.startsWith("book-level/") || route === "learn"
-                      ? "Play levels"
-                      : route.startsWith("book-story/")
-                        ? `${selectedBook.title} · Story`
-                        : route.startsWith("book/")
-                          ? selectedBook.title
-                    : route === "settings"
-                      ? "Settings"
-                      : links.find((l) => l.id === route)?.label}
-                </strong>
-              </span>
-            </div>
-            <div className="sc-topbar-actions">
-              <button
-                className="sc-search-trigger"
-                aria-label="Search quests"
-                onClick={() => setSearch(true)}
-              >
-                <Search size={17} />
-                <span>Search</span>
-              </button>
-              <button
-                className="sc-tools-trigger"
-                aria-label="Open tools"
-                onClick={openTools}
-              >
-                <Headphones size={18} />
-                <span>Tools</span>
-              </button>
-              {!user && (
-                <button
-                  className="sc-button sc-signin"
-                  onClick={() => setAuth(true)}
-                >
-                  <LogIn size={16} />
-                  <span>Sign in</span>
-                </button>
-              )}
-            </div>
-          </header>
+        <GrimoireHeaderSlot.Provider value={headerSlot}>
+        <LibraryHeader
+          onMenu={() => setMobile(true)} onLibrary={() => navigate("story")}
+          onProfile={() => user ? navigate("library/profile") : setAuth(true)}
+          onAccount={() => navigate("library/account")} onTools={openTools} onSearch={() => setSearch(true)}
+          headerRef={setHeaderSlot}
+          title={route === "story" ? "THE MAGICAL LIBRARY" : route.startsWith("library/") ? LIBRARY.find((book) => book.route === route)?.title ?? "Library" : selectedBook.title}
+        />
+        <div className="sc-workspace" {...(tools ? { inert: "" } : {})}>
           <main id="main-content" className="sc-route-turn" key={route} tabIndex={-1}>
             <Suspense fallback={<Loading label="Opening your workspace…" />}>
               {route.startsWith("book-level/") ? (
@@ -360,20 +229,12 @@ export function AppShell() {
                   onLessonChange={openQuest}
                 />
               ) : route === "story" ? (
-                <Story
-                  mode="shelf"
-                  selectedBookId={selectedBookId}
-                  chapterId={selectedChapterId}
-                  onBookOpen={(id) => {
-                    setSelectedBookId(id);
-                    setSelectedChapterId(null);
-                    navigate(`book/${id}`);
-                  }}
-                  onBookHome={() => navigate(`book/${selectedBookId}`)}
-                  onChapterChange={setSelectedChapterId}
-                  onPlayLevels={() => navigate("learn")}
-                  onCodeLevel={openBookLevel}
-                />
+                <MagicalBookshelf onOpen={(book) => {
+                  if (book.storyId) { setSelectedBookId(book.storyId); setSelectedChapterId(null); }
+                  navigate(book.route);
+                }} />
+              ) : route.startsWith("library/") ? (
+                <LibraryUtilityPage id={route.slice("library/".length)} onNavigate={navigate} onSignIn={() => setAuth(true)} onCharacter={() => setCharacter(true)} onTools={openTools} />
               ) : route.startsWith("book/") ? (
                 <BookHub
                   bookId={route.slice("book/".length)}
@@ -414,19 +275,20 @@ export function AppShell() {
           </main>
           <footer className="sc-site-footer"><strong>Storicode</strong><span>© 2026 Storicode</span><a href="https://github.com/tejeshrouniar/StoriCode" target="_blank" rel="noreferrer">Repository</a><a href="https://github.com/tejeshrouniar/StoriCode/issues" target="_blank" rel="noreferrer">Contact / feedback</a></footer>
         </div>
+        </GrimoireHeaderSlot.Provider>
+        <Modal open={mobile} onClose={() => setMobile(false)} title="Your library" description="Choose a book or a place to explore.">
+          <nav className="sc-library-menu" aria-label="Library navigation">
+            <button onClick={() => navigate("story")}><BookOpen size={18} /> Bookshelf</button>
+            {LIBRARY.map((book) => <button key={book.id} onClick={() => { if (book.storyId) setSelectedBookId(book.storyId); navigate(book.route); }}>{book.title}</button>)}
+            <button onClick={() => { setMobile(false); setSearch(true); }}><Search size={18} /> Search quests</button>
+          </nav>
+        </Modal>
         <AuthModal
           isOpen={auth}
           onClose={() => setAuth(false)}
           onGuest={() => {}}
           onAuthenticated={() => setAuth(false)}
         />
-        {!tools &&
-          !auth &&
-          !search &&
-          !journal &&
-          !playground &&
-          !character &&
-          !(small && mobile) && <MiniPlayer onOpen={openTools} />}
         <Modal
           open={
             !!profile && !profile.onboarding_completed && !isPasswordRecovery

@@ -11,6 +11,7 @@ interface StoryBookBase {
   background: string;
   musicTrackId: string;
   coverMark: string;
+  coverColor: string;
 }
 
 /** The main Cinder campaign remains backed by quest IDs and player_progress. */
@@ -47,6 +48,7 @@ export const STORY_BOOKS: readonly StoryBook[] = [
     background: "wizarding-library",
     musicTrackId: "volume-one-score",
     coverMark: "HP",
+    coverColor: "#70272f",
     chapters: BOOK_PUZZLES.filter((chapter) => chapter.bookId === "harry-potter"),
   },
   {
@@ -59,6 +61,7 @@ export const STORY_BOOKS: readonly StoryBook[] = [
     background: "lanternwood",
     musicTrackId: "meadow",
     coverMark: "C",
+    coverColor: "#9a4d29",
     chapters: JOURNEY,
   },
 ];

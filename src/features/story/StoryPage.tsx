@@ -1,3 +1,5 @@
+import { Grimoire } from "../library/Grimoire";
+import { MagicalBookshelf } from "../library/MagicalBookshelf";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, BookOpen, Check, Film, Headphones, LockKeyhole, Pause, Play } from "lucide-react";
 import { STORY_BOOKS, type CodingStoryBook, type JourneyStoryBook } from "../../content/storyBooks";
@@ -64,7 +66,7 @@ function CinderBook({
         })}
       </nav>
 
-      <div className="sc-volume-open sc-cinder-spread" key={chapter}>
+      <Grimoire className="sc-grimoire--reader" label="The Last Light storybook" coverColor={book.coverColor} pageKey={chapter} left={
         <article className="sc-volume-page sc-volume-page--story sc-cinder-page">
           <div className="sc-volume-page__number">CHAPTER {String(chapter + 1).padStart(2, "0")} <span>·</span> THE LAST LIGHT</div>
           <h3>{realm.title}</h3>
@@ -87,11 +89,11 @@ function CinderBook({
             {playingScore ? "Pause Cinder’s score" : "Listen to Cinder’s score"}
           </button>
         </article>
-        <div className="sc-volume-spine" aria-hidden="true" />
+        } right={
         <article className="sc-volume-page sc-volume-page--play sc-cinder-scene-page" aria-label={`${realm.place} story scene`}>
           <StoryCinema key={`cinder-scene-${chapter}`} chapter={chapter} musicTrackId={book.musicTrackId} onOpenMap={onPlayLevels} />
         </article>
-      </div>
+      } />
 
     </section>
   );
@@ -181,40 +183,10 @@ function HarryStoryFilms({
       </nav>
 
       {chapter ? (
-        <>
-          <div className="sc-harry-movie__screen">
-            <BookCutscene
-              chapter={chapter}
-              relicImage={BOOK_SCENE_ART[chapter.chapterId] ?? DEFAULT_BOOK_SCENE_ART}
-              characterImage={BOOK_SCENE_CHARACTERS[chapter.chapterId]}
-              completed
-              sequence={playSequence}
-              onNarrate={narrate}
-              narrating={speaking}
-            />
-          </div>
-          <div className="sc-harry-movie__details">
-            <article>
-              <span>THE CHAPTER</span>
-              <h3>{chapter.chapterTitle}</h3>
-              <p>{chapter.story}</p>
-              <p className="sc-harry-movie__outcome">{chapter.outcome}</p>
-            </article>
-            <aside>
-              <span>CODE LESSON</span>
-              <strong>{chapter.conceptName}</strong>
-              <p>{chapter.lesson}</p>
-              <button type="button" onClick={() => onCodeLevel(book.id, chapter.chapterId)}>Revisit this level <ArrowRight size={14} /></button>
-            </aside>
-          </div>
-          <div className="sc-harry-movie__score">
-            <button type="button" disabled={!soundtrack} onClick={() => soundtrack && (playingScore ? music.pause() : void music.play(soundtrack, [soundtrack]))}>
-              {playingScore ? <Pause size={15} /> : <Headphones size={15} />}
-              {playingScore ? "Pause this book’s score" : "Play this book’s score"}
-            </button>
-            <span>{status}</span>
-          </div>
-        </>
+        <Grimoire label={book.title + " story film"} coverColor={book.coverColor} pageKey={chapter.chapterId}
+          left={<><span className="sc-volume-kicker">THE CHAPTER</span><h1>{chapter.chapterTitle}</h1><p>{chapter.story}</p><p>{chapter.outcome}</p><hr /><h2>{chapter.conceptName}</h2><p>{chapter.lesson}</p><button className="sc-button" onClick={() => onCodeLevel(book.id, chapter.chapterId)}>Revisit this level <ArrowRight size={14} /></button><small>{status}</small></>}
+          right={<><BookCutscene chapter={chapter} relicImage={BOOK_SCENE_ART[chapter.chapterId] ?? DEFAULT_BOOK_SCENE_ART} characterImage={BOOK_SCENE_CHARACTERS[chapter.chapterId]} completed sequence={playSequence} onNarrate={narrate} narrating={speaking} /><button className="sc-button secondary" disabled={!soundtrack} onClick={() => soundtrack && (playingScore ? music.pause() : void music.play(soundtrack, [soundtrack]))}>{playingScore ? "Pause score" : "Play this book’s score"}</button></>}
+        />
       ) : (
         <div className="sc-harry-movie__empty">
           <Film size={30} aria-hidden="true" />
@@ -248,51 +220,7 @@ export default function StoryPage({ mode, selectedBookId, chapterId, onBookOpen,
     ? requestedCinderChapter
     : progress.chapter;
 
-  if (mode === "shelf") {
-    const shelfBooks = [...STORY_BOOKS].sort((a, b) => Number(a.kind !== "journey") - Number(b.kind !== "journey"));
-    return (
-      <div className="sc-page sc-story-library">
-        <header className="sc-library-heading">
-          <div className="sc-library-heading__mark" aria-hidden="true"><BookOpen size={23} /></div>
-          <div>
-            <span className="sc-volume-kicker">STORICODE · THE LIBRARY</span>
-            <h1>Bookshelf</h1>
-            <p>Choose a book to begin.</p>
-          </div>
-        </header>
-
-        <nav className="sc-story-shelf" aria-label="Storybooks">
-          {shelfBooks.map((book) => {
-            const cleared = book.kind === "journey"
-              ? progress.cleared
-              : book.chapters.filter((chapter) => bookProgress.completed.includes(chapter.chapterId)).length;
-            const total = book.kind === "journey" ? 12 : book.chapters.length;
-            return (
-              <button
-                key={book.id}
-                className={`sc-story-shelf__book sc-story-shelf__book--${book.theme}`}
-                type="button"
-                aria-label={`Open ${book.title}, ${book.kind === "journey" ? "beginner tutorial" : "main story"}, ${cleared} of ${total} complete`}
-                onClick={() => onBookOpen(book.id)}
-              >
-                <span className={`sc-story-shelf__cover sc-story-shelf__cover--${book.theme}`} aria-hidden="true">
-                  <img src={book.kind === "journey" ? lanternwood : greatHall} alt="" />
-                  <small>{book.kind === "journey" ? "TUTORIAL" : "MAIN STORY"}</small><strong>{book.coverMark}</strong><i />
-                </span>
-                <span className="sc-story-shelf__details">
-                  <span className="sc-story-shelf__kind">{book.kind === "journey" ? "BEGINNER TUTORIAL" : "FEATURED STORY"}</span>
-                  <strong>{book.title}</strong>
-                  <span className="sc-story-shelf__description">{book.description}</span>
-                  <small>{cleared}/{total} {book.kind === "journey" ? "spells restored" : "chapters solved"}</small>
-                  <span className="sc-story-shelf__open">OPEN BOOK <ArrowRight size={14} /></span>
-                </span>
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-    );
-  }
+  if (mode === "shelf") return <MagicalBookshelf onOpen={(book) => book.storyId ? onBookOpen(book.storyId) : location.hash = '/' + book.route} />;
 
   return (
     <div className={`sc-page sc-story-reader sc-book-theme--${selectedBook.theme}`} data-book-theme={selectedBook.theme}>

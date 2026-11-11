@@ -1,3 +1,4 @@
+import { Grimoire } from "../library/Grimoire";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { SparkUnlock } from "./SparkUnlock";
@@ -89,7 +90,7 @@ export function BookCompletionSpread({
       className={`sc-quest-aftermath sc-completion-page sc-completion-page--${theme}`}
       aria-label={`${bookTitle} chapter complete`}
     >
-      <div className="sc-completion-spread">
+      <Grimoire className="sc-grimoire--completion" coverColor={theme === "cinder" ? "#9a4d29" : "#70272f"} label={`${bookTitle} completed spell`} pageKey={lessonId} left={
         <article className="sc-completion-page__leaf sc-completion-page__leaf--story">
           <header className="sc-completion-page__heading">
             <span className="sc-eyebrow">{chapterLabel}</span>
@@ -171,7 +172,7 @@ export function BookCompletionSpread({
           </div>
         </article>
 
-        <div className="sc-completion-page__spine" aria-hidden="true" />
+        } right={
 
         <article className="sc-completion-page__leaf sc-completion-page__leaf--play">
           <div className={`sc-completion-page__scene sc-completion-page__scene--${theme}`} aria-label={`${title} movie scene`}>
@@ -183,7 +184,7 @@ export function BookCompletionSpread({
             {!canContinue && onSkipAnimation && <button className="sc-link" type="button" onClick={onSkipAnimation}>Skip animation</button>}
           </div>
         </article>
-      </div>
+      } />
     </section>
   );
 }

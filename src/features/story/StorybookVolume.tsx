@@ -1,3 +1,4 @@
+import { Grimoire, ChapterNavigation, ExecutionTrace } from "../library/Grimoire";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, Headphones, LockKeyhole, RotateCcw, Target, Volume2, VolumeX } from "lucide-react";
 import toast from "react-hot-toast";
@@ -40,6 +41,8 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
   const [sceneSequence, setSceneSequence] = useState(0);
   const [localOutcomeId, setLocalOutcomeId] = useState<string | null>(null);
   const [showCompletion, setShowCompletion] = useState(false);
+  const liveRun = useRef(0);
+  useEffect(() => () => { liveRun.current++; }, []);
   const chapterGuideRef = useRef<HTMLDetailsElement>(null);
   const chapter = book.chapters.find((item) => item.chapterId === selectedId) ?? book.chapters[0];
   const completedSet = useMemo(() => new Set(completed), [completed]);
@@ -124,17 +127,21 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
 
   async function runSpell() {
     if (!chapter || !previousChaptersComplete || busy) return;
+    const run = ++liveRun.current;
     setBusy(true);
     setNotice("");
     setErrorsById((current) => ({ ...current, [chapter.chapterId]: null }));
     try {
+      // Let the casting state paint; cancel if this page is left before execution.
+      await new Promise((resolve) => setTimeout(resolve, 420));
+      if (run !== liveRun.current) return;
       const outcome = runPuzzleTests(code, chapter.functionName, chapter.tests);
       setResultsById((current) => ({ ...current, [chapter.chapterId]: outcome }));
       setConsoleById((current) => ({
         ...current,
         [chapter.chapterId]: [
           `$ storicode run · ${chapter.title}`,
-          ...outcome.map((item) => `${item.passed ? "✓" : "✕"} ${item.label}${item.passed ? "" : ` · got ${formatPuzzleValue(item.actual)}`}`),
+          ...outcome.flatMap((item) => [...item.trace, `${item.passed ? "✓" : "✕"} ${item.label} · ${formatPuzzleValue(item.actual)}`]),
         ],
       }));
       if (outcome.every((item) => item.passed)) {
@@ -205,7 +212,9 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
   }
 
   return (
-    <section className={`sc-story-volume sc-simple-quest sc-volume--${book.theme} sc-coding-book--${book.theme}`} aria-labelledby="sc-volume-heading">
+    <section className={`sc-story-volume sc-simple-quest sc-volume--${book.theme} sc-coding-book--${book.theme} sc-grimoire-quest`} aria-labelledby="sc-volume-heading">
+      <ChapterNavigation title={chapter.chapterTitle} number={chapterIndex + 1} disabled={busy} onPrevious={chapterIndex > 0 ? () => setChapter(book.chapters[chapterIndex - 1].chapterId) : undefined} onNext={chapterIndex < book.chapters.length - 1 && canOpenChapter(chapterIndex + 1) ? () => setChapter(book.chapters[chapterIndex + 1].chapterId) : undefined} />
+      <details className="sc-grimoire-chapter-directory"><summary>All chapters</summary>
       <nav className="sc-volume-index" aria-label={`${book.title} chapter index`}>
         {book.chapters.map((item, index) => {
           const unlocked = canOpenChapter(index);
@@ -224,7 +233,7 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
             </button>
           );
         })}
-      </nav>
+      </nav></details>
 
       <div className="sc-quest-topline">
         <span>Chapter {String(chapterIndex + 1).padStart(2, "0")} of {book.chapters.length}</span>
@@ -240,7 +249,7 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
         </button>
       </header>
 
-      <div className="sc-coding-layout sc-coding-book-spread" key={chapter.chapterId}>
+      <Grimoire label={`${book.title} spellbook`} coverColor={book.coverColor} className="sc-grimoire--coding" pageKey={chapter.chapterId} left={
         <CodingEditorPanel
           code={code}
           onCodeChange={(next) => {
@@ -288,7 +297,8 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
           {notice && <p className="sc-volume-notice" role="status">{notice}</p>}
         </CodingEditorPanel>
 
-        <section className="sc-card sc-live-world sc-volume-live-world" aria-label={`${chapter.chapterTitle} live scene`}>
+        } right={<>
+        <section data-cast={errorsById[chapter.chapterId] || (results && !results.every((item) => item.passed)) ? "failed" : busy ? "casting" : "ready"} className="sc-card sc-live-world sc-volume-live-world" aria-label={`${chapter.chapterTitle} live scene`}>
           <header>
             <h2>{chapter.subtitle.split(" · ")[0]}</h2>
             <span className={goalReached ? "complete" : ""}>{goalReached ? "Complete" : busy ? "Checking" : "Ready"}</span>
@@ -317,12 +327,14 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
                 ? `Goal · ${passedChecks} of ${chapter.tests.length} checks passed`
                 : `Goal · pass all ${chapter.tests.length} chapter checks`}
           </p>
+        </section>
+        <ExecutionTrace running={busy} logs={consoleById[chapter.chapterId] ?? []}>
           <section className="sc-volume-checks" aria-label="Level goal checks" aria-live="polite">
             <h3><span>Goal checks</span><small>{goalReached ? chapter.tests.length : passedChecks} / {chapter.tests.length}</small></h3>
             <ol>
               {chapter.tests.map((test, index) => {
                 const result = results?.[index];
-                const passed = goalReached || result?.passed === true;
+                const passed = result ? result.passed : goalReached;
                 const failed = !passed && result?.passed === false;
                 return (
                   <li key={test.label} data-state={passed ? "passed" : failed ? "failed" : "waiting"}>
@@ -346,8 +358,8 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
               </button>
             </div>
           )}
-        </section>
-      </div>
+        </ExecutionTrace>
+        </>} />
 
       <footer className="sc-volume-footer">
         <span>{progressStatus}</span>

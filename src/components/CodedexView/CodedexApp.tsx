@@ -1,3 +1,6 @@
+import { Grimoire, ChapterNavigation, ExecutionTrace } from "../../features/library/Grimoire";
+import { useProgress } from "../../features/learning/ProgressContext";
+import { canEnterLevel } from "../../features/learning/journeyProgress";
 import { CodingEditorPanel } from "../../features/learning/CodingEditorPanel";
 import { QuestAftermath } from "../../features/learning/QuestAftermath";
 import { realmForLesson } from "../../content/journey";
@@ -24,6 +27,7 @@ export const CodedexApp = ({
   onExit?: () => void;
   onLessonChange?: (id: number) => void;
 }) => {
+  const { completed } = useProgress();
   const state = useQuestEngine(initialLessonId, onLessonChange);
   const worldRef = useRef<HTMLElement>(null);
   const {
@@ -65,7 +69,8 @@ export const CodedexApp = ({
   if (questSuccess && !crossing) return <QuestAftermath key={lesson.id} id={lesson.id} code={code} logs={terminalLogs} onContinue={lesson.id < CODEDEX_LESSONS.length ? handleNextQuest : onExit}/>;
 
   return (
-    <div className="sc-page sc-simple-quest sc-coding-book--cinder">
+    <div className="sc-page sc-simple-quest sc-coding-book--cinder sc-grimoire-quest">
+      <ChapterNavigation title={lesson.title} number={lesson.id} disabled={isExecuting} onPrevious={lesson.id > 1 ? () => onLessonChange?.(lesson.id - 1) : undefined} onNext={lesson.id < CODEDEX_LESSONS.length && canEnterLevel(lesson.id + 1, completed) ? () => onLessonChange?.(lesson.id + 1) : undefined} />
       <div className="sc-quest-topline">
         <button className="sc-link sc-context-back" onClick={onExit}>
           <ArrowLeft size={16} />
@@ -104,7 +109,7 @@ export const CodedexApp = ({
           </p>
         )}
       </header>
-      <div className="sc-coding-layout sc-coding-book-spread">
+      <Grimoire label="The Last Light spellbook" coverColor="#9a4d29" className="sc-grimoire--coding" pageKey={lesson.id} left={
         <CodingEditorPanel
           code={code}
           onCodeChange={(next) => {
@@ -145,7 +150,8 @@ export const CodedexApp = ({
           textareaRef={textareaRef}
           consoleLogs={terminalLogs}
         />
-        <section className="sc-card sc-live-world" ref={worldRef}>
+        } right={<>
+        <section className="sc-card sc-live-world" ref={worldRef} data-cast={errorPointer ? "failed" : isExecuting ? "casting" : "ready"}>
           <header>
             <h2>{currentStageInfo.name}</h2>
             <span className={questSuccess ? "complete" : ""}>
@@ -186,7 +192,8 @@ export const CodedexApp = ({
           </p>
 
         </section>
-      </div>
+        <ExecutionTrace logs={terminalLogs} running={isExecuting} />
+        </>} />
       <QuestDialogs state={state} />
     </div>
   );

@@ -13,6 +13,7 @@ import "./styles/features.css";
 import "./styles/worlds.css";
 // Keep the shared book-led visual system after feature CSS so routes stay consistent.
 import "./styles/library-ui.css";
+import "./styles/grimoire.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

@@ -24,6 +24,7 @@ export interface PuzzleTestResult {
   expected: PuzzleValue;
   actual: PuzzleValue;
   passed: boolean;
+  trace: string[];
 }
 
 interface SourceLine {
@@ -458,6 +459,12 @@ interface FunctionDefinition {
 interface Runtime {
   functions: Map<string, FunctionDefinition>;
   work: number;
+  trace: string[];
+}
+
+// Trace only actual interpreter work, with bounds independent of the work limit.
+function traceStep(runtime: Runtime, line: number, description: string) {
+  if (runtime.trace.length < 80) runtime.trace.push(`Line ${line}: ${description.slice(0, 180)}`);
 }
 
 const truthy = (value: PuzzleValue): boolean => {
@@ -760,9 +767,14 @@ function execute(statements: Statement[], env: Environment, runtime: Runtime, de
         if (runtime.functions.has(statement.name)) throw new PuzzleCodeError(`Function '${statement.name}' is defined more than once.`, statement.line);
         runtime.functions.set(statement.name, { params: statement.params, body: statement.body, line: statement.line });
         break;
-      case "return": return { returned: true, value: evalExpression(statement.value, env, runtime, statement.line) };
+      case "return": {
+        const value = evalExpression(statement.value, env, runtime, statement.line);
+        traceStep(runtime, statement.line, `return ${displayString(value)}`);
+        return { returned: true, value };
+      }
       case "assign": {
         const value = evalExpression(statement.value, env, runtime, statement.line);
+        traceStep(runtime, statement.line, `${statement.names.join(", ")} = ${displayString(value)}`);
         if (statement.names.length === 1) env.set(statement.names[0], value);
         else {
           if (!Array.isArray(value) || value.length !== statement.names.length) throw new PuzzleCodeError("Unpack the same number of values as variable names.", statement.line);
@@ -778,6 +790,7 @@ function execute(statements: Statement[], env: Environment, runtime: Runtime, de
           right: statement.value,
         }, env, runtime, statement.line);
         env.set(statement.name, value);
+        traceStep(runtime, statement.line, `${statement.name} = ${displayString(value)}`);
         break;
       }
       case "for": {
@@ -785,6 +798,7 @@ function execute(statements: Statement[], env: Environment, runtime: Runtime, de
         if (values.length > 100) throw new PuzzleCodeError("Keep each loop to 100 values or fewer.", statement.line);
         for (const value of values) {
           env.set(statement.name, value);
+          traceStep(runtime, statement.line, `repeat with ${statement.name} = ${displayString(value)}`);
           const result = execute(statement.body, env, runtime, depth);
           if (result.returned) return result;
         }
@@ -793,6 +807,7 @@ function execute(statements: Statement[], env: Environment, runtime: Runtime, de
       case "if": {
         for (const branch of statement.branches) {
           if (!branch.test || truthy(evalExpression(branch.test, env, runtime, statement.line))) {
+            traceStep(runtime, statement.line, branch.test ? "condition matched" : "take the else branch");
             const result = execute(branch.body, env, runtime, depth);
             if (result.returned) return result;
             break;
@@ -802,6 +817,7 @@ function execute(statements: Statement[], env: Environment, runtime: Runtime, de
       }
       case "expression":
         evalExpression(statement.value, env, runtime, statement.line);
+        traceStep(runtime, statement.line, "instruction executed");
         break;
     }
   }
@@ -832,17 +848,18 @@ export function runPuzzleTests(code: string, functionName: string, cases: Puzzle
   const results: PuzzleTestResult[] = [];
   for (const testCase of cases) {
     if (testCase.input.length !== target.params.length) throw new PuzzleCodeError(`${functionName} needs ${target.params.length} parameter(s).`, target.line);
-    const runtime: Runtime = { functions: new Map(), work: 0 };
+    const runtime: Runtime = { functions: new Map(), work: 0, trace: [] };
     const globals = new Environment();
     for (const statement of program) {
       if (statement.kind === "function") runtime.functions.set(statement.name, { params: statement.params, body: statement.body, line: statement.line });
       else execute([statement], globals, runtime);
     }
     const args = testCase.input.map(cloneValue);
+    traceStep(runtime, target.line, `${functionName}(${args.map(displayString).join(", ")})`);
     const actual = invoke(functionName, args, globals, runtime, target.line, 0);
     assertValue(actual, target.line);
     const expected = cloneValue(testCase.expected);
-    results.push({ label: testCase.label, input: testCase.input.map(cloneValue), expected, actual, passed: equal(actual, expected) });
+    results.push({ label: testCase.label, input: testCase.input.map(cloneValue), expected, actual, passed: equal(actual, expected), trace: runtime.trace });
   }
   return results;
 }

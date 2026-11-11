@@ -1,3 +1,4 @@
+import { Grimoire } from "../library/Grimoire";
 import { ArrowLeft, ArrowRight, BookOpen, Check, Film, LockKeyhole, Map } from "lucide-react";
 import { STORY_BOOKS } from "../../content/storyBooks";
 import { useProgress } from "../learning/ProgressContext";
@@ -34,22 +35,10 @@ export function BookHubPage({ bookId, onShelf, onPlayLevels, onReadStory }: Book
         <ArrowLeft size={16} /> Bookshelf
       </button>
 
-      <header className="sc-book-hub__heading">
-        <div>
-          <span className="sc-volume-kicker">{book.kind === "journey" ? "BEGINNER TUTORIAL" : "FEATURED ADVENTURE"} · {book.chapters.length} CHAPTERS</span>
-          <h1>{book.title}</h1>
-          <p>{book.description}</p>
-        </div>
-        <div className="sc-book-hub__progress" aria-label={`${cleared} of ${total} levels complete`}>
-          <strong>{cleared}<span> / {total}</span></strong>
-          <small>{book.kind === "journey" ? "spells restored" : "levels solved"}</small>
-        </div>
-      </header>
-
-      <section className="sc-book-hub__spread" aria-label={`${book.title} book` }>
+      <Grimoire label={`${book.title} book`} coverColor={book.coverColor} pageKey={book.id} left={
         <article className="sc-book-hub__page sc-book-hub__page--intro">
           <div className="sc-volume-page__number">YOUR ADVENTURE <span>·</span> {book.kind === "journey" ? "TUTORIAL" : "MAIN STORY"}</div>
-          <h2>{book.title}</h2>
+          <h1>{book.title}</h1>
           <p className="sc-book-hub__subtitle">{book.subtitle}</p>
           <div className="sc-book-hub__road" aria-label={`${chapterCount} of ${book.chapters.length} chapters complete`}>
             <div><span>YOUR PROGRESS</span><strong>{chapterCount} / {book.chapters.length} chapters</strong></div>
@@ -72,7 +61,7 @@ export function BookHubPage({ bookId, onShelf, onPlayLevels, onReadStory }: Book
           </div>
         </article>
 
-        <div className="sc-book-hub__spine" aria-hidden="true" />
+        } right={
 
         <article className="sc-book-hub__page sc-book-hub__page--contents">
           <figure className="sc-book-hub__scene">
@@ -98,7 +87,7 @@ export function BookHubPage({ bookId, onShelf, onPlayLevels, onReadStory }: Book
           </ol>
           <p className="sc-book-hub__footnote"><BookOpen size={14} /> Each book keeps its own story and progress.</p>
         </article>
-      </section>
+      } />
     </div>
   );
 }
