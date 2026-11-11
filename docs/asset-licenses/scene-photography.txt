@@ -1,0 +1,12 @@
+LICENSE - High-Resolution Scenic Photography (Unsplash License)
+
+Images included:
+- src/assets/storybooks/scenes/hogwarts-library-hd.webp
+  Gothic vaulted architecture & library hall interior
+- src/assets/storybooks/scenes/lanternwood-hd.webp
+  Enchanted misty forest and pine woodlands (Yosemite / Pacific NW)
+- src/assets/storybooks/scenes/parchment-texture-hd.webp
+  Vintage aged beige paper texture by Safwan Thottoli
+
+License: Unsplash License (Commercial and non-commercial use permitted, no permission or attribution required).
+Attribution and appreciation to Unsplash creators.

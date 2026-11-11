@@ -109,7 +109,10 @@ export const CodedexApp = ({
           </p>
         )}
       </header>
-      <Grimoire label="The Last Light spellbook" coverColor="#9a4d29" className="sc-grimoire--coding" pageKey={lesson.id} left={
+      <Grimoire label="The Last Light spellbook" coverColor="#9a4d29" className="sc-grimoire--coding" pageKey={lesson.id}
+        onPreviousPage={lesson.id > 1 ? () => onLessonChange?.(lesson.id - 1) : undefined}
+        onNextPage={lesson.id < CODEDEX_LESSONS.length && canEnterLevel(lesson.id + 1, completed) ? () => onLessonChange?.(lesson.id + 1) : undefined}
+        left={
         <CodingEditorPanel
           code={code}
           onCodeChange={(next) => {

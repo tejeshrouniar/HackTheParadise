@@ -646,6 +646,42 @@ class SoundSystem {
     this.playBubble();
   }
 
+  /** Soft rustling parchment page turn sound synthesized with filtered noise and resonance */
+  public playPageTurn() {
+    this.initCtx();
+    if (this.isMuted || !this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      const bufferSize = Math.floor(this.ctx.sampleRate * 0.28);
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        const envelope = Math.sin((i / bufferSize) * Math.PI) * Math.exp(-i / (bufferSize * 0.45));
+        data[i] = (Math.random() * 2 - 1) * envelope;
+      }
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(1200, now);
+      filter.frequency.exponentialRampToValueAtTime(320, now + 0.26);
+      filter.Q.value = 1.4;
+
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.linearRampToValueAtTime(0.25, now + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+      noise.start(now);
+    } catch {
+      // AudioContext unavailable or blocked by autoplay policy
+    }
+  }
+
   // Ambience state accessor (used by Navbar for BGM toggle display)
   public isAmbienceActive(): boolean {
     return this.isBgmActive;

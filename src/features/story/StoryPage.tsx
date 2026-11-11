@@ -66,7 +66,10 @@ function CinderBook({
         })}
       </nav>
 
-      <Grimoire className="sc-grimoire--reader" label="The Last Light storybook" coverColor={book.coverColor} pageKey={chapter} left={
+      <Grimoire className="sc-grimoire--reader" label="The Last Light storybook" coverColor={book.coverColor} pageKey={chapter}
+        onPreviousPage={chapter > 0 ? () => setChapter(chapter - 1) : undefined}
+        onNextPage={chapter < book.chapters.length - 1 && chapter < Math.floor(cleared / 3) ? () => setChapter(chapter + 1) : undefined}
+        left={
         <article className="sc-volume-page sc-volume-page--story sc-cinder-page">
           <div className="sc-volume-page__number">CHAPTER {String(chapter + 1).padStart(2, "0")} <span>·</span> THE LAST LIGHT</div>
           <h3>{realm.title}</h3>
@@ -184,6 +187,8 @@ function HarryStoryFilms({
 
       {chapter ? (
         <Grimoire label={book.title + " story film"} coverColor={book.coverColor} pageKey={chapter.chapterId}
+          onPreviousPage={unlocked.findIndex((item) => item.chapterId === chapter.chapterId) > 0 ? () => onChapterChange(unlocked[unlocked.findIndex((item) => item.chapterId === chapter.chapterId) - 1].chapterId) : undefined}
+          onNextPage={unlocked.findIndex((item) => item.chapterId === chapter.chapterId) < unlocked.length - 1 ? () => onChapterChange(unlocked[unlocked.findIndex((item) => item.chapterId === chapter.chapterId) + 1].chapterId) : undefined}
           left={<><span className="sc-volume-kicker">THE CHAPTER</span><h1>{chapter.chapterTitle}</h1><p>{chapter.story}</p><p>{chapter.outcome}</p><hr /><h2>{chapter.conceptName}</h2><p>{chapter.lesson}</p><button className="sc-button" onClick={() => onCodeLevel(book.id, chapter.chapterId)}>Revisit this level <ArrowRight size={14} /></button><small>{status}</small></>}
           right={<><BookCutscene chapter={chapter} relicImage={BOOK_SCENE_ART[chapter.chapterId] ?? DEFAULT_BOOK_SCENE_ART} characterImage={BOOK_SCENE_CHARACTERS[chapter.chapterId]} completed sequence={playSequence} onNarrate={narrate} narrating={speaking} /><button className="sc-button secondary" disabled={!soundtrack} onClick={() => soundtrack && (playingScore ? music.pause() : void music.play(soundtrack, [soundtrack]))}>{playingScore ? "Pause score" : "Play this book’s score"}</button></>}
         />

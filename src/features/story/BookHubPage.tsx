@@ -1,11 +1,12 @@
 import { Grimoire } from "../library/Grimoire";
+import { Grimoire3DCanvas } from "../library/Grimoire3DCanvas";
 import { ArrowLeft, ArrowRight, BookOpen, Check, Film, LockKeyhole, Map } from "lucide-react";
 import { STORY_BOOKS } from "../../content/storyBooks";
 import { useProgress } from "../learning/ProgressContext";
 import { journeyProgress } from "../learning/journeyProgress";
 import { useBookProgress } from "./useBookProgress";
-import greatHall from "../../assets/storybooks/relics/great-hall.webp";
-import lanternwood from "../../assets/realms/lanternwood.png";
+import greatHall from "../../assets/storybooks/scenes/hogwarts-library-hd.webp";
+import lanternwood from "../../assets/storybooks/scenes/lanternwood-hd.webp";
 
 interface BookHubPageProps {
   bookId: string;
@@ -39,6 +40,7 @@ export function BookHubPage({ bookId, onShelf, onPlayLevels, onReadStory }: Book
         <article className="sc-book-hub__page sc-book-hub__page--intro">
           <div className="sc-volume-page__number">YOUR ADVENTURE <span>·</span> {book.kind === "journey" ? "TUTORIAL" : "MAIN STORY"}</div>
           <h1>{book.title}</h1>
+          <Grimoire3DCanvas coverColor={book.coverColor} />
           <p className="sc-book-hub__subtitle">{book.subtitle}</p>
           <div className="sc-book-hub__road" aria-label={`${chapterCount} of ${book.chapters.length} chapters complete`}>
             <div><span>YOUR PROGRESS</span><strong>{chapterCount} / {book.chapters.length} chapters</strong></div>

@@ -249,7 +249,10 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
         </button>
       </header>
 
-      <Grimoire label={`${book.title} spellbook`} coverColor={book.coverColor} className="sc-grimoire--coding" pageKey={chapter.chapterId} left={
+      <Grimoire label={`${book.title} spellbook`} coverColor={book.coverColor} className="sc-grimoire--coding" pageKey={chapter.chapterId}
+        onPreviousPage={chapterIndex > 0 ? () => setChapter(book.chapters[chapterIndex - 1].chapterId) : undefined}
+        onNextPage={chapterIndex < book.chapters.length - 1 && canOpenChapter(chapterIndex + 1) ? () => setChapter(book.chapters[chapterIndex + 1].chapterId) : undefined}
+        left={
         <CodingEditorPanel
           code={code}
           onCodeChange={(next) => {
