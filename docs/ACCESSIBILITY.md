@@ -12,7 +12,7 @@ Accessibility is part of the interaction model, not a final styling pass. These 
 - The soundtrack does not autoplay. Tutorial quest-completion narration attempts to start with its scene; when a browser blocks autoplay, labeled play and seek controls remain available. Visible story text stays on the page, and browser text-to-speech controls remain keyboard operable.
 - The layout uses responsive breakpoints, touch-sized trail controls, and form labels. Pixel art uses crisp rendering while preserving the surrounding text interface.
 - The bookshelf uses labeled native buttons to select books. Route and book page turns honor reduced-motion preferences; the shelf changes to a compact two-column layout on narrow screens.
-- The welcome page uses native buttons to enter the shelf or open either active book. Its smooth scroll and animated book/route covers are disabled by the saved or operating-system reduced-motion preference; route navigation remains usable without animation.
+- The library foyer uses labeled native buttons for each collection doorway; it does not require a pointer or show books. Each bookshelf uses labeled buttons for its titles and has collection tabs. Door, lamp, and route-cover movement respects the saved or operating-system reduced-motion preference.
 - Bookshelf search announces the result count. Escape clears the filter and returns focus to Search. The coding editor can restore a draft after reset and focus the line associated with an error.
 
 ## When changing a screen

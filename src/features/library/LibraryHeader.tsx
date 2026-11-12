@@ -1,4 +1,4 @@
-import { BookOpen, Headphones, Menu, Search, UserRound, Zap } from "lucide-react";
+import { DoorOpen, Headphones, Menu, Search, UserRound, Zap } from "lucide-react";
 import { useHintWallet } from "../learning/useHintWallet";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProfile } from "../profile/ProfileContext";
@@ -14,7 +14,7 @@ export function LibraryHeader({ onMenu, onLibrary, onProfile, onAccount, onTools
   return <header className="sc-library-header">
     <div className="sc-library-header__start">
       <button className="sc-library-header__icon" onClick={onMenu} aria-label="Open library menu"><Menu size={21} /></button>
-      <button className="sc-library-header__brand" onClick={onLibrary} aria-label="Hack The Paradise home"><BookOpen size={21} /><span>Hack The Paradise</span></button>
+      <button className="sc-library-header__brand" onClick={onLibrary} aria-label="Hack The Paradise library foyer"><DoorOpen size={21} /><span>Hack The Paradise</span></button>
     </div>
     <div className="sc-library-header__chapter" ref={headerRef}><span className="sc-library-header__fallback">{title}</span></div>
     <div className="sc-library-header__actions">
