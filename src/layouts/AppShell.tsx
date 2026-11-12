@@ -68,7 +68,8 @@ const links = [
 // Hash routes keep direct links working on static hosting without server rewrites.
 const routeFromHash = () => {
   const route = location.hash.slice(2);
-  if (route === "home" || !route) return "story";
+  if (route === "home") return "story";
+  if (!route) return "entrance";
   const bookRoute = route.match(/^book(?:-story)?\/([a-z0-9-]+)$/);
   const knownBookRoute = bookRoute && STORY_BOOKS.some((book) => book.id === bookRoute[1]);
   if (knownBookRoute || /^library\/(theme|lore|profile|account|contact)$/.test(route)) return route;
@@ -80,6 +81,15 @@ const levelRoutes = [
   ...Array.from({ length: 12 }, (_, index) => `quest/${index + 1}`),
   ...STORY_BOOKS.flatMap(book => book.kind === "coding" ? book.chapters.map(chapter => `book-level/${chapter.chapterId}`) : []),
 ];
+function pageTurnDirection(from: string, to: string): "next" | "previous" {
+  const fromLevel = levelRoutes.indexOf(from);
+  const toLevel = levelRoutes.indexOf(to);
+  if (fromLevel >= 0 && toLevel >= 0) return toLevel < fromLevel ? "previous" : "next";
+  if (to === "entrance" || to === "story" || to.startsWith("book/") && !from.startsWith("story")) return "previous";
+  if (from === "story" || from.startsWith("book/")) return "next";
+  if (from.startsWith("book-story/") && to.startsWith("book-level/")) return "previous";
+  return "next";
+}
 export function AppShell() {
   const { user, isPasswordRecovery, signOut } = useAuth();
   const { completed } = useProgress();
@@ -88,12 +98,20 @@ export function AppShell() {
   const [small, setSmall] = useState(
     () => window.matchMedia("(max-width:760px)").matches,
   );
-  const [{ route, previousRoute }, setRouteState] = useState(() => ({ route: routeFromHash(), previousRoute: "" }));
+  const [{ route, previousRoute, pageTurn }, setRouteState] = useState<{
+    route: string;
+    previousRoute: string;
+    pageTurn: "next" | "previous";
+  }>(() => ({ route: routeFromHash(), previousRoute: "", pageTurn: "next" }));
   const previousLevel = levelRoutes.indexOf(previousRoute);
   const currentLevel = levelRoutes.indexOf(route);
   const levelTurn = previousLevel >= 0 && currentLevel >= 0 ? (currentLevel < previousLevel ? "previous" : "next") : undefined;
   function setRoute(next: string) {
-    setRouteState(current => current.route === next ? current : { route: next, previousRoute: current.route });
+    setRouteState(current => current.route === next ? current : {
+      route: next,
+      previousRoute: current.route,
+      pageTurn: pageTurnDirection(current.route, next),
+    });
   }
   const [headerSlot, setHeaderSlot] = useState<HTMLDivElement | null>(null);
   const [selectedBookId, setSelectedBookId] = useState<string>(() => {
@@ -212,16 +230,26 @@ export function AppShell() {
         </a>
         <PageTurnProvider routeDirection={levelTurn}><GrimoireHeaderSlot.Provider value={headerSlot}>
         <LibraryHeader
-          onMenu={() => setMobile(true)} onLibrary={() => navigate("story")}
+          onMenu={() => setMobile(true)} onLibrary={() => navigate("entrance")}
           onProfile={() => user ? navigate("library/profile") : setAuth(true)}
           onAccount={() => navigate("library/account")} onTools={openTools} onSearch={() => setSearch(true)}
           headerRef={setHeaderSlot}
-          title={route === "story" ? "THE MAGICAL LIBRARY" : route.startsWith("library/") ? LIBRARY.find((book) => book.route === route)?.title ?? "Library" : selectedBook.title}
+          title={route === "entrance" ? "WELCOME TO THE LIBRARY" : route === "story" ? "THE MAGICAL LIBRARY" : route.startsWith("library/") ? LIBRARY.find((book) => book.route === route)?.title ?? "Library" : selectedBook.title}
         />
         <div className="sc-workspace" {...(tools ? { inert: "" } : {})}>
-          <main id="main-content" className="sc-route-turn" data-level-turn={levelTurn} key={route} tabIndex={-1}>
+          <main id="main-content" className="sc-route-turn" data-level-turn={levelTurn} data-page-turn={pageTurn} key={route} tabIndex={-1}>
+            <div className="sc-route-cover" aria-hidden="true"><i className="sc-route-cover__leaf sc-route-cover__leaf--left" /><i className="sc-route-cover__leaf sc-route-cover__leaf--right" /><i className="sc-route-cover__spine" /></div>
             <Suspense fallback={<BookNotice title="Turning the page"><Loading label="Opening your book…" /></BookNotice>}>
-              {route.startsWith("book-level/") ? (
+              {route === "entrance" ? (
+                <LibraryEntrance
+                  onEnter={() => navigate("story")}
+                  onOpenBook={(bookId) => {
+                    setSelectedBookId(bookId);
+                    setSelectedChapterId(null);
+                    navigate(`book/${bookId}`);
+                  }}
+                />
+              ) : route.startsWith("book-level/") ? (
                 <BookLevel
                   bookId={selectedBookId}
                   chapterId={route.slice("book-level/".length)}
@@ -241,13 +269,11 @@ export function AppShell() {
                   onExit={() => navigate("learn")}
                   onLessonChange={openQuest}
                 />
-              ) : route === "entrance" ? (
-                <LibraryEntrance force onEnter={() => navigate("story")} />
               ) : route === "story" ? (
-                <LibraryEntrance><MagicalBookshelf onTools={openTools} onSignIn={() => setAuth(true)} onOpen={(book) => {
+                <MagicalBookshelf onTools={openTools} onSignIn={() => setAuth(true)} onOpen={(book) => {
                   if (book.storyId) { setSelectedBookId(book.storyId); setSelectedChapterId(null); }
                   navigate(book.route);
-                }} /></LibraryEntrance>
+                }} />
               ) : route.startsWith("library/") ? (
                 <LibraryUtilityPage id={route.slice("library/".length)} onNavigate={navigate} onSignIn={() => setAuth(true)} onCharacter={() => setCharacter(true)} onTools={openTools} />
               ) : route.startsWith("book/") ? (

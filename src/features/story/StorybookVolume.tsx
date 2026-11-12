@@ -10,8 +10,7 @@ import { BookCutscene } from "./BookCutscene";
 import { BOOK_SCENE_ART, BOOK_SCENE_CHARACTERS, DEFAULT_BOOK_SCENE_ART } from "./bookSceneAssets";
 import { CodingEditorPanel, type CodingEditorError } from "../learning/CodingEditorPanel";
 import { BookCompletionSpread } from "../learning/BookCompletionSpread";
-import { BOOK_VIDEOS, playableVideo } from "../../content/bookMedia";
-import { BookVideoLibrary } from "./BookVideoLibrary";
+import { WizardingLevelReveal } from "./WizardingLevelReveal";
 
 interface StorybookVolumeProps {
   book: CodingStoryBook;
@@ -47,6 +46,7 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
   const [sceneSequence, setSceneSequence] = useState(0);
   const [localOutcomeId, setLocalOutcomeId] = useState<string | null>(null);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [revealReady, setRevealReady] = useState(false);
   const liveRun = useRef(0);
   useEffect(() => () => { liveRun.current++; }, []);
   const chapterGuideRef = useRef<HTMLDetailsElement>(null);
@@ -79,6 +79,7 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
     setNotice("");
     setSpeaking(false);
     setShowCompletion(false);
+    setRevealReady(false);
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   }
 
@@ -160,6 +161,7 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
         if (run !== liveRun.current) return;
         if (saved) {
           setLocalOutcomeId(chapter.chapterId);
+          setRevealReady(false);
           setShowCompletion(true);
           setNotice("");
         } else setNotice("This chapter is still locked. Complete the earlier pages first.");
@@ -202,21 +204,15 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
         code={code}
         lessonId={chapterSparkId}
         executionSteps={completionSteps}
-        chapterVideo={completedSet.has(chapter.chapterId) && playableVideo(BOOK_VIDEOS[book.id]?.[chapter.chapterId]) ? (
-          <BookVideoLibrary chapterOnly bookId={book.id} chapters={[{ id: chapter.chapterId, title: chapter.chapterTitle }]} completed={completed} />
-        ) : null}
         scene={(
-          <BookCutscene
+          <WizardingLevelReveal
             chapter={chapter}
-            relicImage={relicImage}
-            characterImage={sceneCharacter}
-            completed
             sequence={sceneSequence}
-            mode="level"
-            onNarrate={readScene}
-            narrating={speaking}
+            onStart={() => setRevealReady(false)}
+            onFinish={() => setRevealReady(true)}
           />
         )}
+        canContinue={revealReady}
         onContinue={() => nextChapter ? setChapter(nextChapter.chapterId) : onLevels()}
         continueLabel={nextChapter ? "Continue to next chapter →" : "Return to levels →"}
         onReview={() => setShowCompletion(false)}

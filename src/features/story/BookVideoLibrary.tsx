@@ -36,6 +36,8 @@ function FilmLibrary({ bookId, chapters, completed, chapterOnly = false, storage
   const checkpoint = useRef<{ chapter: string; time: number } | null>(null);
   const previousSource = useRef<string>();
   const media = BOOK_VIDEOS[bookId] ?? {};
+  const filmChapter = chapters[0];
+  const filmReady = !!filmChapter && completed.includes(filmChapter.id) && playableVideo(media[filmChapter.id]);
   const movieAvailable = canWatchMovie(chapters, completed, media);
   const chapter = active === null ? undefined : chapters[active];
   const video = chapter && media[chapter.id];
@@ -96,11 +98,17 @@ function FilmLibrary({ bookId, chapters, completed, chapterOnly = false, storage
   function close() { capture(); persist(); player.current?.pause(); loadedChapter.current = null; setActive(null); }
 
   return <section className="htp-video-library" aria-label="Chapter videos">
-    {chapterOnly ? (!allowed && <button className="sc-button htp-movie-unlocked" disabled={!completed.includes(chapters[0]?.id) || !playableVideo(media[chapters[0]?.id])} onClick={() => start(0, false)}>Watch chapter video</button>) : <>
+    {chapterOnly ? <div className="htp-chapter-film-card">
+      <span className="sc-volume-kicker">STORYBOOK FILM</span>
+      <h3>{filmChapter?.title ?? "Chapter film"}</h3>
+      {filmReady
+        ? <button className="sc-button htp-movie-unlocked" onClick={() => start(0, false)}>Play chapter film</button>
+        : <p>{filmChapter && completed.includes(filmChapter.id) ? "The movie file for this chapter will appear here when it is added." : "Complete this level to unlock its film page."}</p>}
+    </div> : <>
     <h2>Memories on film</h2>
     <p>{movieAvailable ? "Your full movie is unlocked." : `${chapters.filter(c => completed.includes(c.id)).length} / ${chapters.length} chapters complete.`}</p>
     <button className={`sc-button ${movieAvailable ? "htp-movie-unlocked" : ""}`} disabled={!movieAvailable} onClick={resumeMovie}>Watch as a movie</button>
-    {!chapters.some(c => playableVideo(media[c.id])) && <p>Chapter videos are not available yet. You can still watch the animated scenes in Read story.</p>}
+    {!chapters.some(c => playableVideo(media[c.id])) && <p>Chapter films will appear here when video files are added.</p>}
     <details className="htp-film-index"><summary>Chapter films</summary>
       <ol>{chapters.map((c, i) => <li key={c.id}><span>{i + 1}. {c.title}</span><button disabled={!completed.includes(c.id) || !playableVideo(media[c.id])} onClick={() => start(i, false)}>{!completed.includes(c.id) ? "Locked" : !playableVideo(media[c.id]) ? "Awaiting video" : "Watch chapter"}</button></li>)}</ol>
     </details>

@@ -17,6 +17,8 @@ import "./styles/grimoire.css";
 import "./styles/pixel-library.css";
 import "./styles/pixel-levels.css";
 import "./styles/pixel-utilities.css";
+// Route covers and the shared library landing/shelf presentation are last so every route inherits the same book language.
+import "./styles/landing.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

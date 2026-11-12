@@ -45,17 +45,26 @@ export function MagicalBookshelf({ onOpen, onTools, onSignIn }: { onOpen: (book:
     timer.current = setTimeout(() => onOpen(book), quiet ? 0 : 390);
   }
   const spine = (book: LibraryBook, index: number) => <button key={book.id} type="button"
-    className={`sc-shelf-spine ${opening === book.id ? "is-opening" : ""}`}
-    style={{ "--spine-color": book.coverColor, "--spine-height": `${book.shelf === "adventures" ? 275 : 192 + (index % 3) * 18}px` } as CSSProperties}
+    className={`sc-shelf-spine sc-shelf-spine--${book.id} ${opening === book.id ? "is-opening" : ""}`}
+    style={{ "--spine-color": book.coverColor, "--spine-height": `${book.shelf === "adventures" ? 252 + (index % 2) * 14 : 178 + (index % 3) * 12}px` } as CSSProperties}
     onClick={() => open(book)} disabled={opening !== null} aria-label={`Open ${book.title}${book.id === "cinder" ? ", beginner tutorial" : ""}`}>
     <span className="sc-shelf-spine__cap" aria-hidden="true">{book.mark}</span>
     <span className="sc-shelf-spine__title">{book.title}</span>
-    <span className="sc-shelf-spine__foot" aria-hidden="true">{book.id === "cinder" ? "I" : book.storyId ? "II" : "✦"}</span>
+    <span className="sc-shelf-spine__subtitle">{book.id === "cinder" ? "TUTORIAL" : book.storyId ? "STORY" : book.subtitle}</span>
+    <span className="sc-shelf-spine__foot" aria-hidden="true">{book.id === "cinder" ? "01" : book.storyId ? "✦" : "✧"}</span>
     <span className="sc-shelf-spine__tooltip">{book.title} · {progress(book)}</span>
     {book.id === "cinder" && <span className="sc-shelf-spine__ribbon">TUTORIAL</span>}
   </button>;
   return <div className="sc-magical-library htp-sketch-library">
-    <nav className="htp-hanging-signs" aria-label="Bookshelf controls"><button onClick={clearSearch}>Home</button><button ref={searchToggle} aria-expanded={searchOpen} aria-controls="bookshelf-search" onClick={() => searchOpen ? clearSearch() : setSearchOpen(true)}>Search</button><h1>Hack The Paradise<span>The bookshelf</span></h1>{onTools && <button onClick={onTools}>Music</button>}<button onClick={() => !user && onSignIn ? onSignIn() : open(LIBRARY.find(b => b.id === "account")!)}>{user ? "Account" : "Sign in"}</button></nav>
+    <header className="htp-library-heading">
+      <div><p className="htp-eyebrow">THE ARCHIVE OF POSSIBILITIES</p><h1>Choose a book</h1><p>Every cover opens a different world. Progress stays with that story.</p></div>
+      <div className="htp-library-heading__actions">
+        {recentBook && <button className="htp-library-resume" onClick={() => open(recentBook)}>Continue {recentBook.title} <span aria-hidden="true">→</span></button>}
+        <button ref={searchToggle} aria-expanded={searchOpen} aria-controls="bookshelf-search" onClick={() => searchOpen ? clearSearch() : setSearchOpen(true)}>Search books</button>
+        {onTools && <button onClick={onTools}>Sound & tools</button>}
+        <button onClick={() => !user && onSignIn ? onSignIn() : open(LIBRARY.find(b => b.id === "account")!)}>{user ? "Account" : "Sign in"}</button>
+      </div>
+    </header>
     <div id="bookshelf-search" className="htp-library-catalog" hidden={!searchOpen} onKeyDown={event => {
       if (event.key === "Escape") { clearSearch(); searchToggle.current?.focus(); }
     }}>
@@ -70,7 +79,7 @@ export function MagicalBookshelf({ onOpen, onTools, onSignIn }: { onOpen: (book:
       <nav aria-label="Library books">
         {(["personal", "adventures", "guild"] as const).filter(shelf=>visible.some(b=>b.shelf===shelf)).map((shelf) => <section className={`sc-cabinet-row sc-cabinet-row--${shelf}`} key={shelf} aria-label={shelf === "personal" ? "Your library" : shelf === "adventures" ? "Coding adventures" : "The guild"}>
           <div className="sc-cabinet-row__books">{visible.filter((book) => book.shelf === shelf).map(spine)}
-            {shelf === "personal" && <div className="htp-welcome-book"><div><small>YOU ARE WELCOME HERE</small><strong>Every book opens a new world.</strong><span>Choose a spine to begin.</span></div><div><small>YOUR NEXT PAGE</small><button onClick={()=>open(LIBRARY.find(b=>b.id===recent) ?? LIBRARY.find(b=>b.id==="cinder")!)}>{recent ? "Continue your adventure" : "Start the tutorial"} →</button><button onClick={()=>open(LIBRARY.find(b=>b.id==="profile")!)}>{user ? "Your profile" : "Create your adventurer"}</button></div></div>}
+            {shelf === "personal" && <div className="htp-shelf-stilllife" aria-hidden="true"><i/><i/><i/><span>✦</span></div>}
             {shelf === "adventures" && <div className="htp-shelf-stilllife" aria-hidden="true"><i/><i/><i/><span>✦</span></div>}
             {shelf === "guild" && <div className="htp-library-globe" aria-hidden="true">✧</div>}
           </div>

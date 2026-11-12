@@ -1,6 +1,6 @@
 import { Grimoire } from "../library/Grimoire";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { SparkUnlock } from "./SparkUnlock";
 
 type CompletionTheme = "cinder" | "wizarding";
@@ -23,7 +23,9 @@ interface BookCompletionSpreadProps {
   canContinue?: boolean;
   onReview?: () => void;
   onSkipAnimation?: () => void;
+  onReplayAnimation?: () => void;
   audioSrc?: string;
+  autoPlayNarration?: boolean;
   onReadAloud?: () => void;
   speaking?: boolean;
   narrationNotice?: string;
@@ -54,7 +56,9 @@ export function BookCompletionSpread({
   canContinue = true,
   onReview,
   onSkipAnimation,
+  onReplayAnimation,
   audioSrc,
+  autoPlayNarration = false,
   onReadAloud,
   speaking = false,
   narrationNotice = "",
@@ -70,8 +74,13 @@ export function BookCompletionSpread({
   useEffect(() => {
     section.current?.focus({ preventScroll: true });
     section.current?.scrollIntoView({ block: "start", behavior: "auto" });
+    if (autoPlayNarration && audio.current) {
+      void audio.current.play().catch(() => {
+        setAudioNotice("Narration did not start automatically. Select Play narration to hear it.");
+      });
+    }
     return () => audio.current?.pause();
-  }, []);
+  }, [autoPlayNarration]);
 
   function toggleAudio() {
     const player = audio.current;
@@ -177,12 +186,13 @@ export function BookCompletionSpread({
         } right={
 
         <article className="sc-completion-page__leaf sc-completion-page__leaf--play">
-          <div className={`sc-completion-page__scene sc-completion-page__scene--${theme}`} aria-label={`${title} movie scene`}>
+          <div className={`sc-completion-page__scene sc-completion-page__scene--${theme}`} aria-label={`${title} level completion scene`}>
             {scene}
           </div>
           {chapterVideo}
           <div className="sc-completion-page__actions">
             <button className="sc-button" type="button" disabled={!canContinue} onClick={onContinue}>{continueLabel}</button>
+            {canContinue && onReplayAnimation && <button className="sc-link sc-completion-page__replay" type="button" onClick={onReplayAnimation}><RotateCcw size={15} /> Replay scene</button>}
             {onReview && <button className="sc-link" type="button" onClick={onReview}>Review this level</button>}
             {!canContinue && onSkipAnimation && <button className="sc-link" type="button" onClick={onSkipAnimation}>Skip animation</button>}
           </div>

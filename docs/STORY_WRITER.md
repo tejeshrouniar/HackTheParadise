@@ -9,7 +9,7 @@ The active catalog is `src/content/storyBooks.ts`. `StoryPage.tsx` renders only 
 | Book | Content source | Progress owner | Reader |
 | --- | --- | --- | --- |
 | *The Last Light* (Cinder) | `src/content/journey.json` | Existing quest IDs in `ProgressContext` / `player_progress` | `CinderBook` in the Story reader with `JourneyCinema.tsx` |
-| *The Horcrux Code* (Harry Potter) | `src/content/codeCampaign.ts` | Stable chapter IDs in `useBookProgress.ts` / Supabase `story_progress` | `BookLevelPage.tsx` for coding; completed chapter films in the Story reader |
+| *The Horcrux Code* (Harry Potter) | `src/content/codeCampaign.ts` | Stable chapter IDs in `useBookProgress.ts` / Supabase `story_progress` | `BookLevelPage.tsx` for coding; level payoff in `WizardingLevelReveal.tsx`; MP4 films in the Story reader when supplied |
 
 The two books do not share chapter unlocks or completion state. Cinder’s twelve quests do not mark Harry Potter chapters complete; Harry Potter chapters do not advance Cinder’s journey. The book hub’s **Play levels** action opens the selected book’s walkable level route. **Read story** opens that book’s reader, so a chapter’s code task is not duplicated in the story reader.
 
@@ -33,9 +33,11 @@ The earlier merge stored Harry Potter’s twelve existing chapters as `relics-bo
 
 ## Cinder story content
 
-`journey.json` is the source for Cinder’s four chapters, chapter summary, place, theme, three quest IDs, stop labels, and three cutscene lines. The chapter level IDs and stops must remain the same length and order. `JourneyCinema.tsx` maps each cutscene beat to movement and Cinder animation; `quest-narration.json` owns the separate post-quest spoken explanations. Cinder remains the player’s companion; the learner is the protagonist.
+`journey.json` is the source for Cinder’s four chapters, chapter summary, place, theme, three quest IDs, stop labels, and three cutscene lines. The chapter level IDs and stops must remain the same length and order. `JourneyCinema.tsx` maps each cutscene beat to movement and Cinder animation; after a quest succeeds, `QuestAftermath.tsx` advances that same scene timeline on the completion spread and attempts the matching `quest-N.wav` narration. If the browser blocks automatic audio, its labeled play control remains available. `quest-narration.json` owns the separate post-quest spoken explanations. Cinder remains the player’s companion; the learner is the protagonist.
 
 ## Narration and archival content
+
+Harry Potter coding levels use their supplied 12 pixel-art backgrounds for a short interactive completion payoff. These are gameplay results, not story movies. The Story reader has a separate per-chapter film slot managed by `BookVideoLibrary.tsx`; add MP4 metadata to `src/content/bookMedia.ts` only when the user supplies the corresponding movie files. Do not substitute a looping level animation for a film.
 
 The narration manifest is built from `src/content/journey.json` and `src/content/quest-narration.json`; it does not parse TypeScript. After changing spoken copy, rebuild with:
 
