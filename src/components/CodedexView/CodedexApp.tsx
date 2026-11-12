@@ -2,6 +2,7 @@ import { Grimoire, ChapterNavigation, ExecutionTrace } from "../../features/libr
 import { useProgress } from "../../features/learning/ProgressContext";
 import { canEnterLevel } from "../../features/learning/journeyProgress";
 import { CodingEditorPanel } from "../../features/learning/CodingEditorPanel";
+import { LevelStage, showLevelStage } from "../../features/learning/LevelStage";
 import { QuestAftermath } from "../../features/learning/QuestAftermath";
 import { realmForLesson } from "../../content/journey";
 import toast from "react-hot-toast";
@@ -109,7 +110,7 @@ export const CodedexApp = ({
           </p>
         )}
       </header>
-      <Grimoire label="The Last Light spellbook" coverColor="#9a4d29" className="sc-grimoire--coding" pageKey={lesson.id}
+      <Grimoire label="The Last Light spellbook" coverColor="#9a4d29" className="sc-grimoire--coding" pageKey={lesson.id} navigationDisabled={isExecuting}
         onPreviousPage={lesson.id > 1 ? () => onLessonChange?.(lesson.id - 1) : undefined}
         onNextPage={lesson.id < CODEDEX_LESSONS.length && canEnterLevel(lesson.id + 1, completed) ? () => onLessonChange?.(lesson.id + 1) : undefined}
         left={
@@ -120,16 +121,7 @@ export const CodedexApp = ({
             if (errorPointer) setErrorPointer(null);
           }}
           onRun={() => {
-            if (window.matchMedia("(max-width: 1100px)").matches) {
-              worldRef.current?.scrollIntoView({
-                block: "start",
-                behavior:
-                  preferences.reduced_motion ||
-                  window.matchMedia("(prefers-reduced-motion: reduce)").matches
-                    ? "auto"
-                    : "smooth",
-              });
-            }
+            showLevelStage(worldRef.current, preferences.reduced_motion);
             void handleRunCode();
           }}
           onReset={() => {
@@ -154,47 +146,14 @@ export const CodedexApp = ({
           consoleLogs={terminalLogs}
         />
         } right={<>
-        <section className="sc-card sc-live-world" ref={worldRef} data-cast={errorPointer ? "failed" : isExecuting ? "casting" : "ready"}>
-          <header>
-            <h2>{currentStageInfo.name}</h2>
-            <span className={questSuccess ? "complete" : ""}>
-              {questSuccess ? "Complete" : isExecuting ? "Running" : "Ready"}
-            </span>
-          </header>
-          <div className="sc-playback-bar">
-            <span>
-              {state.executionStep.total
-                ? `Step ${state.executionStep.current} / ${state.executionStep.total}`
-                : "Watch your spell unfold"}
-            </span>
-            <label>
-              Pace{" "}
-              <select
-                aria-label="Animation pace"
-                value={state.stepDuration}
-                disabled={isExecuting}
-                onChange={(e) => state.setStepDuration(Number(e.target.value))}
-              >
-                <option value={1100}>Relaxed</option>
-                <option value={750}>Steady</option>
-                <option value={450}>Quick</option>
-              </select>
-            </label>
-          </div>
-          <div className="sc-stage-canvas">
-
-            <div className="sc-stage-content">
-              <StageWorld key={lesson.id} state={state} bridgeCrossed={bridgeCrossed}
-                onBridgeCrossed={() => setBridgeCrossed(true)} />
-            </div>
-          </div>
-          <p className="sc-action-caption" role="status">
-            {questSuccess
-              ? crossing ? "Crossing the bridge…" : "Quest complete"
-              : state.executionStep.label}
-          </p>
-
-        </section>
+        <LevelStage title={currentStageInfo.name} stageRef={worldRef}
+          status={questSuccess ? "Complete" : isExecuting ? "Running" : "Ready"}
+          state={errorPointer ? "failed" : isExecuting ? "casting" : "ready"}
+          stepLabel={state.executionStep.total ? `Step ${state.executionStep.current} / ${state.executionStep.total}` : "Watch your spell unfold"}
+          pace={state.stepDuration} onPaceChange={state.setStepDuration}
+          caption={questSuccess ? crossing ? "Crossing the bridge…" : "Quest complete" : state.executionStep.label}>
+          <StageWorld key={lesson.id} state={state} bridgeCrossed={bridgeCrossed} onBridgeCrossed={() => setBridgeCrossed(true)} />
+        </LevelStage>
         <ExecutionTrace logs={terminalLogs} running={isExecuting} />
         </>} />
       <QuestDialogs state={state} />

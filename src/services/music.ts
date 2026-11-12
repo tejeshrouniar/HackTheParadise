@@ -14,31 +14,31 @@ export const soundscapes: MusicTrack[] = [
     id: "twilight",
     preset: "twilight",
     title: "Twilight sanctuary",
-    artist: "Storicode · synthesized soundscape",
+    artist: "Hack The Paradise · synthesized soundscape",
   },
   {
     id: "citadel",
     preset: "citadel",
     title: "Cyber citadel",
-    artist: "Storicode · synthesized soundscape",
+    artist: "Hack The Paradise · synthesized soundscape",
   },
   {
     id: "meadow",
     preset: "meadow",
     title: "Arcane meadow",
-    artist: "Storicode · synthesized soundscape",
+    artist: "Hack The Paradise · synthesized soundscape",
   },
   {
     id: "volume-one-score",
     preset: "archive",
     title: "Candlelit Archive",
-    artist: "Storicode · original synthesized score",
+    artist: "Hack The Paradise · original synthesized score",
   },
   {
     id: "volume-two-score",
     preset: "eclipse",
     title: "Midnight Observatory",
-    artist: "Storicode · original synthesized score",
+    artist: "Hack The Paradise · original synthesized score",
   },
 ];
 const cache = new Map<string, MusicTrack[]>();

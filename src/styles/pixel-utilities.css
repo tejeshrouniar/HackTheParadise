@@ -1,0 +1,92 @@
+/* Journal stamps use 32px tiles. Text and controls retain fluid sizing for zoom. */
+.htp-journal-mark {
+  display: inline-grid;
+  grid-template: repeat(8, 4px) / repeat(8, 4px);
+  flex: none;
+  width: 32px;
+  height: 32px;
+  color: inherit;
+  vertical-align: middle;
+}
+.htp-journal-mark i { background: currentColor; }
+.sc-utility-intro {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.sc-utility-intro .htp-journal-mark { color: var(--book-cover, #634533); }
+.htp-pixel-journal .sc-grimoire__leaf {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.sc-magical-app .htp-pixel-journal :is(.sc-card, .sc-button, .sc-switch, input, textarea, select) {
+  border-radius: 0;
+}
+.sc-magical-app .htp-pixel-journal :is(.sc-button, .sc-utility-links a, .sc-utility-links button, .sc-chat-rooms > button) {
+  min-height: 44px;
+  box-shadow: inset 0 -3px 0 #452b1933;
+}
+.sc-magical-app .htp-pixel-journal :is(.sc-button, .sc-utility-links a, .sc-utility-links button, .sc-chat-rooms > button):active:not(:disabled) {
+  box-shadow: inset 0 3px 0 #452b194d;
+}
+.sc-magical-app .htp-pixel-journal :is(a, button, textarea, input, select, summary):focus-visible {
+  outline: 3px solid #2b5a62;
+  outline-offset: 3px;
+}
+.sc-magical-app .htp-pixel-journal .sc-utility-links :is(button, a) {
+  border: 2px solid #9d8152;
+  background: #f4e6c5;
+}
+.sc-magical-app .htp-pixel-journal .sc-utility-links :is(button, a):hover {
+  background: #e8d3a7;
+}
+.sc-utility-links .htp-journal-swatches {
+  display: grid;
+  grid-template: repeat(2, 1fr) / repeat(2, 1fr);
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border: 2px solid #493523;
+}
+.sc-magical-app .htp-pixel-journal .sc-switch {
+  min-height: 32px;
+  border: 2px solid #634c32;
+  background: #a78e68;
+}
+.sc-magical-app .htp-pixel-journal .sc-switch[aria-checked="true"] { background: #315849; }
+.sc-magical-app .htp-pixel-journal .sc-switch > span {
+  border-radius: 0;
+  background: #fff6db;
+  box-shadow: 2px 2px 0 #30201055;
+}
+.htp-pixel-journal .sc-chat-rooms { margin-top: 0; margin-bottom: 1rem; }
+.htp-pixel-journal .sc-chat-rooms > button { color: #35291c; background: #ead9b3; border-radius: 0; }
+.htp-pixel-journal .sc-chat-rooms > button[aria-pressed="true"] {
+  color: #fff3d8;
+  background: #315849;
+}
+.htp-pixel-journal .sc-messages {
+  background: #f3e7cb;
+  border-block: 2px solid #a99165;
+}
+.htp-pixel-journal .sc-community-guide strong { color: #315849; }
+.htp-pixel-journal .sc-message :is(p, time, button) { color: #4f3925; }
+.htp-pixel-journal .htp-chat-latest { align-self: center; margin: .5rem; }
+.htp-pixel-journal .sc-suggestions textarea { width: 100%; resize: vertical; }
+.htp-suggestion-count { display: block; text-align: end; font-variant-numeric: tabular-nums; }
+.htp-pixel-journal .htp-preference-status { color: #315849; }
+.htp-pixel-journal .sc-chat header > div { min-width: 0; }
+.htp-journal-avatar {
+  display: grid;
+  place-items: center;
+  width: 128px;
+  height: 128px;
+  border: 4px double #8d744c;
+  background: conic-gradient(#e0cea6 25%, #eadabb 0 50%, #e0cea6 0 75%, #eadabb 0) 0 0 / 32px 32px;
+}
+
+@media (max-width: 480px) {
+  .htp-pixel-journal .sc-grimoire__leaf { padding-inline: 1rem; }
+  .htp-pixel-journal .sc-chat { height: auto; min-height: 450px; }
+  .htp-pixel-journal .sc-messages { max-height: 45vh; }
+}

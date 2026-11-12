@@ -6,6 +6,34 @@ import { sound } from "../../utils/sound";
 
 export const GrimoireHeaderSlot = createContext<HTMLElement | null>(null);
 
+type TurnState = { until: number; direction: "next" | "previous" };
+const PageTurnContext = createContext<{ current: TurnState } | null>(null);
+const RouteTurnDirection = createContext<TurnState["direction"] | undefined>(undefined);
+export function PageTurnProvider({ children, routeDirection }: { children: ReactNode; routeDirection?: TurnState["direction"] }) {
+  const turn = useRef<TurnState>({ until: 0, direction: "next" });
+  return <PageTurnContext.Provider value={turn}><RouteTurnDirection.Provider value={routeDirection}>{children}</RouteTurnDirection.Provider></PageTurnContext.Provider>;
+}
+
+/** Header, corner and touch controls share a short animation lock. This survives
+ * route remounts, so double presses cannot skip a chapter during a page turn. */
+export function usePageTurn() {
+  const shared = useContext(PageTurnContext);
+  const local = useRef<TurnState>({ until: 0, direction: "next" });
+  const state = shared ?? local;
+  const { preferences } = usePreferences();
+  return {
+    state,
+    turn: (callback: (() => void) | undefined, direction: "next" | "previous" = "next") => {
+      if (!callback || performance.now() < state.current.until) return;
+      const quiet = preferences.reduced_motion || matchMedia("(prefers-reduced-motion: reduce)").matches;
+      state.current = { until: performance.now() + (quiet ? 100 : 700), direction };
+      callback();
+    },
+  };
+}
+
+const interactive = (target: EventTarget | null) => target instanceof Element && !!target.closest("input,textarea,select,button,a,video,audio,[contenteditable=true],[role=slider],.sc-walking-stage");
+
 /** All opened books share these leaves. Content owns behavior; the frame owns
  * proportions, parchment, the binding, and the reduced-motion-safe 3D page turn. */
 export function Grimoire({
@@ -17,6 +45,7 @@ export function Grimoire({
   pageKey,
   onPreviousPage,
   onNextPage,
+  navigationDisabled = false,
 }: {
   left: ReactNode;
   right: ReactNode;
@@ -26,8 +55,12 @@ export function Grimoire({
   pageKey?: string | number;
   onPreviousPage?: () => void;
   onNextPage?: () => void;
+  navigationDisabled?: boolean;
 }) {
   const { preferences } = usePreferences();
+  const navigation = usePageTurn();
+  const routeDirection = useContext(RouteTurnDirection);
+  const touch = useRef<{ x: number; y: number } | null>(null);
   const mountedRef = useRef(false);
   const prevPageKeyRef = useRef(pageKey);
 
@@ -49,6 +82,24 @@ export function Grimoire({
     <section
       className={`sc-grimoire ${className}`}
       aria-label={label}
+      tabIndex={onPreviousPage || onNextPage ? 0 : undefined}
+      aria-keyshortcuts={onPreviousPage || onNextPage ? "PageUp PageDown" : undefined}
+      data-turn-direction={routeDirection ?? navigation.state.current.direction}
+      onKeyDown={event => {
+        if (navigationDisabled || event.repeat || event.ctrlKey || event.altKey || event.metaKey || interactive(event.target)) return;
+        const action = event.key === "PageDown" ? onNextPage : event.key === "PageUp" ? onPreviousPage : undefined;
+        if (action) { event.preventDefault(); navigation.turn(action, event.key === "PageUp" ? "previous" : "next"); }
+      }}
+      onTouchStart={event => {
+        touch.current = !navigationDisabled && !interactive(event.target) && event.touches.length === 1 ? { x: event.touches[0].clientX, y: event.touches[0].clientY } : null;
+      }}
+      onTouchCancel={() => { touch.current = null; }}
+      onTouchEnd={event => {
+        const start = touch.current; touch.current = null;
+        if (!start || navigationDisabled || !event.changedTouches.length) return;
+        const dx = event.changedTouches[0].clientX - start.x, dy = event.changedTouches[0].clientY - start.y;
+        if (Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 2) navigation.turn(dx < 0 ? onNextPage : onPreviousPage, dx < 0 ? "next" : "previous");
+      }}
       style={coverColor ? ({ "--book-cover": coverColor } as CSSProperties) : undefined}
     >
       <div className="sc-grimoire__leaf sc-grimoire__leaf--left">
@@ -57,7 +108,8 @@ export function Grimoire({
           <button
             type="button"
             className="sc-grimoire__edge-turn sc-grimoire__edge-turn--prev"
-            onClick={onPreviousPage}
+            disabled={navigationDisabled}
+            onClick={() => navigation.turn(onPreviousPage, "previous")}
             aria-label="Turn to previous page"
             title="Previous page"
           >
@@ -76,7 +128,8 @@ export function Grimoire({
           <button
             type="button"
             className="sc-grimoire__edge-turn sc-grimoire__edge-turn--next"
-            onClick={onNextPage}
+            disabled={navigationDisabled}
+            onClick={() => navigation.turn(onNextPage)}
             aria-label="Turn to next page"
             title="Next page"
           >
@@ -124,16 +177,17 @@ export function ChapterNavigation({
   disabled?: boolean;
 }) {
   const slot = useContext(GrimoireHeaderSlot);
+  const navigation = usePageTurn();
   const controls = (
     <nav className="sc-chapter-pill" aria-label="Chapter navigation">
-      <button aria-label="Previous chapter" disabled={disabled || !onPrevious} onClick={onPrevious}>
+      <button aria-label="Previous chapter" disabled={disabled || !onPrevious} onClick={() => navigation.turn(onPrevious, "previous")}>
         <ChevronLeft size={18} />
       </button>
       <span title={`Chapter ${number} — ${title}`}>
         <small>Chapter {String(number).padStart(2, "0")}</small>
         <strong>{title}</strong>
       </span>
-      <button aria-label="Next chapter" disabled={disabled || !onNext} onClick={onNext}>
+      <button aria-label="Next chapter" disabled={disabled || !onNext} onClick={() => navigation.turn(onNext)}>
         <ChevronRight size={18} />
       </button>
     </nav>

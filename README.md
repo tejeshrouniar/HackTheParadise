@@ -1,6 +1,6 @@
-# Storicode
+# Hack The Paradise
 
-Storicode is a browser based coding adventure presented as a collection of interactive storybooks. The **Bookshelf** is the home screen and contains only storybooks. Open a cover to reach the same book hub for every story, then choose **Play levels** or **Read story**. Level navigation stays inside the selected book; it is not a separate top-level destination. The Harry Potter adventure is the main story; Cinder’s *The Last Light* is a beginner tutorial. Each book keeps its own theme, scenes, soundtrack, and progress.
+Hack The Paradise (formerly Storicode) is a browser based coding adventure presented as a collection of interactive storybooks. The **Bookshelf** is the home screen and contains only storybooks. Open a cover to reach the same book hub for every story, then choose **Play levels** or **Read story**. Level navigation stays inside the selected book; it is not a separate top-level destination. The Harry Potter adventure is the main story; Cinder’s *The Last Light* is a beginner tutorial. Each book keeps its own theme, scenes, soundtrack, and progress.
 
 ## What is in the app
 
@@ -66,3 +66,15 @@ For a new coding book, add its original chapter copy and sandbox tests to its co
 - [Asset licenses](docs/asset-licenses/) — license notes for included third-party artwork.
 
 The `.github/workflows/deploy.yml` workflow runs tests and builds the static site for GitHub Pages. A successful local build does not publish the app; publishing requires a push to the configured branch or a manual workflow run.
+
+## Library redesign and optional videos
+
+The active library uses `src/features/library/LibraryEntrance.tsx` for a skippable, remembered entrance and `MagicalBookshelf.tsx` for searchable shelves. `src/content/library.ts` supplies utility books and derives adventures from `storyBooks.ts`. Each story now declares a palette; stable progress IDs and database names are unchanged.
+
+Add licensed video metadata to `src/content/bookMedia.ts`, keyed by book ID and stable chapter ID. Cinder uses the chapter title. Each entry accepts an HTTPS or root-relative `src`, optional `poster`, optional `duration`, and subtitle tracks (`src`, `language`, `label`). `BookVideoLibrary.tsx` appears in the shared book hub. It gates chapter videos on existing completion and movie playback on completion of every chapter plus availability of every clip. Playback uses one native video element and advances in order. Playback position is device-local and account-scoped; completion still uses the existing progress system. Public media URLs are not DRM or server-protected entitlements.
+
+Chapter video files are still needed. The existing animated scenes are available under **Read story**. The movie offers a single seek bar across chapters when all clip durations are known. Supply `duration` in seconds for each clip to enable it from the first play. Without known durations, the native controls seek within the current clip.
+
+For a deployment under a subpath, use full HTTPS media URLs. When using HTTPS subtitle URLs, the video and WebVTT hosts must allow the site origin via CORS. Completed coding chapters offer a direct **Watch chapter video** action once a clip is configured.
+
+The bookshelf follows the supplied three-shelf sketch: hanging Home/Search/Music/Account controls, Library journals with a welcome spread, Adventure books with the tutorial first, and Guild books on the right. Edit shelf metadata in src/content/library.ts and visual treatment in src/styles/grimoire.css. Decorative stacks and the globe are non-interactive; labeled books and signs connect to existing routes and tools.

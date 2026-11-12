@@ -1,3 +1,4 @@
+import { Grimoire } from "../library/Grimoire";
 import { useState } from "react";
 import { SparkWalletCard } from "../learning/SparkWalletCard";
 import {
@@ -13,6 +14,7 @@ import { ProfileForm } from "../profile/ProfileForm";
 import { usePreferences } from "./PreferencesContext";
 import { ErrorNotice, Loading } from "../../components/ui/Status";
 import { errorMessage } from "../../lib/validation";
+import { PixelJournalMark } from "../library/PixelJournalMark";
 export default function SettingsPage({
   onSignIn,
   onCharacter,
@@ -30,12 +32,20 @@ export default function SettingsPage({
   } = usePreferences();
   const [actionError, setActionError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [preferenceStatus, setPreferenceStatus] = useState("");
+  const [savingPreference, setSavingPreference] = useState(false);
   const save = async (patch: Parameters<typeof update>[0]) => {
     setActionError("");
+    setPreferenceStatus("Saving preference…");
+    setSavingPreference(true);
     try {
       await update(patch);
+      setPreferenceStatus("Preference saved");
     } catch (error) {
+      setPreferenceStatus("");
       setActionError(errorMessage(error));
+    } finally {
+      setSavingPreference(false);
     }
   };
   async function logout() {
@@ -52,10 +62,10 @@ export default function SettingsPage({
     <div className="sc-page">
       <div className="sc-page-heading">
         <div>
-          <h1>Settings</h1>
+          <h1><PixelJournalMark kind="settings" /> Settings</h1>
         </div>
       </div>
-      <div className="sc-settings-grid">
+      <Grimoire label="Settings journal" className="htp-journal htp-pixel-journal" left={<>
         <SparkWalletCard onSignIn={onSignIn} />
         <section className="sc-card sc-settings-card">
           <h2>
@@ -82,7 +92,7 @@ export default function SettingsPage({
             </div>
           )}
         </section>
-        <div>
+        </>} right={<div>
           <section className="sc-card sc-settings-card sc-character-settings">
             <h2>
               <Shirt size={21} /> Your adventurer
@@ -109,7 +119,7 @@ export default function SettingsPage({
                 aria-checked={preferences.sound_effects}
                 aria-label="Sound effects"
                 className="sc-switch"
-                disabled={preferencesLoading}
+                disabled={preferencesLoading || savingPreference}
                 onClick={() =>
                   void save({ sound_effects: !preferences.sound_effects })
                 }
@@ -130,7 +140,7 @@ export default function SettingsPage({
                 aria-checked={preferences.reduced_motion}
                 aria-label="Reduce motion"
                 className="sc-switch"
-                disabled={preferencesLoading}
+                disabled={preferencesLoading || savingPreference}
                 onClick={() =>
                   void save({ reduced_motion: !preferences.reduced_motion })
                 }
@@ -146,7 +156,7 @@ export default function SettingsPage({
               <select
                 aria-label="Default focus duration"
                 value={preferences.focus_minutes}
-                disabled={preferencesLoading}
+                disabled={preferencesLoading || savingPreference}
                 onChange={(e) =>
                   void save({ focus_minutes: Number(e.target.value) })
                 }
@@ -158,6 +168,7 @@ export default function SettingsPage({
                 ))}
               </select>
             </label>
+            {preferenceStatus && <p className="htp-preference-status" role="status">{preferenceStatus}</p>}
             {(actionError || preferenceError) && (
               <ErrorNotice message={actionError || preferenceError} />
             )}
@@ -183,8 +194,7 @@ export default function SettingsPage({
               </button>
             </section>
           )}
-        </div>
-      </div>
+        </div>} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import type { BookPuzzle } from "../../content/codeCampaign";
 import { AvatarGraphic, type SpriteAction } from "../adventure/AvatarGraphic";
 import { useAppearance } from "../adventure/AppearanceContext";
 import { usePreferences } from "../settings/PreferencesContext";
+import { BOOK_STAGE_BACKDROPS } from "./bookSceneAssets";
 
 type ScenePhase = "still" | "approach" | "inspect" | "reveal" | "settle";
 
@@ -16,6 +17,8 @@ interface BookCutsceneProps {
   mode?: "level" | "film";
   onNarrate?: () => void;
   narrating?: boolean;
+  embedded?: boolean;
+  playing?: boolean;
 }
 
 const phaseAction: Record<ScenePhase, SpriteAction> = {
@@ -36,15 +39,22 @@ export function BookCutscene({
   mode = "film",
   onNarrate,
   narrating = false,
+  embedded = false,
+  playing = true,
 }: BookCutsceneProps) {
   const { appearance } = useAppearance();
   const { preferences } = usePreferences();
   const [phase, setPhase] = useState<ScenePhase>("still");
   const [replay, setReplay] = useState(0);
   const sceneLead = chapter.bookId === "harry-potter" ? "Harry" : "Your avatar";
+  const backdrop = embedded ? BOOK_STAGE_BACKDROPS[chapter.scene] : undefined;
 
   useEffect(() => {
-    if (preferences.reduced_motion) {
+    if (!playing) {
+      setPhase("still");
+      return;
+    }
+    if (preferences.reduced_motion || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setPhase("settle");
       return;
     }
@@ -58,7 +68,7 @@ export function BookCutscene({
       window.clearTimeout(reveal);
       window.clearTimeout(settle);
     };
-  }, [chapter.chapterId, completed, sequence, replay, preferences.reduced_motion]);
+  }, [chapter.chapterId, completed, sequence, replay, preferences.reduced_motion, playing]);
 
   const caption = mode === "level"
     ? completed
@@ -83,12 +93,14 @@ export function BookCutscene({
         data-background="wizarding-library"
         data-scene={chapter.scene}
         data-phase={phase}
+        data-playing={playing}
+        data-stage-art={!!backdrop}
       >
-        <div className="sc-volume-scene__stars" aria-hidden="true" />
+        {backdrop ? <img className="htp-stage-backdrop" src={backdrop} alt="" /> : <><div className="sc-volume-scene__stars" aria-hidden="true" />
         <div className="sc-volume-scene__moon" aria-hidden="true" />
         <div className="sc-volume-scene__tower sc-volume-scene__tower--left" aria-hidden="true" />
         <div className="sc-volume-scene__tower sc-volume-scene__tower--right" aria-hidden="true" />
-        <div className="sc-volume-scene__ridge" aria-hidden="true" />
+        <div className="sc-volume-scene__ridge" aria-hidden="true" /></>}
         <img className="sc-volume-scene__relic-art" src={relicImage} alt="" aria-hidden="true" />
         {characterImage && <img
           className="sc-volume-scene__character"
@@ -120,7 +132,7 @@ export function BookCutscene({
           <strong>{chapter.chapterTitle}</strong>
         </div>
       </div>
-      <figcaption className="sc-book-cutscene__caption" aria-live="polite" aria-atomic="true">
+      {!embedded && <><figcaption className="sc-book-cutscene__caption" aria-live="polite" aria-atomic="true">
         <span>{phase === "approach" ? "THE CLUE" : phase === "inspect" ? "YOUR SPELL" : completed ? "STORY UNFOLDS" : "THE STORY"}</span>
         <p>{caption}</p>
       </figcaption>
@@ -129,7 +141,7 @@ export function BookCutscene({
           <RotateCcw size={14} /> Replay scene
         </button>
         {onNarrate && <button type="button" onClick={onNarrate}>{narrating ? <VolumeX size={14} /> : <Volume2 size={14} />}{narrating ? "Stop narration" : "Read scene"}</button>}
-      </div>
+      </div></>}
     </figure>
   );
 }

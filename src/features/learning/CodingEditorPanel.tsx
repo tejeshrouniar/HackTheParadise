@@ -1,5 +1,5 @@
 import { Check, Copy, HelpCircle, Play, RotateCcw, Square } from "lucide-react";
-import { useRef, type RefObject, type ReactNode } from "react";
+import { useRef, useState, type RefObject, type ReactNode } from "react";
 import { SparkUnlock } from "./SparkUnlock";
 
 export interface CodingEditorError {
@@ -55,6 +55,20 @@ export function CodingEditorPanel({
   const lines = code.split("\n");
   const highlightRef = useRef<HTMLPreElement>(null);
   const gutterRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<HTMLTextAreaElement>(null);
+  const editor = textareaRef ?? editorRef;
+  const [resetDraft, setResetDraft] = useState<string | null>(null);
+
+  function goToError() {
+    const field = editor.current;
+    if (!field || !error) return;
+    const line = Math.max(0, Math.min(error.lineIndex, lines.length - 1));
+    const start = lines.slice(0, line).reduce((length, text) => length + text.length + 1, 0);
+    field.focus();
+    field.setSelectionRange(start, start + lines[line].length);
+    const lineHeight = parseFloat(getComputedStyle(field).lineHeight);
+    field.scrollTop = Math.max(0, lineHeight * line - field.clientHeight / 2);
+  }
 
   return (
     <div className="sc-grimoire-editor-page">
@@ -62,12 +76,15 @@ export function CodingEditorPanel({
       <header>
         <h2>Spell weaving</h2>
         <button type="button" className="sc-cast-button" onClick={onRun} disabled={isRunning || !canRun}>
-          <Play size={14} /> {isRunning ? "Casting…" : "Cast spell (Run)"}
+          <Play size={14} aria-hidden="true" /> {isRunning ? "Casting…" : runLabel}
         </button>
       </header>
       <div className="sc-editor-meta"><span>PYTHON · YOUR SPELL</span><div>
         <button type="button" onClick={onCopy} aria-label={copied ? "Code copied" : "Copy code"}>{copied ? <Check size={14} /> : <Copy size={14} />}</button>
-        <button type="button" aria-label="Reset code and scene" disabled={isRunning} onClick={onReset}><RotateCcw size={14} /></button>
+        <button type="button" aria-label="Reset code and scene" disabled={isRunning} onClick={() => {
+          setResetDraft((draft) => draft ?? code);
+          onReset();
+        }}><RotateCcw size={14} /></button>
       </div></div>
       <div className="sc-code-input sc-highlight-editor">
         <div className="sc-code-gutter" aria-hidden="true"><div className="sc-code-lines" ref={gutterRef}>
@@ -75,9 +92,9 @@ export function CodingEditorPanel({
         </div></div>
         <div className="sc-code-surface">
           <pre className="sc-code-highlight" ref={highlightRef} aria-hidden="true">{lines.map((line, index) => <code key={index} className={error?.lineIndex === index ? "error" : activeLine === index ? "active" : ""}>{colorLine(line)}{"\n"}</code>)}</pre>
-          <textarea aria-label="Quest code editor" aria-describedby="sc-editor-shortcut" ref={textareaRef}
+          <textarea aria-label="Quest code editor" aria-describedby="sc-editor-shortcut" ref={editor}
             maxLength={20000} value={code} readOnly={isRunning}
-            onChange={(event) => onCodeChange(event.target.value)}
+            onChange={(event) => { setResetDraft(null); onCodeChange(event.target.value); }}
             onScroll={(event) => {
               if (highlightRef.current) highlightRef.current.style.transform = 'translate(' + -event.currentTarget.scrollLeft + 'px,' + -event.currentTarget.scrollTop + 'px)';
               if (gutterRef.current) gutterRef.current.style.transform = 'translateY(' + -event.currentTarget.scrollTop + 'px)';
@@ -86,8 +103,9 @@ export function CodingEditorPanel({
             spellCheck={false} autoCapitalize="off" autoCorrect="off" wrap="off" />
         </div>
       </div>
-      {error && <div className="sc-code-error" role="alert"><strong>Line {error.lineIndex + 1}: {error.message}</strong><p>{error.suggestion}</p></div>}
+      {error && <div className="sc-code-error"><div role="alert"><strong>Line {error.lineIndex + 1}: {error.message}</strong><p>{error.suggestion}</p></div><button type="button" className="sc-code-jump" onClick={goToError}>Go to line {error.lineIndex + 1}</button></div>}
       <div className="sc-editor-footer"><small id="sc-editor-shortcut">Ctrl / ⌘ + Enter to cast</small>
+        {resetDraft !== null && <button type="button" disabled={isRunning} onClick={() => { onCodeChange(resetDraft); setResetDraft(null); editor.current?.focus(); }}>Restore draft</button>}
         {isRunning && onStop && <button type="button" onClick={onStop}><Square size={12} /> Stop spell</button>}
         {onGuide && <button type="button" onClick={onGuide}><HelpCircle size={14} /> Quest guide</button>}
       </div>
@@ -96,7 +114,7 @@ export function CodingEditorPanel({
       <header><h2>Hints & solutions</h2><span>YOUR FIELD NOTES</span></header>
       {children}
       <details className="sc-quest-disclosure"><summary>Reveal hint <small>10 Sparks</small></summary><SparkUnlock bookId={sparkBookId} id={sparkLessonId} kind="hint" /></details>
-      <details className="sc-quest-disclosure"><summary>Reveal solution <small>20 Sparks</small></summary><SparkUnlock bookId={sparkBookId} id={sparkLessonId} kind="solution" onUse={onSolutionUse} /></details>
+      <details className="sc-quest-disclosure"><summary>Reveal solution <small>20 Sparks</small></summary><SparkUnlock bookId={sparkBookId} id={sparkLessonId} kind="solution" onUse={(next) => { setResetDraft(null); onSolutionUse(next); }} /></details>
     </section>
     </div>
   );

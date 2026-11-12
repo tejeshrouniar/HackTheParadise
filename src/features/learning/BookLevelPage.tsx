@@ -2,6 +2,7 @@ import { ArrowLeft, BookOpen } from "lucide-react";
 import { STORY_BOOKS } from "../../content/storyBooks";
 import { StorybookVolume } from "../story/StorybookVolume";
 import { useBookProgress } from "../story/useBookProgress";
+import { BookNotice } from "../../components/ui/Status";
 
 interface BookLevelPageProps {
   bookId: string;
@@ -17,7 +18,22 @@ export function BookLevelPage({ bookId, chapterId, onLevels, onStoryFilm, onChap
   const progress = useBookProgress();
 
   if (!book || book.kind !== "coding") {
-    return <section className="sc-page sc-locked-scene"><h1>Book unavailable</h1><button className="sc-button" onClick={onLevels}>Return to levels</button></section>;
+    return <BookNotice title="Book unavailable"><button className="sc-button" onClick={onLevels}>Return to levels</button></BookNotice>;
+  }
+
+  const chapterIndex = book.chapters.findIndex(chapter => chapter.chapterId === chapterId);
+  if (chapterIndex < 0) {
+    return <BookNotice title="Chapter unavailable"><button className="sc-button" onClick={onLevels}>Return to levels</button></BookNotice>;
+  }
+  const finished = new Set(progress.completed);
+  const nextChapter = book.chapters.find(chapter => !finished.has(chapter.chapterId));
+  if (!finished.has(chapterId) && book.chapters.slice(0, chapterIndex).some(chapter => !finished.has(chapter.chapterId))) {
+    return <BookNotice title="This chapter is still locked">
+      <p>{book.chapters[chapterIndex].chapterTitle}</p>
+      <p>{progress.status.startsWith("Syncing") ? progress.status : "Complete the earlier chapters to unlock this page."}</p>
+      {nextChapter && <button className="sc-button" onClick={() => onChapterChange(nextChapter.chapterId)}>Play {nextChapter.chapterTitle}</button>}
+      <button className="sc-button secondary" onClick={onLevels}>Return to levels</button>
+    </BookNotice>;
   }
 
   return (

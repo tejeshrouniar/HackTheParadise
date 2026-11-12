@@ -47,7 +47,7 @@ export function CharacterStudio({ onClose }: { onClose: () => void }) {
       title="Create your adventurer"
       description={
         user
-          ? "Your character is saved to your Storicode account."
+          ? "Your character is saved to your Hack The Paradise account."
           : "Try your character on this device. Sign in to save a character to your account."
       }
       wide

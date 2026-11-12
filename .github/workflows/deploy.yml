@@ -1,4 +1,4 @@
-name: Deploy Storicode to GitHub Pages
+name: Deploy Hack The Paradise to GitHub Pages
 
 on:
   push:

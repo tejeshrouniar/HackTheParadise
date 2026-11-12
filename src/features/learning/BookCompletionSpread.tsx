@@ -17,6 +17,7 @@ interface BookCompletionSpreadProps {
   lessonId: number;
   executionSteps: string[];
   scene: ReactNode;
+  chapterVideo?: ReactNode;
   onContinue: () => void;
   continueLabel: string;
   canContinue?: boolean;
@@ -47,6 +48,7 @@ export function BookCompletionSpread({
   lessonId,
   executionSteps,
   scene,
+  chapterVideo,
   onContinue,
   continueLabel,
   canContinue = true,
@@ -178,6 +180,7 @@ export function BookCompletionSpread({
           <div className={`sc-completion-page__scene sc-completion-page__scene--${theme}`} aria-label={`${title} movie scene`}>
             {scene}
           </div>
+          {chapterVideo}
           <div className="sc-completion-page__actions">
             <button className="sc-button" type="button" disabled={!canContinue} onClick={onContinue}>{continueLabel}</button>
             {onReview && <button className="sc-link" type="button" onClick={onReview}>Review this level</button>}

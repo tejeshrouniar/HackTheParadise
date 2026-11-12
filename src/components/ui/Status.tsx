@@ -1,4 +1,13 @@
 import { LoaderCircle, AlertCircle } from "lucide-react";
+import type { ReactNode } from "react";
+
+/** A provider-free book frame also works before auth and inside error boundaries. */
+export function BookNotice({ title, children }: { title: string; children: ReactNode }) {
+  return <section className="htp-book-notice" aria-label={title}>
+    <div><span>HACK THE PARADISE</span><h1>{title}</h1></div>
+    <div>{children}</div>
+  </section>;
+}
 export function Loading({ label = "Loading…" }: { label?: string }) {
   return (
     <div className="sc-loading" role="status">

@@ -1,5 +1,7 @@
-import { GrimoireHeaderSlot } from "../features/library/Grimoire";
+import { Grimoire, GrimoireHeaderSlot, PageTurnProvider } from "../features/library/Grimoire";
 import { LibraryHeader } from "../features/library/LibraryHeader";
+import { LibraryEntrance } from "../features/library/LibraryEntrance";
+import type { CSSProperties } from "react";
 import { MagicalBookshelf } from "../features/library/MagicalBookshelf";
 import { LibraryUtilityPage } from "../features/library/LibraryUtilityPage";
 import { LIBRARY } from "../content/library";
@@ -26,7 +28,7 @@ import Dashboard from "../features/learning/Dashboard";
 import { AuthModal } from "../components/Auth/AuthModal";
 import { Modal } from "../components/ui/Modal";
 import { Avatar } from "../components/ui/Avatar";
-import { Loading } from "../components/ui/Status";
+import { BookNotice, Loading } from "../components/ui/Status";
 import { ProfileForm } from "../features/profile/ProfileForm";
 import { CODEDEX_LESSONS } from "../data/codedexLessons";
 import toast from "react-hot-toast";
@@ -70,10 +72,14 @@ const routeFromHash = () => {
   const bookRoute = route.match(/^book(?:-story)?\/([a-z0-9-]+)$/);
   const knownBookRoute = bookRoute && STORY_BOOKS.some((book) => book.id === bookRoute[1]);
   if (knownBookRoute || /^library\/(theme|lore|profile|account|contact)$/.test(route)) return route;
-  return /^(learn|story|community|settings|quest\/(?:[1-9]|1[0-2])|book-level\/[a-z0-9-]+)$/.test(route)
+  return /^(entrance|learn|story|community|settings|quest\/(?:[1-9]|1[0-2])|book-level\/[a-z0-9-]+)$/.test(route)
     ? route
     : "story";
 };
+const levelRoutes = [
+  ...Array.from({ length: 12 }, (_, index) => `quest/${index + 1}`),
+  ...STORY_BOOKS.flatMap(book => book.kind === "coding" ? book.chapters.map(chapter => `book-level/${chapter.chapterId}`) : []),
+];
 export function AppShell() {
   const { user, isPasswordRecovery, signOut } = useAuth();
   const { completed } = useProgress();
@@ -82,7 +88,13 @@ export function AppShell() {
   const [small, setSmall] = useState(
     () => window.matchMedia("(max-width:760px)").matches,
   );
-  const [route, setRoute] = useState(routeFromHash);
+  const [{ route, previousRoute }, setRouteState] = useState(() => ({ route: routeFromHash(), previousRoute: "" }));
+  const previousLevel = levelRoutes.indexOf(previousRoute);
+  const currentLevel = levelRoutes.indexOf(route);
+  const levelTurn = previousLevel >= 0 && currentLevel >= 0 ? (currentLevel < previousLevel ? "previous" : "next") : undefined;
+  function setRoute(next: string) {
+    setRouteState(current => current.route === next ? current : { route: next, previousRoute: current.route });
+  }
   const [headerSlot, setHeaderSlot] = useState<HTMLDivElement | null>(null);
   const [selectedBookId, setSelectedBookId] = useState<string>(() => {
     const routeMatch = routeFromHash().match(/^book(?:-story)?\/([a-z0-9-]+)$/);
@@ -186,6 +198,7 @@ export function AppShell() {
       <div
         className={`sc-app sc-adventure-shell sc-magical-app ${route === "learn" ? "sc-on-home sc-on-map" : ""} ${route === "story" ? "sc-on-story" : ""} ${route.startsWith("quest/") || route.startsWith("book-level/") ? "sc-on-quest" : ""} ${route.startsWith("book-level/") ? "sc-on-book-level" : ""}`}
         data-book-theme={selectedBook.theme}
+        style={{ "--book-cover": selectedBook.palette.primary, "--book-secondary": selectedBook.palette.secondary, "--book-background": selectedBook.palette.background, "--paper": selectedBook.palette.paper, "--paper-ink": selectedBook.palette.text, "--gold-rim": selectedBook.palette.accent } as CSSProperties}
       >
         <a
           className="sc-skip"
@@ -197,7 +210,7 @@ export function AppShell() {
         >
           Skip to content
         </a>
-        <GrimoireHeaderSlot.Provider value={headerSlot}>
+        <PageTurnProvider routeDirection={levelTurn}><GrimoireHeaderSlot.Provider value={headerSlot}>
         <LibraryHeader
           onMenu={() => setMobile(true)} onLibrary={() => navigate("story")}
           onProfile={() => user ? navigate("library/profile") : setAuth(true)}
@@ -206,8 +219,8 @@ export function AppShell() {
           title={route === "story" ? "THE MAGICAL LIBRARY" : route.startsWith("library/") ? LIBRARY.find((book) => book.route === route)?.title ?? "Library" : selectedBook.title}
         />
         <div className="sc-workspace" {...(tools ? { inert: "" } : {})}>
-          <main id="main-content" className="sc-route-turn" key={route} tabIndex={-1}>
-            <Suspense fallback={<Loading label="Opening your workspace…" />}>
+          <main id="main-content" className="sc-route-turn" data-level-turn={levelTurn} key={route} tabIndex={-1}>
+            <Suspense fallback={<BookNotice title="Turning the page"><Loading label="Opening your book…" /></BookNotice>}>
               {route.startsWith("book-level/") ? (
                 <BookLevel
                   bookId={selectedBookId}
@@ -220,7 +233,7 @@ export function AppShell() {
                   }}
                 />
               ) : route.startsWith("quest/") && !canEnterLevel(Number(route.split("/")[1]), completed) ? (
-                <section className="sc-page sc-locked-scene"><h1>This level is still locked</h1><p>Follow the story in order to reach this place.</p><button className="sc-button" onClick={() => openQuest(journeyProgress(completed).next)}>Continue your story</button></section>
+                <div className="sc-page"><Grimoire label="A page yet to be written" left={<><h1>This level is still locked</h1><p>Follow the story in order to reach this place.</p></>} right={<><h2>Your next page</h2><button className="sc-button" onClick={() => openQuest(journeyProgress(completed).next)}>Continue your story</button></>} /></div>
               ) : route.startsWith("quest/") ? (
                 <Quest
                   key={route}
@@ -228,11 +241,13 @@ export function AppShell() {
                   onExit={() => navigate("learn")}
                   onLessonChange={openQuest}
                 />
+              ) : route === "entrance" ? (
+                <LibraryEntrance force onEnter={() => navigate("story")} />
               ) : route === "story" ? (
-                <MagicalBookshelf onOpen={(book) => {
+                <LibraryEntrance><MagicalBookshelf onTools={openTools} onSignIn={() => setAuth(true)} onOpen={(book) => {
                   if (book.storyId) { setSelectedBookId(book.storyId); setSelectedChapterId(null); }
                   navigate(book.route);
-                }} />
+                }} /></LibraryEntrance>
               ) : route.startsWith("library/") ? (
                 <LibraryUtilityPage id={route.slice("library/".length)} onNavigate={navigate} onSignIn={() => setAuth(true)} onCharacter={() => setCharacter(true)} onTools={openTools} />
               ) : route.startsWith("book/") ? (
@@ -240,8 +255,8 @@ export function AppShell() {
                   bookId={route.slice("book/".length)}
                   onShelf={() => navigate("story")}
                   onPlayLevels={() => navigate("learn")}
-                  onReadStory={() => {
-                    setSelectedChapterId(null);
+                  onReadStory={(chapterId) => {
+                    setSelectedChapterId(chapterId ?? null);
                     navigate(`book-story/${route.slice("book/".length)}`);
                   }}
                 />
@@ -273,12 +288,13 @@ export function AppShell() {
               )}
             </Suspense>
           </main>
-          <footer className="sc-site-footer"><strong>Storicode</strong><span>© 2026 Storicode</span><a href="https://github.com/tejeshrouniar/StoriCode" target="_blank" rel="noreferrer">Repository</a><a href="https://github.com/tejeshrouniar/StoriCode/issues" target="_blank" rel="noreferrer">Contact / feedback</a></footer>
+          <footer className="sc-site-footer"><strong>Hack The Paradise</strong><span>© 2026 Hack The Paradise</span><a href="https://github.com/tejeshrouniar/HackTheParadise" target="_blank" rel="noreferrer">Repository</a><a href="https://github.com/tejeshrouniar/HackTheParadise/issues" target="_blank" rel="noreferrer">Contact / feedback</a></footer>
         </div>
-        </GrimoireHeaderSlot.Provider>
+        </GrimoireHeaderSlot.Provider></PageTurnProvider>
         <Modal open={mobile} onClose={() => setMobile(false)} title="Your library" description="Choose a book or a place to explore.">
           <nav className="sc-library-menu" aria-label="Library navigation">
             <button onClick={() => navigate("story")}><BookOpen size={18} /> Bookshelf</button>
+            <button onClick={() => navigate("entrance")}>Landing page</button>
             {LIBRARY.map((book) => <button key={book.id} onClick={() => { if (book.storyId) setSelectedBookId(book.storyId); navigate(book.route); }}>{book.title}</button>)}
             <button onClick={() => { setMobile(false); setSearch(true); }}><Search size={18} /> Search quests</button>
           </nav>

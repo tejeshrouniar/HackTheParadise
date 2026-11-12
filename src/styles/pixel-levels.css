@@ -1,0 +1,197 @@
+/* Coding stations share a 32px tile grid and a 4px bevel, with each book's own accent. */
+.sc-magical-app :is(.sc-grimoire--coding, .sc-grimoire--completion) {
+  --station-light: var(--book-accent, #d7aa69);
+  --station-shadow: #241a14;
+  --station-edge: #705333;
+  --station-tile: 32px;
+}
+
+.sc-magical-app .sc-grimoire--coding :is(.sc-spell-editor, .sc-live-world, .sc-execution-trace, .sc-grimoire-help) {
+  border: 2px solid var(--station-edge);
+  border-radius: 0;
+  box-shadow: 0 4px 0 #76513250, 0 0 0 2px #583b262a;
+}
+
+.sc-magical-app .sc-grimoire--coding :is(.sc-spell-editor, .sc-live-world) > header {
+  min-height: 56px;
+  background-color: #272924;
+  background-image: repeating-linear-gradient(90deg, #edd9aa12 0 2px, transparent 2px var(--station-tile));
+  box-shadow: inset 0 3px 0 #ead3a028;
+}
+
+.sc-magical-app .sc-grimoire--coding :is(.sc-spell-editor, .sc-live-world) > header h2 {
+  font-family: ui-monospace, Consolas, monospace;
+  font-weight: 700;
+  font-size: clamp(12px, 1.4vw, 15px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sc-magical-app .sc-grimoire--coding :is(.sc-spell-editor, .sc-live-world) > header h2::before {
+  content: "";
+  flex: 0 0 var(--station-tile);
+  height: var(--station-tile);
+  background: var(--station-light);
+  /* One 32×32 crystal drawn on an eight-by-eight grid of 4px pixels. */
+  clip-path: polygon(37.5% 0, 62.5% 0, 62.5% 12.5%, 75% 12.5%, 75% 25%, 87.5% 25%, 87.5% 75%, 75% 75%, 75% 87.5%, 62.5% 87.5%, 62.5% 100%, 37.5% 100%, 37.5% 87.5%, 25% 87.5%, 25% 75%, 12.5% 75%, 12.5% 25%, 25% 25%, 25% 12.5%, 37.5% 12.5%);
+  box-shadow: inset 8px 8px #ffffff35, inset -8px -8px #492a28a0;
+}
+
+.sc-magical-app .sc-grimoire--coding .sc-cast-button {
+  min-height: 36px;
+  border-radius: 0;
+  border: 2px solid var(--station-light);
+  background: #5a3825;
+  box-shadow: inset 0 3px #ffffff25, 0 3px var(--station-shadow);
+}
+
+.sc-magical-app .sc-grimoire--coding .sc-cast-button:hover:not(:disabled) { background: #774c30; }
+.sc-magical-app .sc-grimoire--coding .sc-cast-button:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 2px #ffffff25; }
+
+.sc-magical-app .sc-grimoire--coding .sc-code-input { background-color: #171f1d; }
+.sc-magical-app .sc-grimoire--coding .sc-code-gutter { background: #232c27; }
+.sc-magical-app .sc-grimoire--coding :is(.sc-code-highlight, .sc-code-input textarea, .sc-code-lines) {
+  font-size: 13px;
+  line-height: 24px;
+}
+
+.sc-magical-app .sc-grimoire--coding .sc-code-input:focus-within { box-shadow: inset 0 0 0 2px #cfad6d; }
+.sc-magical-app .sc-grimoire--coding .sc-editor-meta button { min-width: 32px; min-height: 32px; }
+.sc-magical-app .sc-grimoire--coding .sc-editor-footer { gap: 8px; flex-wrap: wrap; }
+.sc-magical-app .sc-grimoire--coding .sc-editor-footer button { min-height: 32px; }
+.sc-magical-app .sc-grimoire--coding :is(.sc-editor-footer, .sc-editor-meta) button:hover { background: #ffffff12; }
+.sc-magical-app .sc-grimoire--coding .sc-code-jump { color: #fff3da; padding: 4px 8px; min-height: 32px; border: 1px solid #ffd3bc; }
+
+.sc-magical-app .sc-grimoire--coding .sc-grimoire-help summary {
+  padding-inline: 8px;
+  min-height: 44px;
+}
+
+.sc-magical-app .sc-grimoire--coding .sc-grimoire-help summary:hover { background: #9a613a15; }
+.sc-magical-app .sc-grimoire--coding .sc-grimoire-help details[open] > summary { background: #9a613a24; }
+
+.sc-magical-app .sc-grimoire--coding .sc-live-world > header span {
+  border-radius: 0;
+  border: 1px solid #ddc8a35c;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+.sc-magical-app .sc-grimoire--coding .sc-live-world[data-cast="casting"] > header span { color: #ffe8aa; background: #604b28; }
+.sc-magical-app .sc-grimoire--coding .sc-live-world[data-cast="failed"] > header span { color: #ffe2ce; background: #60392c; }
+.sc-magical-app .sc-grimoire--coding .sc-live-world > header span.complete { color: #edffde; background: #36573b; }
+.sc-magical-app .sc-grimoire--coding .sc-live-world img { image-rendering: pixelated; }
+
+.sc-magical-app .sc-grimoire--completion :is(.sc-completion-page__scene, .sc-completion-code pre, .sc-book-audio) {
+  border-radius: 0;
+  border: 2px solid var(--station-edge);
+  box-shadow: 0 4px 0 #76513250;
+}
+
+.sc-magical-app .sc-grimoire--completion .sc-completion-page__scene img { image-rendering: pixelated; }
+.sc-magical-app .sc-grimoire--completion .sc-completion-page__actions .sc-button { min-height: 44px; border-radius: 0; }
+
+@media (max-width: 760px) {
+  .sc-magical-app .sc-grimoire--coding { --panel-height: 430px; }
+  .sc-magical-app .sc-grimoire--coding :is(.sc-code-highlight, .sc-code-input textarea, .sc-code-lines) { font-size: 16px; }
+  .sc-magical-app .sc-grimoire--coding :is(.sc-editor-meta, .sc-editor-footer) button { min-width: 44px; min-height: 44px; }
+}
+.sc-magical-app .sc-grimoire .sc-live-world {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+.sc-magical-app .sc-grimoire .sc-live-world .sc-stage-canvas {
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  place-items: stretch;
+  overflow: hidden;
+}
+.sc-magical-app .sc-grimoire .sc-stage-content { min-width: 0; align-items: stretch; }
+.sc-magical-app .sc-grimoire .sc-stage-content > .sc-world {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0;
+}
+.sc-magical-app .sc-grimoire .sc-stage-content > .sc-world > svg { min-height: 0; }
+.sc-magical-app .sc-stage-content > .htp-puzzle-stage {
+  position: relative;
+  display: grid;
+  min-height: 0;
+}
+.htp-puzzle-stage .sc-book-cutscene { display: flex; min-height: 0; margin: 0; }
+.htp-puzzle-stage .sc-volume-scene { flex: 1; width: 100%; min-height: 0; }
+.htp-stage-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+.sc-adventure-shell .htp-puzzle-stage .sc-volume-scene__harry {
+  width: 96px;
+  height: 96px;
+  bottom: 18%;
+  background-image: url("../assets/storybooks/stages/harry-32.webp");
+  background-size: 300% 400%;
+  background-position: 50% 66.6667%;
+  animation: none;
+}
+.sc-adventure-shell .htp-puzzle-stage .sc-volume-scene__harry[data-phase="approach"] {
+  animation: htp-harry-walk 560ms steps(1, end) infinite;
+}
+@keyframes htp-harry-walk {
+  0%, 100% { background-position-x: 0%; }
+  25%, 75% { background-position-x: 50%; }
+  50% { background-position-x: 100%; }
+}
+.htp-puzzle-stage .sc-volume-scene[data-stage-art="true"] .sc-volume-scene__relic-art {
+  bottom: 22%;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  filter: drop-shadow(0 3px 1px #0008);
+}
+.htp-puzzle-stage [data-scene="bathroom"] .htp-stage-backdrop {
+  /* Keep the floor and plinth aligned with the actors across page widths. */
+  object-fit: fill;
+}
+.htp-puzzle-stage .sc-volume-scene[data-scene="bathroom"] .sc-volume-scene__relic-art {
+  right: 11.5%;
+  bottom: 31%;
+  width: clamp(46px, 12%, 72px);
+  height: auto;
+  aspect-ratio: 1;
+}
+.sc-adventure-shell .htp-puzzle-stage [data-scene="bathroom"] .sc-volume-scene__harry {
+  bottom: 20%;
+}
+.sc-adventure-shell .htp-puzzle-stage [data-playing="false"] :is(.sc-volume-scene__harry, .sc-volume-scene__relic-art, .sc-book-cutscene__magic) {
+  animation: none;
+  transition: none;
+}
+.sc-magical-app .sc-execution-trace .sc-volume-aftermath :is(p, strong) { color: #e3d5b8; }
+.htp-puzzle-tiles {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.htp-puzzle-tiles li {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid #c9a85f;
+  background: #211a22;
+  box-shadow: 2px 2px #100d10;
+  color: #fff1c1;
+  font: bold 14px ui-monospace, monospace;
+}
+.htp-puzzle-tiles li[data-state="passed"] { background: #275744; border-color: #a5dbb7; }
+.htp-puzzle-tiles li[data-state="failed"] { background: #793a37; border-color: #ffc0a6; }

@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from "react";
+import { BookNotice } from "./Status";
 export class ErrorBoundary extends Component<
   { children: ReactNode },
   { failed: boolean }
@@ -8,19 +9,18 @@ export class ErrorBoundary extends Component<
     return { failed: true };
   }
   componentDidCatch(error: Error) {
-    console.error("Storicode could not render this screen:", error.message);
+    console.error("Hack The Paradise could not render this screen:", error.message);
   }
   render() {
     return this.state.failed ? (
-      <div className="sc-empty">
-        <h1>Let’s try that again.</h1>
+      <BookNotice title="Let’s try that again.">
         <p>
           This screen couldn’t open. Your saved account data is still there.
         </p>
         <button className="sc-button" onClick={() => location.reload()}>
-          Reload Storicode
+          Reload Hack The Paradise
         </button>
-      </div>
+      </BookNotice>
     ) : (
       this.props.children
     );

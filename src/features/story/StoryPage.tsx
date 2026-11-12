@@ -1,6 +1,8 @@
-import { Grimoire } from "../library/Grimoire";
+import { ChapterNavigation, Grimoire, usePageTurn } from "../library/Grimoire";
 import { MagicalBookshelf } from "../library/MagicalBookshelf";
 import { useEffect, useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import { readLocal, writeLocal } from "../../lib/validation";
 import { ArrowLeft, ArrowRight, BookOpen, Check, Film, Headphones, LockKeyhole, Pause, Play } from "lucide-react";
 import { STORY_BOOKS, type CodingStoryBook, type JourneyStoryBook } from "../../content/storyBooks";
 import { JOURNEY } from "../../content/journey";
@@ -29,12 +31,16 @@ function CinderBook({
   onPlayLevels: () => void;
 }) {
   const realm = book.chapters[chapter];
+  const previousPage = chapter > 0 ? () => setChapter(chapter - 1) : undefined;
+  const nextPage = chapter < book.chapters.length - 1 && chapter < Math.floor(cleared / 3) ? () => setChapter(chapter + 1) : undefined;
+  const navigation = usePageTurn();
   const music = useMusic();
   const soundtrack = soundscapes.find((track) => track.id === book.musicTrackId);
   const playingScore = !!soundtrack && music.playing && music.track.id === soundtrack.id;
 
   return (
     <section className="sc-cinder-book sc-story-volume sc-volume--cinder" aria-labelledby="sc-cinder-title">
+      <ChapterNavigation title={realm.title} number={chapter + 1} onPrevious={previousPage} onNext={nextPage} />
       <header className="sc-book-heading">
         <div>
           <span className="sc-volume-kicker">BEGINNER TUTORIAL <span aria-hidden="true">·</span> {chapter + 1} OF {book.chapters.length}</span>
@@ -57,7 +63,7 @@ function CinderBook({
               type="button"
               disabled={!unlocked}
               aria-current={chapter === index ? "page" : undefined}
-              onClick={() => setChapter(index)}
+              onClick={() => navigation.turn(() => setChapter(index), index < chapter ? "previous" : "next")}
             >
               <span className="sc-book-chapter-index__number">{isComplete ? <Check size={15} /> : !unlocked ? <LockKeyhole size={13} /> : String(index + 1).padStart(2, "0")}</span>
               <span><strong>{item.title}</strong><small>{item.place}</small></span>
@@ -67,8 +73,8 @@ function CinderBook({
       </nav>
 
       <Grimoire className="sc-grimoire--reader" label="The Last Light storybook" coverColor={book.coverColor} pageKey={chapter}
-        onPreviousPage={chapter > 0 ? () => setChapter(chapter - 1) : undefined}
-        onNextPage={chapter < book.chapters.length - 1 && chapter < Math.floor(cleared / 3) ? () => setChapter(chapter + 1) : undefined}
+        onPreviousPage={previousPage}
+        onNextPage={nextPage}
         left={
         <article className="sc-volume-page sc-volume-page--story sc-cinder-page">
           <div className="sc-volume-page__number">CHAPTER {String(chapter + 1).padStart(2, "0")} <span>·</span> THE LAST LIGHT</div>
@@ -120,11 +126,17 @@ function HarryStoryFilms({
   onCodeLevel: (bookId: string, id: string) => void;
 }) {
   const music = useMusic();
+  const navigation = usePageTurn();
   const soundtrack = soundscapes.find((track) => track.id === book.musicTrackId);
   const playingScore = !!soundtrack && music.playing && music.track.id === soundtrack.id;
   const unlocked = book.chapters.filter((chapter) => completed.includes(chapter.chapterId));
   const latest = unlocked.at(-1);
   const chapter = unlocked.find((item) => item.chapterId === chapterId) ?? latest;
+  const readerIndex = unlocked.findIndex(item => item.chapterId === chapter?.chapterId);
+  const previousChapter = unlocked[readerIndex - 1];
+  const nextChapter = readerIndex >= 0 ? unlocked[readerIndex + 1] : undefined;
+  const previousPage = previousChapter ? () => onChapterChange(previousChapter.chapterId) : undefined;
+  const nextPage = nextChapter ? () => onChapterChange(nextChapter.chapterId) : undefined;
   const [speaking, setSpeaking] = useState(false);
   const [playSequence, setPlaySequence] = useState(0);
 
@@ -157,6 +169,7 @@ function HarryStoryFilms({
 
   return (
     <section className="sc-harry-movie" aria-labelledby="sc-harry-movie-title">
+      {chapter && <ChapterNavigation title={chapter.chapterTitle} number={book.chapters.indexOf(chapter) + 1} onPrevious={previousPage} onNext={nextPage} />}
       <header className="sc-harry-movie__heading">
         <div>
           <span className="sc-volume-kicker"><Film size={13} /> STORY FILMS · {unlocked.length} UNLOCKED</span>
@@ -175,7 +188,7 @@ function HarryStoryFilms({
               type="button"
               disabled={!isUnlocked}
               aria-current={chapter?.chapterId === item.chapterId ? "page" : undefined}
-              onClick={() => onChapterChange(item.chapterId)}
+              onClick={() => navigation.turn(() => onChapterChange(item.chapterId), index < book.chapters.findIndex(c => c.chapterId === chapter?.chapterId) ? "previous" : "next")}
             >
               <span>{isUnlocked ? <Play size={12} /> : <LockKeyhole size={12} />}</span>
               <strong>{String(index + 1).padStart(2, "0")}</strong>
@@ -187,18 +200,15 @@ function HarryStoryFilms({
 
       {chapter ? (
         <Grimoire label={book.title + " story film"} coverColor={book.coverColor} pageKey={chapter.chapterId}
-          onPreviousPage={unlocked.findIndex((item) => item.chapterId === chapter.chapterId) > 0 ? () => onChapterChange(unlocked[unlocked.findIndex((item) => item.chapterId === chapter.chapterId) - 1].chapterId) : undefined}
-          onNextPage={unlocked.findIndex((item) => item.chapterId === chapter.chapterId) < unlocked.length - 1 ? () => onChapterChange(unlocked[unlocked.findIndex((item) => item.chapterId === chapter.chapterId) + 1].chapterId) : undefined}
+          onPreviousPage={previousPage}
+          onNextPage={nextPage}
           left={<><span className="sc-volume-kicker">THE CHAPTER</span><h1>{chapter.chapterTitle}</h1><p>{chapter.story}</p><p>{chapter.outcome}</p><hr /><h2>{chapter.conceptName}</h2><p>{chapter.lesson}</p><button className="sc-button" onClick={() => onCodeLevel(book.id, chapter.chapterId)}>Revisit this level <ArrowRight size={14} /></button><small>{status}</small></>}
           right={<><BookCutscene chapter={chapter} relicImage={BOOK_SCENE_ART[chapter.chapterId] ?? DEFAULT_BOOK_SCENE_ART} characterImage={BOOK_SCENE_CHARACTERS[chapter.chapterId]} completed sequence={playSequence} onNarrate={narrate} narrating={speaking} /><button className="sc-button secondary" disabled={!soundtrack} onClick={() => soundtrack && (playingScore ? music.pause() : void music.play(soundtrack, [soundtrack]))}>{playingScore ? "Pause score" : "Play this book’s score"}</button></>}
         />
       ) : (
-        <div className="sc-harry-movie__empty">
-          <Film size={30} aria-hidden="true" />
-          <h3>Your first story film is waiting</h3>
-          <p>Complete a code level to unlock its scene here. Story films follow your progress through the book.</p>
-          <button className="sc-button" type="button" onClick={onPlayLevels}>Choose a level <ArrowRight size={15} /></button>
-        </div>
+        <Grimoire label="Your unwritten story" coverColor={book.coverColor}
+          left={<><Film size={30} aria-hidden="true" /><h2>Your first story film is waiting</h2><p>Complete a code level to unlock its scene here.</p></>}
+          right={<><h2>Begin your adventure</h2><p>Your completed levels reveal the story, one chapter at a time.</p><button className="sc-button" type="button" onClick={onPlayLevels}>Choose a level <ArrowRight size={15} /></button></>} />
       )}
     </section>
   );
@@ -216,11 +226,16 @@ interface StoryPageProps {
 }
 
 export default function StoryPage({ mode, selectedBookId, chapterId, onBookOpen, onBookHome, onChapterChange, onPlayLevels, onCodeLevel }: StoryPageProps) {
+  const { user } = useAuth();
   const { completed } = useProgress();
   const bookProgress = useBookProgress();
   const progress = journeyProgress(completed);
   const selectedBook = STORY_BOOKS.find((book) => book.id === selectedBookId) ?? STORY_BOOKS[0];
-  const requestedCinderChapter = chapterId?.startsWith("cinder-") ? Number(chapterId.slice("cinder-".length)) : progress.chapter;
+  const bookmarkKey = `htp-reading:${user?.id ?? "guest"}:${selectedBook.id}`;
+  const stored = readLocal<unknown>(bookmarkKey, null);
+  const requested = chapterId ?? (typeof stored === "string" ? stored : null);
+  const rememberChapter = (id: string | null) => { writeLocal(bookmarkKey, id); onChapterChange(id); };
+  const requestedCinderChapter = requested?.startsWith("cinder-") ? Number(requested.slice("cinder-".length)) : progress.chapter;
   const cinderChapter = Number.isInteger(requestedCinderChapter) && requestedCinderChapter >= 0 && requestedCinderChapter < JOURNEY.length
     ? requestedCinderChapter
     : progress.chapter;
@@ -233,8 +248,8 @@ export default function StoryPage({ mode, selectedBookId, chapterId, onBookOpen,
       {selectedBook.kind === "journey" ? (
         <CinderBook
           book={selectedBook}
-          chapter={Math.min(cinderChapter, selectedBook.chapters.length - 1)}
-          setChapter={(index) => onChapterChange(`cinder-${index}`)}
+          chapter={Math.min(cinderChapter, progress.chapter, selectedBook.chapters.length - 1)}
+          setChapter={(index) => rememberChapter(`cinder-${index}`)}
           cleared={progress.cleared}
           onPlayLevels={onPlayLevels}
         />
@@ -244,8 +259,8 @@ export default function StoryPage({ mode, selectedBookId, chapterId, onBookOpen,
             book={selectedBook}
             completed={bookProgress.completed}
             status={bookProgress.status}
-            chapterId={chapterId}
-            onChapterChange={onChapterChange}
+            chapterId={requested}
+            onChapterChange={rememberChapter}
             onPlayLevels={onPlayLevels}
             onCodeLevel={onCodeLevel}
           />

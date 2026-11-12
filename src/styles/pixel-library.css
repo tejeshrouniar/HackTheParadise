@@ -1,0 +1,129 @@
+/* A 32px material grid with 2px highlights keeps the UI crisp at native scale. */
+.sc-magical-app {
+  --pixel-tile: 32px;
+  --pixel-edge: 2px;
+  --pixel-shadow: #24150d;
+}
+
+.sc-magical-app .sc-grimoire {
+  border-radius: 0;
+  box-shadow: 0 4px 0 #15100d, 0 8px 0 #090706, 0 20px 40px #0006;
+}
+
+.sc-magical-app .sc-grimoire__leaf {
+  background: repeating-linear-gradient(0deg, #704b2420 0 1px, transparent 1px var(--pixel-tile)),
+    repeating-linear-gradient(90deg, #704b2410 0 1px, transparent 1px var(--pixel-tile)), var(--paper, #f1e4c7);
+  border-radius: 0;
+}
+
+.sc-magical-app .sc-grimoire__corner {
+  border-radius: 0;
+  clip-path: polygon(0 0,100% 0,100% 24%,76% 24%,76% 48%,52% 48%,52% 72%,28% 72%,28% 100%,0 100%);
+}
+.sc-magical-app .sc-grimoire__corner--right { transform: scaleX(-1); }
+
+.sc-magical-app :is(.sc-button, .sc-chapter-pill, .sc-header-sparks, .sc-book-hub__action, .sc-cinema, .htp-cinema) {
+  border-radius: 0;
+}
+.sc-magical-app :is(.sc-button, .sc-book-hub__action, .htp-hanging-signs button):enabled:active {
+  translate: 0 var(--pixel-edge);
+  box-shadow: inset 0 2px #0004;
+}
+.sc-magical-app :is(button, a, input, select, summary):focus-visible {
+  outline: 2px solid #1b7a81;
+  outline-offset: 3px;
+}
+.sc-magical-app img:is(.sc-story-art, .sc-actor-sprite), .sc-magical-app .sc-book-hub__scene img { image-rendering: pixelated; }
+
+.htp-sketch-library .sc-library-cabinet { border-radius: 0; }
+.htp-sketch-library .sc-cabinet-row__books {
+  background-color: #342217;
+  background-image: repeating-linear-gradient(0deg, #180e0a55 0 2px, transparent 2px var(--pixel-tile)),
+    repeating-linear-gradient(90deg, #54351f 0 2px, #462c1e 2px 8px, #3b281d 8px 18px, #40291c 18px var(--pixel-tile));
+}
+.htp-sketch-library .sc-shelf-spine {
+  border-radius: 0;
+  box-shadow: inset 2px 0 #f6d79744, inset -4px 0 #0005, 4px 4px var(--pixel-shadow);
+}
+.htp-sketch-library .sc-shelf-spine:focus-visible { z-index: 2; outline-color: #fff0a6; }
+.htp-library-catalog [role="status"] { align-self: center; color: #f2dcaa; font: 12px ui-monospace, monospace; }
+.htp-sketch-library [role="status"]:not(.htp-library-catalog *) { color: #f2dcaa; }
+
+.sc-magical-app .sc-book-hub__actions { margin-top: 16px; }
+.sc-magical-app .sc-book-hub__scene { border-radius: 0; }
+.sc-magical-app .sc-book-hub__contents li {
+  display: grid;
+  grid-template-columns: var(--pixel-tile) minmax(0, 1fr);
+}
+.sc-magical-app .sc-book-hub__contents li > span {
+  width: var(--pixel-tile);
+  height: var(--pixel-tile);
+  border-radius: 0;
+}
+.sc-magical-app .sc-book-hub__contents li > .htp-chapter-link {
+  grid-column: 2;
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 4px 8px;
+  border: 1px solid #a1835066;
+  text-align: left;
+  background: #f7e4b95c;
+  color: inherit;
+}
+.sc-magical-app .sc-book-hub__contents li > .htp-chapter-link:hover { background: #e8c989; }
+.sc-magical-app .sc-book-hub__contents li :is(.htp-chapter-link, .htp-chapter-label) small {
+  grid-column: auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.htp-atlas-next {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  margin: 8px 0 16px;
+  padding: 10px 14px;
+  text-align: left;
+}
+.htp-atlas-next span { font: 11px ui-monospace, monospace; text-transform: uppercase; }
+.htp-atlas-index { border-block: 2px solid #8c6c483f; padding: 12px 0; }
+.htp-atlas-index summary { cursor: pointer; }
+.htp-atlas .sc-book-walk { border-radius: 0; }
+
+.sc-magical-app :is(.sc-book-chapter-index, .sc-harry-movie__reel) button {
+  min-height: 44px;
+  border-radius: 0;
+  box-shadow: inset 0 -2px #0004;
+}
+.sc-magical-app :is(.sc-book-chapter-index, .sc-harry-movie__reel) button[aria-current="page"] {
+  outline: 2px solid #c19c57;
+  outline-offset: -3px;
+}
+.sc-magical-app :is(.sc-book-chapter-index__number, .sc-book-walk-chapters__number) {
+  min-width: var(--pixel-tile);
+  min-height: var(--pixel-tile);
+  border-radius: 0;
+}
+.sc-magical-app .htp-book-notice { border-radius: 0; }
+.sc-magical-app .htp-book-notice > div {
+  background-image: repeating-linear-gradient(0deg, #704b2420 0 1px, transparent 1px var(--pixel-tile));
+}
+.htp-door::before {
+  border: 4px solid #80623a;
+  box-shadow: inset 4px 4px #ab825944, inset -4px -4px #0c0706;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-magical-app :is(.sc-button, .sc-book-hub__action, .htp-hanging-signs button):active { translate: none; }
+}
+:root[data-reduce-motion="true"] .sc-magical-app :is(.sc-button, .sc-book-hub__action, .htp-hanging-signs button):active { translate: none; }
+
+/* Narrow layouts stack both leaves, so turn a full-width leaf at the edge. */
+@media (max-width: 760px) and (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+  :root:not([data-reduce-motion="true"]) .sc-route-turn[data-level-turn] .sc-grimoire__turn-container {
+    display: block !important;
+  }
+  .sc-route-turn[data-level-turn] .sc-grimoire .sc-grimoire__turn-leaf { left: 0; right: 0; }
+}

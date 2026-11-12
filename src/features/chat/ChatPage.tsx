@@ -1,3 +1,4 @@
+import { Grimoire } from "../library/Grimoire";
 import { Suggestions } from "./Suggestions";
 import {
   useCallback,
@@ -14,6 +15,7 @@ import { errorMessage, messageError } from "../../lib/validation";
 import { Avatar } from "../../components/ui/Avatar";
 import { ErrorNotice, Loading } from "../../components/ui/Status";
 import { Modal } from "../../components/ui/Modal";
+import { PixelJournalMark } from "../library/PixelJournalMark";
 interface Member {
   display_name: string;
   username: string;
@@ -70,6 +72,7 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
   const [reportBusy, setReportBusy] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Message | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
+  const [atLatest, setAtLatest] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const nearBottom = useRef(true);
   const deleted = useRef(new Set<string>());
@@ -94,6 +97,7 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
     setConnection("Connecting…");
     deleted.current.clear();
     nearBottom.current = true;
+    setAtLatest(true);
     const fetchRecent = async () => {
       const { data, error } = await supabase!
         .from("chat_messages")
@@ -257,10 +261,10 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
   }
   if (!user)
     return (
-      <div className="sc-page"><Suggestions />
+      <div className="sc-page"><Grimoire label="Community journal" className="htp-journal htp-pixel-journal" left={<Suggestions />} right={
         <div className="sc-empty sc-card">
-          <MessageCircle size={42} />
-          <h1>Community</h1>
+          <PixelJournalMark kind="community" />
+          <h1><PixelJournalMark kind="community" /> Community</h1>
           <p>Ask a question, share a win, or help another learner.</p>
           <button className="sc-button" onClick={onSignIn}>
             Sign in to join
@@ -269,11 +273,11 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
             Messages are visible to signed-in learners. Keep personal
             information private.
           </small>
-        </div>
+        </div>} />
       </div>
     );
   return (
-    <div className="sc-page"><Suggestions />
+    <div className="sc-page">
       <div className="sc-page-heading">
         <div>
           <h1>Community</h1>
@@ -283,16 +287,17 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
           {connection}
         </span>
       </div>
-      <div className="sc-chat-layout">
+      <Grimoire label="Community journal" className="htp-journal htp-pixel-journal" left={<>
         <aside className="sc-card sc-chat-rooms">
-          <span className="sc-eyebrow">YOUR SPACES</span>
+          <h2>Discussion rooms</h2>
           {rooms.map((r) => (
             <button
               className={room === r.id ? "active" : ""}
               key={r.id}
+              aria-pressed={room === r.id}
+              disabled={busy || olderBusy}
               onClick={() => {
                 setRoom(r.id);
-                setBody("");
               }}
             >
               <Hash size={18} />
@@ -307,6 +312,8 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
             </p>
           </div>
         </aside>
+        <Suggestions />
+        </>} right={
         <section className="sc-card sc-chat">
           <header>
             <Hash size={22} />
@@ -331,6 +338,7 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
               const e = scrollRef.current;
               nearBottom.current =
                 !!e && e.scrollHeight - e.scrollTop - e.clientHeight < 100;
+              setAtLatest(nearBottom.current);
             }}
           >
             {hasOlder && (
@@ -362,6 +370,7 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
                       <button
                         className="sc-member-name"
                         onClick={() => setMember(message.profiles)}
+                        disabled={!message.profiles}
                         aria-label={`View ${message.profiles?.display_name ?? "learner"} profile`}
                       >
                         {message.profiles?.display_name ?? "Learner"}
@@ -410,6 +419,13 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
               ))
             )}
           </div>
+          {!atLatest && <button className="sc-button secondary htp-chat-latest" onClick={() => {
+            const messagesPanel = scrollRef.current;
+            if (messagesPanel) messagesPanel.scrollTop = messagesPanel.scrollHeight;
+            nearBottom.current = true;
+            setAtLatest(true);
+            document.getElementById("message-body")?.focus();
+          }}>Jump to latest messages</button>}
           {error && <ErrorNotice message={error} />}
           <form className="sc-message-form" onSubmit={send}>
             <Avatar
@@ -424,6 +440,7 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
               value={body}
               onChange={(e) => setBody(e.target.value)}
               maxLength={2000}
+              readOnly={busy}
               rows={2}
               placeholder="Ask a question. Share a small win…"
               onKeyDown={(e) => {
@@ -448,8 +465,7 @@ export default function ChatPage({ onSignIn }: { onSignIn: () => void }) {
           <small className="sc-chat-footnote">
             Enter to send · Shift + Enter for a new line · {body.length}/2000
           </small>
-        </section>
-      </div>
+        </section>} />
       <Modal
         open={!!member}
         onClose={() => setMember(null)}

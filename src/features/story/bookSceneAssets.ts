@@ -10,6 +10,11 @@ import sock from "../../assets/storybooks/relics/sock.webp";
 import snitch from "../../assets/storybooks/relics/snitch.webp";
 import wand from "../../assets/storybooks/relics/wand.webp";
 import voldemort from "../../assets/storybooks/relics/voldemort-idle.webp";
+const stagePlates = import.meta.glob<string>("../../assets/storybooks/stages/*.webp", { eager: true, query: "?url", import: "default" });
+
+export const BOOK_STAGE_BACKDROPS = Object.fromEntries(
+  Object.entries(stagePlates).map(([path, url]) => [path.split("/").at(-1)!.replace(".webp", ""), url]),
+);
 
 /** Relic art is keyed by stable chapter ID so reordering chapters never changes a scene. */
 export const BOOK_SCENE_ART: Readonly<Record<string, string>> = {

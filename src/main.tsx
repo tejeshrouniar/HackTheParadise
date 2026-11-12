@@ -14,6 +14,9 @@ import "./styles/worlds.css";
 // Keep the shared book-led visual system after feature CSS so routes stay consistent.
 import "./styles/library-ui.css";
 import "./styles/grimoire.css";
+import "./styles/pixel-library.css";
+import "./styles/pixel-levels.css";
+import "./styles/pixel-utilities.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

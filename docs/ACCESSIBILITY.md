@@ -12,6 +12,7 @@ Accessibility is part of the interaction model, not a final styling pass. These 
 - The soundtrack does not autoplay. Bundled narration uses labeled play and seek controls; visible story text remains available when playback fails. Browser text-to-speech controls remain keyboard operable.
 - The layout uses responsive breakpoints, touch-sized trail controls, and form labels. Pixel art uses crisp rendering while preserving the surrounding text interface.
 - The bookshelf uses labeled native buttons to select books. Route and book page turns honor reduced-motion preferences; the shelf changes to a compact two-column layout on narrow screens.
+- Bookshelf search announces the result count. Escape clears the filter and returns focus to Search. The coding editor can restore a draft after reset and focus the line associated with an error.
 
 ## When changing a screen
 

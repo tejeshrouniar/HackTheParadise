@@ -8,7 +8,7 @@ This document maps the running app and its sources so developers can make change
 
 | Route or area | Main entry | Owns |
 | --- | --- | --- |
-| Bookshelf (`#/story`, also `#/home`) | `src/features/story/StoryPage.tsx`, `src/content/storyBooks.ts`, `src/styles/library-ui.css` | Shelf-only landing screen; selecting a cover opens the matching book hub |
+| Bookshelf (`#/story`, also `#/home`) | `src/features/library/MagicalBookshelf.tsx`, `LibraryEntrance.tsx`, `src/content/library.ts`, `src/styles/grimoire.css` | Sketch-led Library / Adventure / Guild cabinet, hanging controls, search, welcome spread; selecting a spine opens its route |
 | Book hub (`#/book/:bookId`) | `src/features/story/BookHubPage.tsx` | Shared two-page book landing layout, progress, chapter contents, and the two actions to play levels or read the story |
 | Play levels (`#/learn`, opened from a book hub) | `src/features/learning/Dashboard.tsx`, `WorldMap.tsx`, `bookWalkPresets.ts`, `WalkableBookMap.tsx` | One shared, book-themed walkable map; the selected book provides grouped stop IDs and scene art, while movement, controls, fog gates, and the level directory stay consistent |
 | Story reader (`#/book-story/:bookId`) | `src/features/story/StoryPage.tsx`, `JourneyCinema.tsx`, `BookCutscene.tsx` | Book-specific scenes and completed Harry Potter films; each reader returns to its book hub |
@@ -24,7 +24,12 @@ This document maps the running app and its sources so developers can make change
 - `src/content/journey.json`: Cinder's four current regions, their three quests, chapter summaries, scene text, and themes. `journey.ts` adds the typed lookup helper. `src/content/codeCampaign.ts` contains the Harry Potter chapter prose, objectives, sandbox tests, and per-book `sparkLessonId`; its legacy chapter slugs are retained for saved progress.
 - `src/content/storySagas.ts`: five archived saga drafts retained for future writing. They are not imported by active routes and must not contain Spark-gated hints or solutions.
 - `src/content/quest-narration.json`: the twelve completion outcomes and coding explanations.
-- `src/features/story/JourneyCinema.tsx` and `PixelDragon.tsx`: the active four-chapter Cinder story and its authored animated dragon. `StoryCinema.tsx` and `SagaArchive.tsx` are retained archive UI modules and are not imported by the running app.
+- `src/content/bookMedia.ts` supplies optional clips by book and chapter ID. `src/features/story/BookVideoLibrary.tsx` uses existing completion state to unlock clips and builds the movie timeline from clip durations. Playback bookmarks are stored per account and book on the device.
+- `src/features/library/Grimoire.tsx` owns the shared book spread and page navigation. The shell shares its page-turn lock across header, keyboard, and corner controls.
+- `src/features/learning/LevelStage.tsx` provides the shared level display, playback pace, and status caption. Cinder supplies movement steps and Harry Potter supplies puzzle checks, each driven by its existing runner.
+- `scripts/build-wizarding-stages.mjs` composes the supplied 32×32 Pipoya tiles into level backgrounds. `bookSceneAssets.ts` matches each plate to its chapter's scene key. See [the source and rebuild notes](asset-licenses/wizarding-stage-art.md).
+- `src/styles/pixel-library.css` defines the shared 32px grid, stepped book corners, and control states. `pixel-levels.css` and `pixel-utilities.css` style the editor and journal interactions on their respective routes.
+- `src/features/story/JourneyCinema.tsx` and `PixelDragon.tsx`: the active four-chapter Cinder story and its DragonPack poses. `StoryCinema.tsx` and `SagaArchive.tsx` are retained archive UI modules and are not imported by the running app.
 - `src/data/codedexLessons.ts`: the 12 playable quest prompts, starter code, examples, and win conditions. `CodingEditorPanel.tsx` is the shared editor and protected-help UI for Cinder and coding books. `SparkUnlock` sends both the book ID and lesson number to the wallet RPCs; hints and solutions stay in `spark_content` and are returned only after an account-owned unlock. Do not copy those bodies into browser lesson or scene data.
 - `src/features/learning/questCompiler.ts`: the bounded Python-inspired parser/interpreter. It executes only supported Storicode commands; it does not run arbitrary JavaScript or Python.
 - `src/features/adventure/appearance.ts` and `AppearanceContext.tsx`: player avatar configuration and persistence.
