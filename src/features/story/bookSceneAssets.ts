@@ -10,11 +10,42 @@ import sock from "../../assets/storybooks/relics/sock.webp";
 import snitch from "../../assets/storybooks/relics/snitch.webp";
 import wand from "../../assets/storybooks/relics/wand.webp";
 import voldemort from "../../assets/storybooks/relics/voldemort-idle.webp";
-const stagePlates = import.meta.glob<string>("../../assets/storybooks/stages/*.webp", { eager: true, query: "?url", import: "default" });
+const stagePlates = import.meta.glob<string>(
+  ["../../assets/storybooks/stages/*.webp", "!../../assets/storybooks/stages/harry-32.webp"],
+  { eager: true, query: "?url", import: "default" },
+);
 
-export const BOOK_STAGE_BACKDROPS = Object.fromEntries(
+const stageUrls = Object.fromEntries(
   Object.entries(stagePlates).map(([path, url]) => [path.split("/").at(-1)!.replace(".webp", ""), url]),
 );
+
+type StagePlacement = {
+  floorY: number;
+  focus: readonly [x: number, y: number];
+  showRelic?: boolean;
+};
+
+/** Coordinates refer to the original 256×144 art. Most relics are part of the plate. */
+export const BOOK_STAGE_PLACEMENTS: Readonly<Partial<Record<string, StagePlacement>>> = {
+  bathroom: { floorY: 132, focus: [94, 122] },
+  "gaunt-shack": { floorY: 128, focus: [128, 122] },
+  "seaside-cave": { floorY: 124, focus: [128, 89] },
+  "lestrange-vault": { floorY: 132, focus: [128, 119] },
+  "room-of-requirement": { floorY: 130, focus: [128, 75] },
+  courtyard: { floorY: 135, focus: [152, 111], showRelic: true },
+  pensieve: { floorY: 129, focus: [128, 85] },
+  "old-classroom": { floorY: 130, focus: [128, 85] },
+  "laundry-room": { floorY: 132, focus: [188, 89], showRelic: true },
+  "quidditch-pitch": { floorY: 125, focus: [128, 73] },
+  "wand-chamber": { floorY: 130, focus: [128, 85] },
+  "great-hall": { floorY: 130, focus: [128, 94] },
+};
+
+export function getBookStage(scene: string) {
+  const backdrop = stageUrls[scene];
+  const placement = BOOK_STAGE_PLACEMENTS[scene];
+  return backdrop && placement ? { backdrop, ...placement } : undefined;
+}
 
 /** Relic art is keyed by stable chapter ID so reordering chapters never changes a scene. */
 export const BOOK_SCENE_ART: Readonly<Record<string, string>> = {

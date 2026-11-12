@@ -1,10 +1,8 @@
 # Wizarding stage art sources
 
-- Harry's 32×32 grid comes from the supplied `Harry_Potter_Spritesheets.zip`. Its three columns are left step, idle, and right step. The level uses the right-facing row.
-- The bathroom plate is drawn in `scripts/wizarding-bathroom.mjs` and exported by the stage builder.
-- The other stage plates use `pipo-map001.png` and `pipo-map001_at.png` from the 32×32 folder in the supplied Pipoya RPG World Tileset for Tiled 1.5 archive. The general archive includes the corresponding tile art.
-- The seamless grass layer was exported in [Tile Kitchen](https://spritekitchen.com/studio/tile-kitchen/) using **Both** axes and **Mirror**. The source is the 64×64 crop at `(176, 16)` in `pipo-map001_at.png`.
+- Harry's 32×32 grid comes from the supplied `Harry_Potter_Spritesheets.zip`. Its columns are three animation frames; rows face front, left, right, and away. The level animates the right-facing row.
+- All twelve chapter plates come from the supplied `Harry_Potter_Horcrux_Code_12_Backgrounds.zip`. The app uses lossless WebP copies of the native 256×144 PNGs, enlarged with pixelated rendering.
+- The supplied background archive contained no license or attribution file; add the pack's license terms here when available.
+- Coding stages, completion scenes, and the Story reader use the same plates. The chapter's scene key selects the image and the floor and spell coordinates in `src/features/story/bookSceneAssets.ts`.
 
-To rebuild, extract the two 32×32 tile atlases and `$Harry_Potter_(32x32_grid).png` into one directory. From the repository root, run `node scripts/build-wizarding-stages.mjs <source-directory> <seamless-grass.png>`.
-
-These notes record the supplied sources and transformations. The Harry archive contains a frame layout description. The supplied Pipoya archives contain the tile images and editor data.
+To rebuild, extract the background ZIP and run `node scripts/build-wizarding-stages.mjs <extracted-directory>` from the repository root. Pass the parent of `256x144_native`. The importer checks the chapter numbering and dimensions and leaves the existing Harry spritesheet in place.

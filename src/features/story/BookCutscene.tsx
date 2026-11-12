@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { RotateCcw, Volume2, VolumeX } from "lucide-react";
 import type { BookPuzzle } from "../../content/codeCampaign";
 import { AvatarGraphic, type SpriteAction } from "../adventure/AvatarGraphic";
 import { useAppearance } from "../adventure/AppearanceContext";
 import { usePreferences } from "../settings/PreferencesContext";
-import { BOOK_STAGE_BACKDROPS } from "./bookSceneAssets";
+import { getBookStage } from "./bookSceneAssets";
 
 type ScenePhase = "still" | "approach" | "inspect" | "reveal" | "settle";
 
@@ -46,8 +46,14 @@ export function BookCutscene({
   const { preferences } = usePreferences();
   const [phase, setPhase] = useState<ScenePhase>("still");
   const [replay, setReplay] = useState(0);
-  const sceneLead = chapter.bookId === "harry-potter" ? "Harry" : "Your avatar";
-  const backdrop = embedded ? BOOK_STAGE_BACKDROPS[chapter.scene] : undefined;
+  const isHarry = chapter.bookId === "harry-potter";
+  const sceneLead = isHarry ? "Harry" : "Your avatar";
+  const stage = isHarry ? getBookStage(chapter.scene) : undefined;
+  const stageStyle = stage && {
+    "--stage-floor": `${stage.floorY / 144 * 100}%`,
+    "--stage-focus-x": `${stage.focus[0] / 256 * 100}%`,
+    "--stage-focus-y": `${stage.focus[1] / 144 * 100}%`,
+  } as CSSProperties | undefined;
 
   useEffect(() => {
     if (!playing) {
@@ -94,21 +100,22 @@ export function BookCutscene({
         data-scene={chapter.scene}
         data-phase={phase}
         data-playing={playing}
-        data-stage-art={!!backdrop}
+        data-stage-art={!!stage}
       >
-        {backdrop ? <img className="htp-stage-backdrop" src={backdrop} alt="" /> : <><div className="sc-volume-scene__stars" aria-hidden="true" />
+        <div className="sc-volume-scene__set" style={stageStyle}>
+        {stage ? <img className="htp-stage-backdrop" src={stage.backdrop} alt="" width={256} height={144} /> : <><div className="sc-volume-scene__stars" aria-hidden="true" />
         <div className="sc-volume-scene__moon" aria-hidden="true" />
         <div className="sc-volume-scene__tower sc-volume-scene__tower--left" aria-hidden="true" />
         <div className="sc-volume-scene__tower sc-volume-scene__tower--right" aria-hidden="true" />
         <div className="sc-volume-scene__ridge" aria-hidden="true" /></>}
-        <img className="sc-volume-scene__relic-art" src={relicImage} alt="" aria-hidden="true" />
+        {(!stage || stage.showRelic) && <img className="sc-volume-scene__relic-art" src={relicImage} alt="" />}
         {characterImage && <img
           className="sc-volume-scene__character"
           src={characterImage}
           alt={chapter.chapterId === "relics-book-two-03" ? "Dobby" : "Lord Voldemort"}
         />}
         <span className="sc-book-cutscene__magic" aria-hidden="true" />
-        {chapter.bookId === "harry-potter" ? (
+        {isHarry ? (
           <span
             className="sc-volume-scene__harry"
             data-phase={phase}
@@ -127,10 +134,11 @@ export function BookCutscene({
             />
           </div>
         )}
-        <div className="sc-volume-scene__caption" aria-hidden="true">
+        </div>
+        {(!embedded || !stage) && <div className="sc-volume-scene__caption" aria-hidden="true">
           <span>{chapter.subtitle.split(" · ")[0]}</span>
           <strong>{chapter.chapterTitle}</strong>
-        </div>
+        </div>}
       </div>
       {!embedded && <><figcaption className="sc-book-cutscene__caption" aria-live="polite" aria-atomic="true">
         <span>{phase === "approach" ? "THE CLUE" : phase === "inspect" ? "YOUR SPELL" : completed ? "STORY UNFOLDS" : "THE STORY"}</span>
