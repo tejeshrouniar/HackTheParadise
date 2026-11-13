@@ -1,6 +1,6 @@
 # Wizarding stage art sources
 
-- Harry's 32×32 grid comes from the supplied `Harry_Potter_Spritesheets.zip`. Its columns are three animation frames; rows face front, left, right, and away. The level animates the right-facing row.
+- Harry's 32×32 grid comes from the supplied `Harry_Potter_Spritesheets.zip`. Its columns are three animation frames; rows face front, left, right, and away. Levels animate the right-facing row. The walking map selects the left or right row based on movement.
 - All twelve chapter plates come from the supplied `Harry_Potter_Horcrux_Code_12_Backgrounds.zip`. The app uses lossless WebP copies of the native 256×144 PNGs, enlarged with pixelated rendering.
 - The supplied background archive contained no license or attribution file; add the pack's license terms here when available.
 - Coding stages, completion scenes, and the Story reader use the same plates. The chapter's scene key selects the image and the floor and spell coordinates in `src/features/story/bookSceneAssets.ts`.

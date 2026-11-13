@@ -1,4 +1,4 @@
-import { motion as animated, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent } from "react";
 import { ArrowLeft, ArrowRight, Check, Hand, LockKeyhole } from "lucide-react";
 import { sound } from "../../utils/sound";
@@ -10,6 +10,8 @@ import type { BookWalkPreset, WalkMapStop } from "./bookWalkPresets";
 const REGION_WIDTH = 960;
 const PLAYER_WIDTH = 72;
 const PLAYER_HEIGHT = 88;
+const WALK_FRAMES = [0, 1, 2, 1] as const;
+const STRIDE_FRAME_DISTANCE = 13;
 const NEW_POSITION_KEY = "storicode:book-walk-position-v1";
 const CINDER_POSITION_KEYS = ["storicode:journey-position-v2", "storicode:journey-position"];
 const WIZARDING_POSITION_KEY = "storicode:harry-potter-world-position-v1";
@@ -88,10 +90,12 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
   const world = useRef<HTMLDivElement>(null);
   const player = useRef<HTMLDivElement>(null);
   const shadow = useRef<HTMLSpanElement>(null);
+  const walkerSprite = useRef<HTMLSpanElement>(null);
   const input = useRef({ left: false, right: false, run: false });
   const target = useRef<number | null>(null);
   const pending = useRef<string | null>(null);
   const x = useRef(0);
+  const facing = useRef<SpriteDirection>("right");
   const cameraX = useRef(0);
   const nearestStopIndex = useRef(0);
   const previousRegion = useRef(0);
@@ -155,7 +159,10 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
     let previous = performance.now();
     let lastStep = 0;
     let lastMotion: SpriteAction = "idle";
-    let lastDirection: SpriteDirection = "right";
+    let stride = 0;
+    let paintedPose = -1;
+    let paintedPosition = -1;
+    let paintedCamera = -1;
     const maxStep = 110;
     const snap = (value: number) => Math.round(value * (window.devicePixelRatio || 1)) / (window.devicePixelRatio || 1);
 
@@ -166,6 +173,7 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
       const keys = Number(input.current.right) - Number(input.current.left);
       const remaining = target.current === null ? 0 : target.current - x.current;
       const drive = keys || Math.sign(remaining);
+      const startX = x.current;
       let nextMotion: SpriteAction = "idle";
 
       if (drive && !document.hidden) {
@@ -176,8 +184,8 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
           x.current = next;
           nextMotion = input.current.run ? "run" : "walk";
           const nextDirection = drive < 0 ? "left" : "right";
-          if (nextDirection !== lastDirection) {
-            lastDirection = nextDirection;
+          if (nextDirection !== facing.current) {
+            facing.current = nextDirection;
             setDirection(nextDirection);
           }
           if (now - lastStep > 380) {
@@ -209,11 +217,30 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
         setMotion(nextMotion);
       }
 
+      if (walkerSprite.current) {
+        // A step follows distance traveled, including short clicks and speed changes.
+        const moving = nextMotion !== "idle" && !preferences.reduced_motion;
+        stride = moving ? stride + Math.abs(x.current - startX) : 0;
+        const pose = moving ? WALK_FRAMES[Math.floor(stride / STRIDE_FRAME_DISTANCE) % WALK_FRAMES.length] : 1;
+        if (pose !== paintedPose) {
+          walkerSprite.current.style.backgroundPositionX = `${pose * 50}%`;
+          paintedPose = pose;
+        }
+      }
+
       const camera = snap(Math.max(0, Math.min(worldWidth - viewportRef.current, x.current - viewportRef.current * 0.42)));
       cameraX.current = camera;
-      world.current?.style.setProperty("transform", `translate3d(${-camera}px,0,0)`);
-      player.current?.style.setProperty("left", `${snap(x.current - PLAYER_WIDTH / 2)}px`);
-      shadow.current?.style.setProperty("left", `${snap(x.current)}px`);
+      if (camera !== paintedCamera) {
+        world.current?.style.setProperty("transform", `translate3d(${-camera}px,0,0)`);
+        paintedCamera = camera;
+      }
+      const screenPosition = snap(x.current);
+      if (screenPosition !== paintedPosition) {
+        const translation = `translate3d(${screenPosition}px,0,0)`;
+        player.current?.style.setProperty("transform", translation);
+        shadow.current?.style.setProperty("transform", translation);
+        paintedPosition = screenPosition;
+      }
 
       const nearest = currentRoute.stops.reduce((best, stop, index) =>
         Math.abs(stop.x - x.current) < Math.abs(currentRoute.stops[best]?.x - x.current) ? index : best, 0);
@@ -256,7 +283,7 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
     };
   // Stable RAF loop reads the current route and callbacks through refs.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset.bookId, reducedMotion, worldWidth]);
+  }, [preset.bookId, preferences.reduced_motion, reducedMotion, worldWidth]);
 
   function walkToStop(index: number) {
     const stop = stops[index];
@@ -395,11 +422,16 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
           ))}
           <span ref={shadow} className="sc-book-walk-shadow" aria-hidden="true" />
           <div ref={player} className="sc-book-walk-player" aria-hidden="true">
-            <AvatarGraphic appearance={appearance} action={motion} direction={direction} size={PLAYER_WIDTH} directControl={motion !== "idle"} playId={playId} />
+            {preset.walker ? (
+              <span ref={walkerSprite} className="sc-book-walk-sprite" data-motion={motion}
+                style={{ backgroundImage: `url(${preset.walker.sheet})`, backgroundPositionY: `${(direction === "left" ? preset.walker.leftRow : preset.walker.rightRow) / 3 * 100}%` }} />
+            ) : (
+              <AvatarGraphic appearance={appearance} action={motion} direction={direction} size={PLAYER_WIDTH} directControl={motion !== "idle"} playId={playId} />
+            )}
           </div>
           {firstLockedRegionX < worldWidth && <div className="sc-book-walk-fog" style={{ left: firstLockedRegionX - 110, width: worldWidth - firstLockedRegionX + 110 }} aria-hidden="true" />}
         </div>
-        {arrival !== null && <animated.div className="sc-chapter-arrival sc-book-walk-arrival" role="status" initial={{ opacity: 0 }} animate={reducedMotion ? { opacity: 0 } : { opacity: [0, 1, 1, 0] }} transition={{ duration: 1.15 }}><small>{preset.regions[arrival]?.chapterLabel}</small><strong>{preset.regions[arrival]?.title}</strong></animated.div>}
+        {arrival !== null && <div key={arrival} className="sc-chapter-arrival sc-book-walk-arrival" role="status"><small>{preset.regions[arrival]?.chapterLabel}</small><strong>{preset.regions[arrival]?.title}</strong></div>}
       </div>
       <div className="sc-book-walk-caption" role="status" aria-live="polite"><strong>{currentStop?.title}</strong><span>{currentStop?.canEnter ? "Press E or select Enter level" : "Complete the previous level to open this one"}</span></div>
       <p className="sc-clearing-message sc-book-walk-notice" role="status" aria-live="polite">{notice}</p>

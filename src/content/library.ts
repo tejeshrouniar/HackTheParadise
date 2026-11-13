@@ -1,7 +1,7 @@
 import { STORY_BOOKS } from "./storyBooks";
 
 /**
- * A bookshelf is a themed room in the library foyer. New collections are data:
+ * A bookshelf ID groups related volumes and keeps old collection links valid.
  * add one definition here, then assign books to its stable `id` below. The ID
  * type is derived from this catalog so new shelves need no second type edit.
  */
@@ -24,6 +24,8 @@ export const BOOKSHELVES = [
 
 export type BookshelfId = (typeof BOOKSHELVES)[number]["id"];
 
+export function getBookshelf(id: BookshelfId): (typeof BOOKSHELVES)[number];
+export function getBookshelf(id: string): BookshelfDefinition;
 export function getBookshelf(id: string): BookshelfDefinition {
   return BOOKSHELVES.find((bookshelf) => bookshelf.id === id) ?? BOOKSHELVES[0];
 }
@@ -62,4 +64,7 @@ export const LIBRARY: readonly LibraryBook[] = [
   })),
   { id: "contact", title: "Contact Guild", coverColor: "#394038", shelf: "guild", subtitle: "Get in touch", mark: "✉", route: "library/contact", chapters: [] },
   { id: "community", title: "Suggest Spells", coverColor: "#6b3a30", shelf: "guild", subtitle: "Community & ideas", mark: "✦", route: "community", chapters: [] },
+  { id: "credits", title: "Credits", coverColor: "#674e27", shelf: "guild", subtitle: "Project links & thanks", mark: "✦", route: "library/credits", chapters: [] },
 ];
+
+export const PROJECT_REPOSITORY = "https://github.com/tejeshrouniar/HackTheParadise";

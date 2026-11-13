@@ -1,25 +1,16 @@
 import { Grimoire, GrimoireHeaderSlot, PageTurnProvider } from "../features/library/Grimoire";
-import { LibraryHeader } from "../features/library/LibraryHeader";
+import { LibraryBookmarks, ToolsBookmark } from "../features/library/LibraryBookmarks";
 import { LibraryEntrance } from "../features/library/LibraryEntrance";
 import type { CSSProperties } from "react";
-import { MagicalBookshelf } from "../features/library/MagicalBookshelf";
 import { LibraryUtilityPage } from "../features/library/LibraryUtilityPage";
-import { BOOKSHELVES, LIBRARY, getBookshelf, type BookshelfId } from "../content/library";
+import { BOOKSHELVES, LIBRARY, PROJECT_REPOSITORY } from "../content/library";
 import { useProgress } from "../features/learning/ProgressContext";
 import { canEnterLevel, journeyProgress } from "../features/learning/journeyProgress";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { MotionConfig } from "framer-motion";
 import {
   ChevronRight,
-  DoorOpen,
-  Headphones,
-  LogIn,
-  Menu,
-  MessageCircle,
   Search,
-  Settings2,
-  WandSparkles,
-  X,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useProfile } from "../features/profile/ProfileContext";
@@ -27,13 +18,11 @@ import { usePreferences } from "../features/settings/PreferencesContext";
 import Dashboard from "../features/learning/Dashboard";
 import { AuthModal } from "../components/Auth/AuthModal";
 import { Modal } from "../components/ui/Modal";
-import { Avatar } from "../components/ui/Avatar";
 import { BookNotice, Loading } from "../components/ui/Status";
 import { ProfileForm } from "../features/profile/ProfileForm";
 import { CODEDEX_LESSONS } from "../data/codedexLessons";
 import toast from "react-hot-toast";
 import { errorMessage } from "../lib/validation";
-import { MiniPlayer } from "../features/tools/MiniPlayer";
 import { STORY_BOOKS } from "../content/storyBooks";
 import { readLocal, writeLocal } from "../lib/validation";
 import "../styles/adventure.css";
@@ -70,12 +59,13 @@ const routeFromHash = () => {
   const knownBookRoute = bookRoute && STORY_BOOKS.some((book) => book.id === bookRoute[1]);
   const shelfRoute = route.match(/^bookshelf\/([a-z-]+)$/);
   const knownShelfRoute = shelfRoute && BOOKSHELVES.some((bookshelf) => bookshelf.id === shelfRoute[1]);
-  if (knownShelfRoute) return route;
-  if (knownBookRoute || /^library\/(theme|lore|profile|account|contact)$/.test(route)) return route;
-  return /^(entrance|learn|story|community|settings|quest\/(?:[1-9]|1[0-2])|book-level\/[a-z0-9-]+)$/.test(route)
+  if (knownShelfRoute) return "bookshelf";
+  if (knownBookRoute || LIBRARY.some((book) => book.route === route)) return route;
+  return /^(entrance|bookshelf|learn|settings|quest\/(?:[1-9]|1[0-2])|book-level\/[a-z0-9-]+)$/.test(route)
     ? route
-    : "story";
+    : "entrance";
 };
+const isLibraryRoom = (route: string) => route === "entrance" || route === "bookshelf";
 const levelRoutes = [
   ...Array.from({ length: 12 }, (_, index) => `quest/${index + 1}`),
   ...STORY_BOOKS.flatMap(book => book.kind === "coding" ? book.chapters.map(chapter => `book-level/${chapter.chapterId}`) : []),
@@ -84,27 +74,25 @@ function pageTurnDirection(from: string, to: string): "next" | "previous" {
   const fromLevel = levelRoutes.indexOf(from);
   const toLevel = levelRoutes.indexOf(to);
   if (fromLevel >= 0 && toLevel >= 0) return toLevel < fromLevel ? "previous" : "next";
-  if (to === "entrance" || to === "story" || to.startsWith("bookshelf/") || to.startsWith("book/") && !from.startsWith("story")) return "previous";
-  if (from === "story" || from.startsWith("bookshelf/") || from.startsWith("book/")) return "next";
-  if (from.startsWith("book-story/") && to.startsWith("book-level/")) return "previous";
+  if (isLibraryRoom(to) || (to.startsWith("book/") && !isLibraryRoom(from))) return "previous";
   return "next";
 }
 export function AppShell() {
   const { user, isPasswordRecovery, signOut } = useAuth();
   const { completed } = useProgress();
   const { profile } = useProfile();
-  const { preferences } = usePreferences();
-  const [small, setSmall] = useState(
-    () => window.matchMedia("(max-width:760px)").matches,
-  );
+  const { preferences, gentleBookMotion } = usePreferences();
   const [{ route, previousRoute, pageTurn }, setRouteState] = useState<{
     route: string;
     previousRoute: string;
     pageTurn: "next" | "previous";
   }>(() => ({ route: routeFromHash(), previousRoute: "", pageTurn: "next" }));
-  const previousLevel = levelRoutes.indexOf(previousRoute);
-  const currentLevel = levelRoutes.indexOf(route);
-  const levelTurn = previousLevel >= 0 && currentLevel >= 0 ? (currentLevel < previousLevel ? "previous" : "next") : undefined;
+  const inLibrary = isLibraryRoom(route);
+  const fromLibrary = isLibraryRoom(previousRoute);
+  const returnToRoom = fromLibrary && route === "entrance";
+  const lockedQuest = route.startsWith("quest/") && !canEnterLevel(Number(route.split("/")[1]), completed);
+  const levelTurn = levelRoutes.includes(route) && !lockedQuest ? pageTurn : undefined;
+  const coverTurn = !!previousRoute && !(inLibrary && fromLibrary) && !levelTurn;
   function setRoute(next: string) {
     setRouteState(current => current.route === next ? current : {
       route: next,
@@ -121,21 +109,15 @@ export function AppShell() {
     return STORY_BOOKS.some((book) => book.id === saved) ? saved : "harry-potter";
   });
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
-  const [mobile, setMobile] = useState(false);
   const [auth, setAuth] = useState(false);
   const [tools, setTools] = useState(false);
   const [toolsMounted, setToolsMounted] = useState(false);
+  const toolsTrigger = useRef<HTMLElement | null>(null);
   const [search, setSearch] = useState(false);
   const [query, setQuery] = useState("");
   const [journal, setJournal] = useState(false);
   const [playground, setPlayground] = useState(false);
   const [character, setCharacter] = useState(false);
-  const name =
-    profile?.display_name ||
-    user?.user_metadata?.full_name ||
-    user?.user_metadata?.display_name ||
-    "Curious learner";
-  const avatar = profile?.avatar_url ?? user?.user_metadata?.avatar_url;
   const selectedBook = STORY_BOOKS.find((book) => book.id === selectedBookId) ?? STORY_BOOKS[0];
   useEffect(() => {
     writeLocal("storicode-active-book-v2", selectedBookId);
@@ -150,7 +132,6 @@ export function AppShell() {
   function navigate(next: string) {
     if (location.hash !== `#/${next}`) location.hash = `/${next}`;
     setRoute(next);
-    setMobile(false);
     window.scrollTo({ top: 0, behavior: "instant" });
   }
   const openQuest = (id: number) => {
@@ -189,22 +170,20 @@ export function AppShell() {
         e.preventDefault();
         setSearch(true);
       }
-      if (e.key === "Escape") setMobile(false);
     };
     window.addEventListener("keydown", keys);
     return () => window.removeEventListener("keydown", keys);
   }, []);
-  useEffect(() => {
-    const media = window.matchMedia("(max-width:760px)");
-    const changed = () => setSmall(media.matches);
-    media.addEventListener("change", changed);
-    return () => media.removeEventListener("change", changed);
-  }, []);
-  const openTools = () => {
-    setMobile(false);
+  const openTools = (trigger?: HTMLElement) => {
+    toolsTrigger.current = trigger ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
     setToolsMounted(true);
     setTools(true);
   };
+  useLayoutEffect(() => {
+    if (tools || !toolsTrigger.current) return;
+    toolsTrigger.current.focus({ preventScroll: true });
+    toolsTrigger.current = null;
+  }, [tools]);
   const results = CODEDEX_LESSONS.filter((l) =>
     `${l.title} ${l.conceptName}`.toLowerCase().includes(query.toLowerCase()),
   );
@@ -213,8 +192,9 @@ export function AppShell() {
       reducedMotion={preferences.reduced_motion ? "always" : "user"}
     >
       <div
-        className={`sc-app sc-adventure-shell sc-magical-app ${route === "learn" ? "sc-on-home sc-on-map" : ""} ${route.startsWith("bookshelf/") ? "sc-on-story" : ""} ${route === "entrance" ? "sc-on-entrance" : ""} ${route.startsWith("quest/") || route.startsWith("book-level/") ? "sc-on-quest" : ""} ${route.startsWith("book-level/") ? "sc-on-book-level" : ""}`}
+        className={`sc-app sc-adventure-shell sc-magical-app ${route === "learn" ? "sc-on-home sc-on-map" : ""} ${inLibrary ? "sc-on-entrance" : ""} ${route.startsWith("quest/") || route.startsWith("book-level/") ? "sc-on-quest" : ""} ${route.startsWith("book-level/") ? "sc-on-book-level" : ""}`}
         data-book-theme={selectedBook.theme}
+        data-book-motion={gentleBookMotion ? "gentle" : "full"}
         style={{ "--book-cover": selectedBook.palette.primary, "--book-secondary": selectedBook.palette.secondary, "--book-background": selectedBook.palette.background, "--paper": selectedBook.palette.paper, "--paper-ink": selectedBook.palette.text, "--gold-rim": selectedBook.palette.accent } as CSSProperties}
       >
         <a
@@ -227,30 +207,28 @@ export function AppShell() {
         >
           Skip to content
         </a>
-        <PageTurnProvider routeDirection={levelTurn}><GrimoireHeaderSlot.Provider value={headerSlot}>
-        <LibraryHeader
-          onMenu={() => setMobile(true)} onLibrary={() => navigate("entrance")}
+        <PageTurnProvider routeDirection={levelTurn} routeKey={route}><GrimoireHeaderSlot.Provider value={headerSlot}>
+        {!inLibrary && <LibraryBookmarks
+          onLibrary={() => navigate("bookshelf")}
           onProfile={() => user ? navigate("library/profile") : setAuth(true)}
           onAccount={() => navigate("library/account")} onTools={openTools} onSearch={() => setSearch(true)}
-          headerRef={setHeaderSlot}
-          title={route === "entrance" ? "THE GRAND LIBRARY" : route.startsWith("bookshelf/") ? getBookshelf(route.slice("bookshelf/".length)).title.toUpperCase() : route.startsWith("library/") ? LIBRARY.find((book) => book.route === route)?.title ?? "Library" : selectedBook.title}
-        />
+          chapterRef={setHeaderSlot} toolsOpen={tools}
+        />}
         <div className="sc-workspace" {...(tools ? { inert: "" } : {})}>
-          <main id="main-content" className="sc-route-turn" data-level-turn={levelTurn} data-page-turn={pageTurn} key={route} tabIndex={-1}>
-            <div className="sc-route-cover" aria-hidden="true"><i className="sc-route-cover__leaf sc-route-cover__leaf--left" /><i className="sc-route-cover__leaf sc-route-cover__leaf--right" /><i className="sc-route-cover__spine" /></div>
+          <main id="main-content" className="sc-route-turn" key={inLibrary ? "library" : route} tabIndex={-1}>
             <Suspense fallback={<BookNotice title="Turning the page"><Loading label="Opening your book…" /></BookNotice>}>
-              {route === "entrance" ? (
+              {coverTurn && <div className="sc-route-cover" data-direction={pageTurn} aria-hidden="true">
+                <i className="sc-route-cover__leaf sc-route-cover__leaf--left" data-book-transition="" />
+                <i className="sc-route-cover__leaf sc-route-cover__leaf--right" data-book-transition="" />
+              </div>}
+              {inLibrary ? (
                 <LibraryEntrance
-                  onOpenBookshelf={(bookshelfId) => navigate(`bookshelf/${bookshelfId}`)}
-                />
-              ) : route.startsWith("bookshelf/") ? (
-                <MagicalBookshelf
-                  bookshelfId={route.slice("bookshelf/".length) as BookshelfId}
-                  onLibrary={() => navigate("entrance")}
-                  onChooseBookshelf={(bookshelfId) => navigate(`bookshelf/${bookshelfId}`)}
-                  onTools={openTools}
-                  onSignIn={() => setAuth(true)}
-                  onOpen={(book) => {
+                  inside={route === "bookshelf"}
+                  focusRoom={returnToRoom}
+                  onEnter={() => navigate("bookshelf")}
+                  onExit={() => navigate("entrance")}
+                  bookmark={<ToolsBookmark open={tools} onClick={openTools} />}
+                  onOpenBook={(book) => {
                     if (book.storyId) { setSelectedBookId(book.storyId); setSelectedChapterId(null); }
                     navigate(book.route);
                   }}
@@ -266,7 +244,7 @@ export function AppShell() {
                     navigate(`book-level/${id}`);
                   }}
                 />
-              ) : route.startsWith("quest/") && !canEnterLevel(Number(route.split("/")[1]), completed) ? (
+              ) : lockedQuest ? (
                 <div className="sc-page"><Grimoire label="A page yet to be written" left={<><h1>This level is still locked</h1><p>Follow the story in order to reach this place.</p></>} right={<><h2>Your next page</h2><button className="sc-button" onClick={() => openQuest(journeyProgress(completed).next)}>Continue your story</button></>} /></div>
               ) : route.startsWith("quest/") ? (
                 <Quest
@@ -280,7 +258,7 @@ export function AppShell() {
               ) : route.startsWith("book/") ? (
                 <BookHub
                   bookId={route.slice("book/".length)}
-                  onShelf={() => navigate("entrance")}
+                  onShelf={() => navigate("bookshelf")}
                   onPlayLevels={() => navigate("learn")}
                   onReadStory={(chapterId) => {
                     setSelectedChapterId(chapterId ?? null);
@@ -315,16 +293,9 @@ export function AppShell() {
               )}
             </Suspense>
           </main>
-          <footer className="sc-site-footer"><strong>Hack The Paradise</strong><span>© 2026 Hack The Paradise</span><a href="https://github.com/tejeshrouniar/HackTheParadise" target="_blank" rel="noreferrer">Repository</a><a href="https://github.com/tejeshrouniar/HackTheParadise/issues" target="_blank" rel="noreferrer">Contact / feedback</a></footer>
+          {!inLibrary && <footer className="sc-site-footer"><strong>Hack The Paradise</strong><span>© 2026 Hack The Paradise</span><a href={PROJECT_REPOSITORY} target="_blank" rel="noreferrer">Repository</a><a href="#/library/contact">Contact / feedback</a></footer>}
         </div>
         </GrimoireHeaderSlot.Provider></PageTurnProvider>
-        <Modal open={mobile} onClose={() => setMobile(false)} title="Your library" description="Choose a collection or a place to explore.">
-          <nav className="sc-library-menu" aria-label="Library navigation">
-            <button onClick={() => navigate("entrance")}><DoorOpen size={18} /> Library foyer</button>
-            {BOOKSHELVES.map((bookshelf) => <button key={bookshelf.id} onClick={() => navigate(`bookshelf/${bookshelf.id}`)}>{bookshelf.title}</button>)}
-            <button onClick={() => { setMobile(false); setSearch(true); }}><Search size={18} /> Search quests</button>
-          </nav>
-        </Modal>
         <AuthModal
           isOpen={auth}
           onClose={() => setAuth(false)}
@@ -390,7 +361,11 @@ export function AppShell() {
         </Modal>
         <Suspense fallback={null}>
           {toolsMounted && (
-            <Tools open={tools} onClose={() => setTools(false)} />
+            <Tools open={tools} onClose={() => setTools(false)} onSettings={() => {
+              toolsTrigger.current = null;
+              setTools(false);
+              navigate("settings");
+            }} />
           )}{" "}
           {journal && (
             <Journal isOpen={journal} onClose={() => setJournal(false)} />

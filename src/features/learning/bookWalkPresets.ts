@@ -10,6 +10,7 @@ import moonlit from "../../assets/realms/moonlit.png";
 import amber from "../../assets/realms/amber.png";
 import dawnreach from "../../assets/realms/dawnreach.png";
 import walkway from "../../assets/realms/walkway.png";
+import harrySprite from "../../assets/storybooks/stages/harry-32.webp";
 
 export interface WalkMapStop {
   /** Stable progress key; never infer saved completion from list position. */
@@ -35,6 +36,7 @@ export interface BookWalkPreset {
   bookId: string;
   kind: "tutorial" | "story";
   levelNoun: string;
+  walker?: { sheet: string; leftRow: number; rightRow: number };
   regions: readonly WalkMapRegion[];
 }
 
@@ -76,6 +78,7 @@ function makeWizardingPreset(): BookWalkPreset {
     bookId: "harry-potter",
     kind: "story",
     levelNoun: "chapter",
+    walker: { sheet: harrySprite, leftRow: 1, rightRow: 2 },
     regions: regions.map((region, regionIndex) => {
       const chapters = BOOK_PUZZLES.filter((chapter) => chapter.bookId === "harry-potter").slice(regionIndex * 3, regionIndex * 3 + 3);
       return {

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { usePreferences } from "../settings/PreferencesContext";
@@ -6,30 +6,60 @@ import { sound } from "../../utils/sound";
 
 export const GrimoireHeaderSlot = createContext<HTMLElement | null>(null);
 
-type TurnState = { until: number; direction: "next" | "previous" };
-const PageTurnContext = createContext<{ current: TurnState } | null>(null);
-const RouteTurnDirection = createContext<TurnState["direction"] | undefined>(undefined);
-export function PageTurnProvider({ children, routeDirection }: { children: ReactNode; routeDirection?: TurnState["direction"] }) {
-  const turn = useRef<TurnState>({ until: 0, direction: "next" });
-  return <PageTurnContext.Provider value={turn}><RouteTurnDirection.Provider value={routeDirection}>{children}</RouteTurnDirection.Provider></PageTurnContext.Provider>;
-}
+type Direction = "next" | "previous";
+type TurnPhase = { direction: Direction; stage: "lift" | "land"; restoreChapterFocus: boolean };
+const LIFT_MS = 240;
+const LAND_MS = 300;
+const PageTurnContext = createContext<{
+  phase: TurnPhase | null;
+  routeDirection?: Direction;
+  turn: (callback: (() => void) | undefined, direction?: Direction) => void;
+} | null>(null);
 
 /** Header, corner and touch controls share a short animation lock. This survives
  * route remounts, so double presses cannot skip a chapter during a page turn. */
+export function PageTurnProvider({ children, routeDirection, routeKey }: {
+  children: ReactNode; routeDirection?: Direction; routeKey?: string;
+}) {
+  const { preferences, gentleBookMotion } = usePreferences();
+  const [phase, setPhase] = useState<TurnPhase | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+  const pending = useRef(false);
+  const previousRoute = useRef(routeKey);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  useLayoutEffect(() => {
+    if (previousRoute.current === routeKey) return;
+    previousRoute.current = routeKey;
+    if (phase?.stage !== "lift") return;
+    clearTimeout(timer.current);
+    pending.current = false;
+    setPhase(null);
+  }, [routeKey, phase]);
+
+  function turn(callback: (() => void) | undefined, direction: Direction = "next") {
+    if (!callback || pending.current) return;
+    const restoreChapterFocus = document.activeElement?.matches(".sc-chapter-pill button:focus-visible") ?? false;
+    pending.current = true;
+    if (preferences.sound_effects) sound.playPageTurn();
+    if (!gentleBookMotion) setPhase({ direction, stage: "lift", restoreChapterFocus });
+    function land() {
+      setPhase({ direction, stage: "land", restoreChapterFocus });
+      timer.current = setTimeout(() => {
+        pending.current = false;
+        setPhase(null);
+      }, LAND_MS);
+      callback?.();
+    }
+    if (gentleBookMotion) land();
+    else timer.current = setTimeout(land, LIFT_MS);
+  }
+
+  return <PageTurnContext.Provider value={{ phase, routeDirection, turn }}>{children}</PageTurnContext.Provider>;
+}
+
 export function usePageTurn() {
   const shared = useContext(PageTurnContext);
-  const local = useRef<TurnState>({ until: 0, direction: "next" });
-  const state = shared ?? local;
-  const { preferences } = usePreferences();
-  return {
-    state,
-    turn: (callback: (() => void) | undefined, direction: "next" | "previous" = "next") => {
-      if (!callback || performance.now() < state.current.until) return;
-      const quiet = preferences.reduced_motion || matchMedia("(prefers-reduced-motion: reduce)").matches;
-      state.current = { until: performance.now() + (quiet ? 100 : 700), direction };
-      callback();
-    },
-  };
+  return shared ?? { phase: null, routeDirection: undefined, turn: (callback: (() => void) | undefined, _direction?: Direction) => callback?.() };
 }
 
 const interactive = (target: EventTarget | null) => target instanceof Element && !!target.closest("input,textarea,select,button,a,video,audio,[contenteditable=true],[role=slider],.sc-walking-stage");
@@ -43,6 +73,7 @@ export function Grimoire({
   coverColor,
   className = "",
   pageKey,
+  animateRouteEntry = true,
   onPreviousPage,
   onNextPage,
   navigationDisabled = false,
@@ -53,30 +84,19 @@ export function Grimoire({
   coverColor?: string;
   className?: string;
   pageKey?: string | number;
+  animateRouteEntry?: boolean;
   onPreviousPage?: () => void;
   onNextPage?: () => void;
   navigationDisabled?: boolean;
 }) {
-  const { preferences } = usePreferences();
   const navigation = usePageTurn();
-  const routeDirection = useContext(RouteTurnDirection);
   const touch = useRef<{ x: number; y: number } | null>(null);
-  const mountedRef = useRef(false);
-  const prevPageKeyRef = useRef(pageKey);
-
-  useEffect(() => {
-    if (!mountedRef.current) {
-      mountedRef.current = true;
-      return;
-    }
-    if (pageKey !== undefined && pageKey !== prevPageKeyRef.current) {
-      prevPageKeyRef.current = pageKey;
-      const quiet = preferences.reduced_motion || (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-      if (!quiet && preferences.sound_effects) {
-        sound.playPageTurn();
-      }
-    }
-  }, [pageKey, preferences.reduced_motion, preferences.sound_effects]);
+  const phase = pageKey === undefined ? null : navigation.phase;
+  const routeDirection = pageKey === undefined || !animateRouteEntry ? undefined : navigation.routeDirection;
+  const turnDirection = phase?.direction ?? routeDirection;
+  // Keep the same leaf when the navigation lock clears after landing.
+  const [enteredWithTurn] = useState(() => !!routeDirection && phase?.stage !== "land");
+  const showTurnLeaf = phase?.stage === "land" || (!phase && !!routeDirection);
 
   return (
     <section
@@ -84,7 +104,8 @@ export function Grimoire({
       aria-label={label}
       tabIndex={onPreviousPage || onNextPage ? 0 : undefined}
       aria-keyshortcuts={onPreviousPage || onNextPage ? "PageUp PageDown" : undefined}
-      data-turn-direction={routeDirection ?? navigation.state.current.direction}
+      data-turn-direction={turnDirection}
+      data-turn-stage={phase?.stage ?? (routeDirection ? "arrival" : undefined)}
       onKeyDown={event => {
         if (navigationDisabled || event.repeat || event.ctrlKey || event.altKey || event.metaKey || interactive(event.target)) return;
         const action = event.key === "PageDown" ? onNextPage : event.key === "PageUp" ? onPreviousPage : undefined;
@@ -102,7 +123,7 @@ export function Grimoire({
       }}
       style={coverColor ? ({ "--book-cover": coverColor } as CSSProperties) : undefined}
     >
-      <div className="sc-grimoire__leaf sc-grimoire__leaf--left">
+      <div className="sc-grimoire__leaf sc-grimoire__leaf--left" data-book-transition="">
         {left}
         {onPreviousPage && (
           <button
@@ -122,7 +143,7 @@ export function Grimoire({
 
       <div className="sc-grimoire__binding" aria-hidden="true" />
 
-      <div className="sc-grimoire__leaf sc-grimoire__leaf--right">
+      <div className="sc-grimoire__leaf sc-grimoire__leaf--right" data-book-transition="">
         {right}
         {onNextPage && (
           <button
@@ -140,19 +161,9 @@ export function Grimoire({
         )}
       </div>
 
-      {pageKey !== undefined && (
-        <div key={pageKey} className="sc-grimoire__turn-container" aria-hidden="true">
-          <div className="sc-grimoire__turn-shadow" />
-          <div className="sc-grimoire__turn-leaf">
-            <div className="sc-grimoire__turn-face sc-grimoire__turn-front">
-              <div className="sc-grimoire__turn-texture" />
-              <div className="sc-grimoire__turn-border" />
-            </div>
-            <div className="sc-grimoire__turn-face sc-grimoire__turn-back">
-              <div className="sc-grimoire__turn-texture" />
-              <div className="sc-grimoire__turn-border" />
-            </div>
-          </div>
+      {showTurnLeaf && (
+        <div key={pageKey} className="sc-grimoire__turn-container" data-entry={enteredWithTurn || undefined} aria-hidden="true">
+          <div className="sc-grimoire__turn-leaf" data-book-transition="" />
         </div>
       )}
 
@@ -178,16 +189,24 @@ export function ChapterNavigation({
 }) {
   const slot = useContext(GrimoireHeaderSlot);
   const navigation = usePageTurn();
+  const controlsRef = useRef<HTMLElement>(null);
+  const landed = navigation.phase?.stage === "land" && navigation.phase.restoreChapterFocus;
+  const direction = navigation.phase?.direction;
+  useLayoutEffect(() => {
+    if (!landed || !controlsRef.current) return;
+    const button = controlsRef.current.querySelector<HTMLButtonElement>(`button[data-direction="${direction}"]:enabled`);
+    (button ?? controlsRef.current).focus({ preventScroll: true });
+  }, [landed, direction, number, slot]);
   const controls = (
-    <nav className="sc-chapter-pill" aria-label="Chapter navigation">
-      <button aria-label="Previous chapter" disabled={disabled || !onPrevious} onClick={() => navigation.turn(onPrevious, "previous")}>
+    <nav className="sc-chapter-pill" aria-label="Chapter navigation" tabIndex={-1} ref={controlsRef}>
+      <button data-direction="previous" aria-label="Previous chapter" disabled={disabled || !onPrevious} onClick={() => navigation.turn(onPrevious, "previous")}>
         <ChevronLeft size={18} />
       </button>
       <span title={`Chapter ${number} — ${title}`}>
         <small>Chapter {String(number).padStart(2, "0")}</small>
         <strong>{title}</strong>
       </span>
-      <button aria-label="Next chapter" disabled={disabled || !onNext} onClick={() => navigation.turn(onNext)}>
+      <button data-direction="next" aria-label="Next chapter" disabled={disabled || !onNext} onClick={() => navigation.turn(onNext)}>
         <ChevronRight size={18} />
       </button>
     </nav>

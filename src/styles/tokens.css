@@ -458,7 +458,7 @@ button:not(:disabled):active {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  *,
+  :where(:not([data-book-transition])),
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
@@ -467,7 +467,8 @@ button:not(:disabled):active {
     scroll-behavior: auto !important;
   }
 }
-html[data-reduce-motion="true"] *,
+/* Marked book surfaces use the full or gentle mode chosen in the bookmark. */
+html[data-reduce-motion="true"] :where(:not([data-book-transition])),
 html[data-reduce-motion="true"] *::before,
 html[data-reduce-motion="true"] *::after {
   animation-duration: 0.01ms !important;

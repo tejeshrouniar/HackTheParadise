@@ -1,4 +1,4 @@
-import { Grimoire } from "../library/Grimoire";
+import { Grimoire, usePageTurn } from "../library/Grimoire";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { SparkUnlock } from "./SparkUnlock";
@@ -63,6 +63,7 @@ export function BookCompletionSpread({
   speaking = false,
   narrationNotice = "",
 }: BookCompletionSpreadProps) {
+  const navigation = usePageTurn();
   const section = useRef<HTMLElement>(null);
   const audio = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -101,7 +102,7 @@ export function BookCompletionSpread({
       className={`sc-quest-aftermath sc-completion-page sc-completion-page--${theme}`}
       aria-label={`${bookTitle} chapter complete`}
     >
-      <Grimoire className="sc-grimoire--completion" coverColor={theme === "cinder" ? "#9a4d29" : "#70272f"} label={`${bookTitle} completed spell`} pageKey={lessonId} left={
+      <Grimoire className="sc-grimoire--completion" coverColor={theme === "cinder" ? "#9a4d29" : "#70272f"} label={`${bookTitle} completed spell`} pageKey={lessonId} animateRouteEntry={false} left={
         <article className="sc-completion-page__leaf sc-completion-page__leaf--story">
           <header className="sc-completion-page__heading">
             <span className="sc-eyebrow">{chapterLabel}</span>
@@ -191,7 +192,7 @@ export function BookCompletionSpread({
           </div>
           {chapterVideo}
           <div className="sc-completion-page__actions">
-            <button className="sc-button" type="button" disabled={!canContinue} onClick={onContinue}>{continueLabel}</button>
+            <button className="sc-button" type="button" disabled={!canContinue} onClick={() => navigation.turn(onContinue)}>{continueLabel}</button>
             {canContinue && onReplayAnimation && <button className="sc-link sc-completion-page__replay" type="button" onClick={onReplayAnimation}><RotateCcw size={15} /> Replay scene</button>}
             {onReview && <button className="sc-link" type="button" onClick={onReview}>Review this level</button>}
             {!canContinue && onSkipAnimation && <button className="sc-link" type="button" onClick={onSkipAnimation}>Skip animation</button>}

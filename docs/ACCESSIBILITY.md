@@ -6,14 +6,14 @@ Accessibility is part of the interaction model, not a final styling pass. These 
 
 - The application has a skip link, labeled route navigation, current-page state, semantic forms, and visible keyboard focus rules in `src/styles/tokens.css`.
 - Modal dialogs use the shared Radix-backed `src/components/ui/Modal.tsx` wrapper for focus handling, Escape, and background isolation.
-- The World Map uses labeled native buttons for book selection, movement, and level entry. Both routes support keyboard movement, pointer/touch controls, and a direct chapter list; locked landmarks announce the progression requirement and cannot be entered. The player can click-to-walk on the scene. Reduced-motion preferences suppress the animated chapter arrival, while the avatar animation follows the shared motion preference.
+- The World Map supports keyboard movement, touch controls, click-to-walk, and a direct chapter list. Locked landmarks announce the progression requirement. Device reduced motion suppresses the chapter arrival effect. Harry’s walk frames follow player movement, and the in-app Reduce motion setting can keep his sprite still.
 - Quest completion, wallet errors, narration captions, and other changing status messages use live regions where appropriate.
 - The user preference and operating-system reduced-motion settings feed `MotionConfig`; CSS disables selected decorative loops and transitions.
 - The soundtrack does not autoplay. Tutorial quest-completion narration attempts to start with its scene; when a browser blocks autoplay, labeled play and seek controls remain available. Visible story text stays on the page, and browser text-to-speech controls remain keyboard operable.
 - The layout uses responsive breakpoints, touch-sized trail controls, and form labels. Pixel art uses crisp rendering while preserving the surrounding text interface.
 - The bookshelf uses labeled native buttons to select books. Route and book page turns honor reduced-motion preferences; the shelf changes to a compact two-column layout on narrow screens.
-- The library foyer uses labeled native buttons for each collection doorway; it does not require a pointer or show books. Each bookshelf uses labeled buttons for its titles and has collection tabs. Door, lamp, and route-cover movement respects the saved or operating-system reduced-motion preference.
-- Bookshelf search announces the result count. Escape clears the filter and returns focus to Search. The coding editor can restore a draft after reset and focus the line associated with an error.
+- The library room uses a labeled bookcase button, and the open shelf moves focus to its heading. The book covers and tools bookmark have text equivalents. The bookmark’s Settings tab offers Full page flips and Gentle fades as browser-local choices. The default follows the device and in-app motion preferences and uses a short fade when reduced motion is active.
+- The coding editor can restore a draft after reset and focus the line associated with an error.
 
 ## When changing a screen
 

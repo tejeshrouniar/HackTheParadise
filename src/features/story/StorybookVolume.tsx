@@ -237,7 +237,9 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
               key={item.chapterId}
               disabled={!unlocked || busy}
               aria-current={chapter.chapterId === item.chapterId ? "page" : undefined}
-              onClick={() => navigation.turn(() => setChapter(item.chapterId), index < chapterIndex ? "previous" : "next")}
+              onClick={() => {
+                if (index !== chapterIndex) navigation.turn(() => setChapter(item.chapterId), index < chapterIndex ? "previous" : "next");
+              }}
             >
               <span className="sc-volume-index__number">{isDone ? <Check size={14} aria-label="Completed" /> : String(index + 1).padStart(2, "0")}</span>
               <span className="sc-volume-index__title">{item.chapterTitle}</span>

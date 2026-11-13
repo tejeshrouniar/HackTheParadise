@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type PropsWithChildren,
 } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -25,16 +26,31 @@ const defaults: Preferences = {
   focus_minutes: 25,
   gender: "",
 };
+export type BookMotion = "system" | "full" | "gentle";
+const bookMotionKey = "storicode-book-motion";
+const reducedMotionQuery = "(prefers-reduced-motion: reduce), (forced-colors: active)";
+function subscribeToDeviceMotion(callback: () => void) {
+  const query = window.matchMedia(reducedMotionQuery);
+  query.addEventListener("change", callback);
+  return () => query.removeEventListener("change", callback);
+}
+
 const Context = createContext<{
   preferences: Preferences;
   update: (patch: Partial<Preferences>) => Promise<void>;
   error: string;
   loading: boolean;
+  bookMotion: BookMotion;
+  gentleBookMotion: boolean;
+  setBookMotion: (value: BookMotion) => void;
 }>({
   preferences: defaults,
   update: async () => {},
   error: "",
   loading: false,
+  bookMotion: "system",
+  gentleBookMotion: false,
+  setBookMotion: () => {},
 });
 export function PreferencesProvider({ children }: PropsWithChildren) {
   const { user } = useAuth();
@@ -46,6 +62,12 @@ export function PreferencesProvider({ children }: PropsWithChildren) {
   const current = useRef(preferences);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(!!user);
+  const [bookMotion, setBookMotion] = useState<BookMotion>(() => {
+    const saved = readLocal<string>(bookMotionKey, "system");
+    return saved === "full" || saved === "gentle" ? saved : "system";
+  });
+  const deviceReducesMotion = useSyncExternalStore(subscribeToDeviceMotion, () => window.matchMedia(reducedMotionQuery).matches);
+  const gentleBookMotion = bookMotion === "gentle" || (bookMotion === "system" && (preferences.reduced_motion || deviceReducesMotion));
   useEffect(() => {
     let active = true;
     if (user && supabase)
@@ -97,7 +119,10 @@ export function PreferencesProvider({ children }: PropsWithChildren) {
     setError("");
   };
   return (
-    <Context.Provider value={{ preferences, update, error, loading }}>
+    <Context.Provider value={{ preferences, update, error, loading, bookMotion, gentleBookMotion, setBookMotion: (value) => {
+      setBookMotion(value);
+      writeLocal(bookMotionKey, value);
+    } }}>
       {children}
     </Context.Provider>
   );

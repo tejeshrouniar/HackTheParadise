@@ -22,7 +22,7 @@
 }
 .sc-magical-app .sc-grimoire__corner--right { transform: scaleX(-1); }
 
-.sc-magical-app :is(.sc-button, .sc-chapter-pill, .sc-header-sparks, .sc-book-hub__action, .sc-cinema, .htp-cinema) {
+.sc-magical-app :is(.sc-button, .sc-chapter-pill, .sc-book-hub__action, .sc-cinema, .htp-cinema) {
   border-radius: 0;
 }
 .sc-magical-app :is(.sc-button, .sc-book-hub__action, .htp-hanging-signs button):enabled:active {
@@ -119,11 +119,3 @@
   .sc-magical-app :is(.sc-button, .sc-book-hub__action, .htp-hanging-signs button):active { translate: none; }
 }
 :root[data-reduce-motion="true"] .sc-magical-app :is(.sc-button, .sc-book-hub__action, .htp-hanging-signs button):active { translate: none; }
-
-/* Narrow layouts stack both leaves, so turn a full-width leaf at the edge. */
-@media (max-width: 760px) and (prefers-reduced-motion: no-preference) and (forced-colors: none) {
-  :root:not([data-reduce-motion="true"]) .sc-route-turn[data-level-turn] .sc-grimoire__turn-container {
-    display: block !important;
-  }
-  .sc-route-turn[data-level-turn] .sc-grimoire .sc-grimoire__turn-leaf { left: 0; right: 0; }
-}

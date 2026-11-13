@@ -714,17 +714,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .sc-adventure-shell *,
-  .sc-adventure-shell *::before,
-  .sc-adventure-shell *::after {
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-  }
-}
-
 /* The landing screen is a real shelf; book covers are the primary controls. */
 .sc-adventure-shell .sc-story-library {
   max-width: 1480px;
@@ -1148,26 +1137,7 @@
   white-space: nowrap;
 }
 
-/* A route change is a page reveal; chapter changes keep their own page flip. */
-.sc-adventure-shell .sc-route-turn {
-  transform-origin: left center;
-  animation: sc-route-page-turn 420ms cubic-bezier(.2, .72, .24, 1) both;
-}
-.sc-adventure-shell .sc-route-turn[data-page-turn="previous"] {
-  transform-origin: right center;
-  animation-name: sc-route-page-turn-back;
-}
-
-@keyframes sc-route-page-turn {
-  from { opacity: .65; transform: perspective(1400px) rotateY(-6deg) translateX(-7px); }
-  to { opacity: 1; transform: perspective(1400px) rotateY(0) translateX(0); }
-}
-@keyframes sc-route-page-turn-back {
-  from { opacity: .65; transform: perspective(1400px) rotateY(6deg) translateX(7px); }
-  to { opacity: 1; transform: perspective(1400px) rotateY(0) translateX(0); }
-}
-
-/* Chapter scenes use Harry as the fixed story hero; the saved avatar remains on the map. */
+/* Chapter scenes use Harry as the fixed story hero. */
 .sc-adventure-shell .sc-volume-scene__harry {
   position: absolute;
   bottom: 9%;
@@ -1251,7 +1221,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sc-adventure-shell .sc-route-turn,
   .sc-adventure-shell .sc-harry-opening__harry,
   .sc-adventure-shell .sc-volume-scene__harry { animation: none; }
   .sc-adventure-shell .sc-volume-scene__harry { transition: none; }

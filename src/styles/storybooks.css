@@ -845,9 +845,18 @@ html[data-reduce-motion="true"] .sc-book-cutscene .sc-book-cutscene__magic { opa
 .sc-book-walk-stop.is-complete .sc-book-walk-stop__pin { color:#1a2a1c; border-color:#d8ebc5; background:#bdd9a7; }
 .sc-book-walk-stop.is-locked .sc-book-walk-stop__art,.sc-book-walk-stop.is-locked .sc-book-walk-stop__name { filter:grayscale(.85) brightness(.56); }
 .sc-book-walk-stop.is-locked .sc-book-walk-stop__pin { color:#ded9cf; border-color:#aaa396; background:#565653; }
-.sc-book-walk-shadow { position:absolute; z-index:4; bottom:46px; width:52px; height:10px; border-radius:50%; background:#08100dbb; transform:translateX(-50%); }
-.sc-book-walk-player { position:absolute; z-index:5; bottom:43px; width:72px; height:88px; filter:drop-shadow(0 2px 1px #080c0b); pointer-events:none; }
+.sc-book-walk-shadow { position:absolute; z-index:4; left:0; bottom:46px; width:52px; height:10px; border-radius:50%; background:#08100dbb; translate:-50% 0; }
+.sc-book-walk-player { position:absolute; z-index:5; left:0; bottom:43px; width:72px; height:88px; translate:-50% 0; filter:drop-shadow(0 2px 1px #080c0b); pointer-events:none; }
 .sc-book-walk-player svg { image-rendering:pixelated; }
+.sc-book-walk-sprite {
+  display:block;
+  width:100%;
+  aspect-ratio:1;
+  background-size:300% 400%;
+  background-position-x:50%;
+  background-repeat:no-repeat;
+  image-rendering:pixelated;
+}
 .sc-book-walk-fog { position:absolute; z-index:6; top:0; bottom:50px; pointer-events:none; background:radial-gradient(ellipse 20% 30% at 9% 25%,#c5d0ccde 0%,#c5d0cc3d 57%,transparent 100%),radial-gradient(ellipse 25% 38% at 29% 69%,#bac6c3d9 0%,#bac6c33d 58%,transparent 100%),radial-gradient(ellipse 22% 35% at 51% 31%,#d1d7d3e0 0%,#d1d7d342 58%,transparent 100%),radial-gradient(ellipse 27% 43% at 74% 63%,#bac4c1e0 0%,#bac4c147 59%,transparent 100%),linear-gradient(90deg,#bcc8c46b,#bbc7c4d9 34%,#b5c1bfec); filter:blur(13px); opacity:.92; animation:sc-book-walk-fog-drift 16s ease-in-out infinite alternate; }
 @keyframes sc-book-walk-fog-drift { from { transform:translate3d(-1%,0,0); } to { transform:translate3d(1%,0,0); } }
 .sc-book-walk-caption { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:42px; padding:9px 13px; color:var(--walk-ink); border-top:1px solid var(--walk-line); background:#151d1b; }
@@ -871,6 +880,7 @@ html[data-reduce-motion="true"] .sc-book-cutscene .sc-book-cutscene__magic { opa
 .sc-book-walk-arrival small { color:var(--walk-gold); font-weight:800; }
 @keyframes sc-book-walk-arrive { 0% { opacity:0; } 18%,72% { opacity:1; } 100% { opacity:0; } }
 .sc-book-walk-stage.is-reduced-motion .sc-book-walk-fog,.sc-book-walk-stage.is-reduced-motion .sc-book-walk-arrival { animation:none; }
+.sc-book-walk-stage.is-reduced-motion .sc-book-walk-arrival { opacity:0; }
 @media (max-width:850px) {
   .sc-book-walk-chapters { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .sc-book-walk-chapters li:nth-child(3) { border-left:0; border-top:1px solid var(--walk-line); }

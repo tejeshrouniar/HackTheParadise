@@ -6,6 +6,17 @@ import { STORY_BOOKS } from "../../content/storyBooks";
 import { readLocal, writeLocal } from "../../lib/validation";
 import { BOOKSHELVES, getBookshelf, LIBRARY, type BookshelfId, type LibraryBook } from "../../content/library";
 import { usePreferences } from "../settings/PreferencesContext";
+import adventureShelfArt from "../../assets/library/bookshelf-adventures.png";
+import tutorialShelfArt from "../../assets/library/bookshelf-tutorial.png";
+import personalShelfArt from "../../assets/library/bookshelf-personal.png";
+import guildShelfArt from "../../assets/library/bookshelf-guild.png";
+
+const bookshelfArt: Record<BookshelfId, string> = {
+  adventures: adventureShelfArt,
+  tutorial: tutorialShelfArt,
+  personal: personalShelfArt,
+  guild: guildShelfArt,
+};
 
 interface MagicalBookshelfProps {
   bookshelfId?: BookshelfId;
@@ -122,10 +133,13 @@ export function MagicalBookshelf({ bookshelfId = "adventures", onOpen, onTools, 
       <section className="sc-library-cabinet htp-active-cabinet" aria-label={`${collection.title} bookshelf`}>
         <div className="sc-cabinet-crown" aria-hidden="true"><span>✦</span><strong>{collection.title.toUpperCase()}</strong><span>✦</span></div>
         <div className={`sc-cabinet-row sc-cabinet-row--${collection.id}`}>
-          <div className="sc-cabinet-row__books" aria-label={`${visible.length} books`}>
-            {visible.map(spine)}
-            {!visible.length && <p className="htp-bookshelf-empty" role="status">No titles match that search.</p>}
-            <div className="htp-shelf-stilllife" aria-hidden="true"><i /><i /><i /><span>✦</span></div>
+          <div className="sc-cabinet-row__books">
+            <img className="htp-collection-shelf-art" src={bookshelfArt[collection.id]} alt="" aria-hidden="true" draggable={false} />
+            <div className="htp-shelf-volume-row" role="group" aria-label={`${visible.length} books in ${collection.title}`}>
+              {visible.map(spine)}
+              {!visible.length && <p className="htp-bookshelf-empty" role="status">No titles match that search.</p>}
+              <div className="htp-shelf-stilllife" aria-hidden="true"><i /><i /><i /><span>✦</span></div>
+            </div>
           </div>
           <div className="sc-cabinet-ledge"><span>{collection.title.toUpperCase()}</span></div>
         </div>

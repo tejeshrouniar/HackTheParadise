@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowRight, Headphones, Shirt } from "lucide-react";
-import { LIBRARY } from "../../content/library";
+import { LIBRARY, PROJECT_REPOSITORY } from "../../content/library";
 import { STORY_BOOKS } from "../../content/storyBooks";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProfile } from "../profile/ProfileContext";
@@ -9,7 +9,7 @@ import { usePreferences } from "../settings/PreferencesContext";
 import { SparkWalletCard } from "../learning/SparkWalletCard";
 import { ErrorNotice, Loading } from "../../components/ui/Status";
 import { Grimoire } from "./Grimoire";
-import { errorMessage } from "../../lib/validation";
+import { errorMessage, safeUrl } from "../../lib/validation";
 import { PixelJournalMark, type PixelJournalKind } from "./PixelJournalMark";
 import { AvatarGraphic } from "../adventure/AvatarGraphic";
 import { useAppearance } from "../adventure/AppearanceContext";
@@ -64,9 +64,20 @@ export function LibraryUtilityPage({ id, onNavigate, onSignIn, onCharacter, onTo
   } else if (id === "lore") {
     left = <>{intro}<h2>The stories you bring to life</h2><p>Every solved level reveals another scene. Open a book to watch the chapters you have unlocked.</p>{bookLinks(true)}</>;
     right = <><span className="sc-volume-kicker">FROM CODE TO STORY</span><h2>Write. Cast. Discover.</h2><ol className="sc-utility-steps"><li><strong>Choose an adventure</strong><p>Start with The Last Light or enter the world of Hogwarts.</p></li><li><strong>Write your spell</strong><p>Use the editor, follow the level’s goal, and watch your code run.</p></li><li><strong>Turn the page</strong><p>Your completed levels become films you can revisit here.</p></li></ol></>;
+  } else if (id === "credits") {
+    const links = [
+      { label: "GitHub repository", href: PROJECT_REPOSITORY },
+      { label: "Patreon", href: safeUrl(import.meta.env.VITE_PROJECT_PATREON_URL) },
+      { label: "Instagram", href: safeUrl(import.meta.env.VITE_PROJECT_INSTAGRAM_URL) },
+    ];
+    left = <>{intro}<h2>Hack The Paradise</h2><p>Explore the project, follow its development, or get in touch.</p><p>© 2026 Hack The Paradise</p></>;
+    right = <><h2>Project links</h2><div className="sc-utility-links">
+      {links.map(({ label, href }) => href && <a key={label} href={href} target="_blank" rel="noreferrer">{label}<ArrowRight size={18} /></a>)}
+      <button type="button" onClick={() => onNavigate("library/contact")}>Contact / feedback <ArrowRight size={18} /></button>
+    </div></>;
   } else {
-    left = <>{intro}<h2>A library built together</h2><p>Found a bug, have a new story idea, or want to help improve Hack The Paradise?</p><div className="sc-utility-links"><a href="https://github.com/tejeshrouniar/HackTheParadise/issues/new" target="_blank" rel="noreferrer">Report a bug or share feedback <ArrowRight size={18} /></a><button onClick={() => onNavigate("community")}>Visit the community & suggestions <ArrowRight size={18} /></button></div></>;
-    right = <><span className="sc-volume-kicker">THE PROJECT</span><h2>Hack The Paradise</h2><p>Learn to code, one adventure at a time.</p><div className="sc-utility-links"><a href="https://github.com/tejeshrouniar/HackTheParadise" target="_blank" rel="noreferrer">Explore the repository <ArrowRight size={18} /></a></div><p>© 2026 Hack The Paradise</p></>;
+    left = <>{intro}<h2>A library built together</h2><p>Found a bug, have a new story idea, or want to help improve Hack The Paradise?</p><div className="sc-utility-links"><a href={`${PROJECT_REPOSITORY}/issues/new`} target="_blank" rel="noreferrer">Report a bug or share feedback <ArrowRight size={18} /></a><button onClick={() => onNavigate("community")}>Visit the community & suggestions <ArrowRight size={18} /></button></div></>;
+    right = <><h2>Project links</h2><div className="sc-utility-links"><button type="button" onClick={() => onNavigate("library/credits")}>Open Credits <ArrowRight size={18} /></button></div></>;
   }
   return <div className="sc-page sc-utility-book"><Grimoire className="htp-pixel-journal" pageKey={id} label={entry.title} coverColor={entry.coverColor} left={<>{left}{preferenceStatus && <p className="htp-preference-status" role="status">{preferenceStatus}</p>}</>} right={right} /></div>;
 }

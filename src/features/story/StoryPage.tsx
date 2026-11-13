@@ -59,7 +59,9 @@ function CinderBook({
               type="button"
               disabled={!unlocked}
               aria-current={chapter === index ? "page" : undefined}
-              onClick={() => navigation.turn(() => setChapter(index), index < chapter ? "previous" : "next")}
+              onClick={() => {
+                if (index !== chapter) navigation.turn(() => setChapter(index), index < chapter ? "previous" : "next");
+              }}
             >
               <span className="sc-book-chapter-index__number">{isComplete ? <Check size={15} /> : !unlocked ? <LockKeyhole size={13} /> : String(index + 1).padStart(2, "0")}</span>
               <span><strong>{item.title}</strong><small>{item.place}</small></span>
@@ -155,7 +157,11 @@ function HarryStoryFilms({
               type="button"
               disabled={!isUnlocked}
               aria-current={chapter?.chapterId === item.chapterId ? "page" : undefined}
-              onClick={() => navigation.turn(() => onChapterChange(item.chapterId), index < book.chapters.findIndex(c => c.chapterId === chapter?.chapterId) ? "previous" : "next")}
+              onClick={() => {
+                if (item.chapterId === chapter?.chapterId) return;
+                const currentIndex = book.chapters.findIndex((entry) => entry.chapterId === chapter?.chapterId);
+                navigation.turn(() => onChapterChange(item.chapterId), index < currentIndex ? "previous" : "next");
+              }}
             >
               <span>{isUnlocked ? <Play size={12} /> : <LockKeyhole size={12} />}</span>
               <strong>{String(index + 1).padStart(2, "0")}</strong>
