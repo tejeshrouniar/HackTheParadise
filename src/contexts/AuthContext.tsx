@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     let active = true;
     void supabase.auth.getSession().then(({ data, error }) => {
       if (!active) return;
-      if (error) console.error('Unable to restore Storicode session:', error.message);
+      if (error) console.error('Unable to restore Hack The Paradise session:', error.message);
       setSession(data.session);
       setLoading(false);
     });

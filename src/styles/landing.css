@@ -59,28 +59,26 @@
 .sc-magical-app .sc-grimoire { box-sizing:border-box; max-width:100%; min-width:0; }
 
 .sc-magical-app main.sc-route-turn { position: relative; isolation: isolate; }
-/* Route covers move on their own layer so the room and desk stay anchored. */
-.sc-route-cover { position: fixed; inset: 0; z-index: 90; overflow: hidden; pointer-events: none; perspective: 1400px; }
-.sc-route-cover__leaf {
-  position: absolute; top: 0; bottom: 0; width: 50%;
-  border: 2px solid #b88d51;
-  background: repeating-linear-gradient(0deg, #f4d69d0e 0 2px, transparent 2px 32px),
-    linear-gradient(90deg, #21150e 0%, var(--book-cover, #52301e) 54%, #24150d 100%);
-  box-shadow: inset 0 0 0 9px #22150e, inset 0 0 0 12px #b28a4c66, inset 0 0 0 14px #100b08;
+/* A single viewport-sized leaf reveals the next route. The room and its shelf share their own zoom. */
+.sc-route-page { position: fixed; inset: 0; z-index: 90; overflow: hidden; pointer-events: none; perspective: 1600px; }
+.sc-route-page__leaf {
+  --page-angle: -98deg;
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, #57361d70, transparent 13% 84%, #623e202e),
+    url("../assets/storybooks/scenes/parchment-texture-hd.webp") center / cover,
+    #dbc496;
+  background-blend-mode: multiply, soft-light, normal;
+  box-shadow: inset 0 0 0 8px #6e472c, inset 0 0 0 10px #d6ad69, 0 5px 22px #291a0e5e;
   backface-visibility: hidden;
-  animation: htp-cover-open 390ms cubic-bezier(.38,.1,.22,1) both;
+  transform-origin: left center;
+  animation: htp-route-page-turn 480ms cubic-bezier(.46,.05,.37,.98) both;
 }
-.sc-route-cover__leaf--left { --cover-slide: -101%; --cover-angle: 52deg; left: 0; transform-origin: left center; }
-.sc-route-cover__leaf--right { --cover-slide: 101%; --cover-angle: -52deg; right: 0; transform-origin: right center; }
-.sc-route-cover[data-direction="previous"] .sc-route-cover__leaf { animation-name: htp-cover-return; }
-@keyframes htp-cover-open {
-  from { transform: translate3d(0,0,0) rotateY(0deg); }
-  to { transform: translate3d(var(--cover-slide),0,0) rotateY(var(--cover-angle)); visibility: hidden; }
-}
-@keyframes htp-cover-return {
-  0% { transform: translate3d(0,0,0) rotateY(var(--cover-angle)); }
-  27% { transform: translate3d(0,0,0) rotateY(0deg); }
-  100% { transform: translate3d(var(--cover-slide),0,0) rotateY(var(--cover-angle)); visibility: hidden; }
+.sc-route-page[data-direction="previous"] .sc-route-page__leaf { --page-angle: 98deg; transform-origin: right center; }
+@keyframes htp-route-page-turn {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(var(--page-angle)); visibility: hidden; }
 }
 
 /* Keep the art, floor anchors, and foreground props in the same coordinate space. */
@@ -471,8 +469,9 @@
 .htp-bookmark-drawer .sc-now-playing { border-radius:0; border-color:#966f4c; background:#352637; }
 .htp-bookmark-drawer .sc-tool-content { padding:18px; }
 .htp-motion-settings label { display:block; margin-bottom:8px; }
-.htp-motion-settings select { width:100%; min-height:44px; padding:8px; border:1px solid #aa8352; background:#261d21; color:#fae8c9; }
-.htp-motion-settings p { margin:8px 0 16px; color:#dac3a1; }
+.htp-motion-settings select, .htp-motion-settings select option { color-scheme: dark; background:#261d21; color:#fff3dc; }
+.htp-motion-settings select { width:100%; min-height:44px; padding:8px; border:1px solid #c6a375; font:700 1rem/1.4 "Nunito Sans",system-ui,sans-serif; }
+.htp-motion-settings p { margin:8px 0 16px; color:#f0dbb7; font: .9375rem/1.5 "Nunito Sans",system-ui,sans-serif; }
 @media (max-width:420px) {
   .htp-bookmark-drawer .sc-tool-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); }
   .htp-bookmark-drawer .sc-tool-tabs button.active { min-height:58px; }
@@ -515,7 +514,7 @@
 .sc-magical-app[data-book-motion="gentle"] :is(.htp-room-backdrop,.htp-room-ivy,.htp-room-floor-prop) { transform:none; }
 .sc-magical-app[data-book-motion="gentle"] .htp-library-book { transform:none; }
 .sc-magical-app[data-book-motion="gentle"] .htp-library-interior { animation: htp-shelf-arrive 280ms ease-out both; }
-.sc-magical-app[data-book-motion="gentle"] .sc-route-cover__leaf { animation: htp-cover-dissolve 280ms ease-out both; }
+.sc-magical-app[data-book-motion="gentle"] .sc-route-page__leaf { background: #281e16; box-shadow: none; animation: htp-cover-dissolve 240ms ease-out both; }
 @keyframes htp-cover-dissolve { from { opacity:.75; } to { opacity:0; visibility:hidden; } }
 /* One collection at a time: the only route with a physical book display. */
 .htp-sketch-library { width:min(1460px,100%); margin:0 auto; padding:clamp(20px,4vw,48px) clamp(14px,4vw,52px) 64px; }

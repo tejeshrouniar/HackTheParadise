@@ -109,6 +109,8 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
   const [motion, setMotion] = useState<SpriteAction>("idle");
   const [direction, setDirection] = useState<SpriteDirection>("right");
   const [playId, setPlayId] = useState(0);
+  const [activatingStopId, setActivatingStopId] = useState<string | null>(null);
+  const openTimer = useRef<number | undefined>(undefined);
   const currentRouteCallback = useRef(onEnter);
   currentRouteCallback.current = onEnter;
   const viewportRef = useRef(viewportWidth);
@@ -153,6 +155,8 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
       input.current = { left: false, right: false, run: false };
     }
   }, [unlockedMaxX]);
+
+  useEffect(() => () => window.clearTimeout(openTimer.current), []);
 
   useEffect(() => {
     let frame = 0;
@@ -285,18 +289,6 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preset.bookId, preferences.reduced_motion, reducedMotion, worldWidth]);
 
-  function walkToStop(index: number) {
-    const stop = stops[index];
-    if (!stop || stop.regionIndex > unlockedRegionIndex) {
-      setNotice("Complete this chapter’s levels to reveal the path ahead.");
-      return;
-    }
-    target.current = stop.x;
-    pending.current = null;
-    nearestStopIndex.current = index;
-    stage.current?.focus();
-  }
-
   function enterStop(index = nearestIndex) {
     const stop = stops[index];
     if (!stop) return;
@@ -313,6 +305,28 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
     }
     sound.playClick();
     onEnter(stop);
+  }
+
+  function openMarker(index: number) {
+    const stop = stops[index];
+    if (!stop) return;
+    if (!stop.canEnter) {
+      setNotice("Complete the previous level to unlock this one.");
+      return;
+    }
+    if (openTimer.current !== undefined) return;
+    target.current = null;
+    pending.current = null;
+    sound.playClick();
+    if (reducedMotion) {
+      onEnter(stop);
+      return;
+    }
+    setActivatingStopId(stop.id);
+    openTimer.current = window.setTimeout(() => {
+      openTimer.current = undefined;
+      currentRouteCallback.current(stop);
+    }, 180);
   }
 
   function walkToRegion(index: number) {
@@ -406,14 +420,14 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
           </svg>
           {stops.map((stop) => (
             <button
-              className={`sc-book-walk-stop${stop.complete ? " is-complete" : ""}${!stop.canEnter ? " is-locked" : ""}${nearestIndex === stop.index ? " is-current" : ""}`}
+              className={`sc-book-walk-stop${stop.complete ? " is-complete" : ""}${!stop.canEnter ? " is-locked" : ""}${nearestIndex === stop.index ? " is-current" : ""}${activatingStopId === stop.id ? " is-activating" : ""}`}
               key={stop.id}
               type="button"
               style={{ left: stop.x }}
-              aria-label={`${stop.complete ? "Completed" : stop.canEnter ? "Available" : "Locked"}: ${stop.title}. ${stop.subtitle}`}
+              aria-label={`${stop.canEnter ? "Open level" : "Locked level"}: ${stop.title}. ${stop.subtitle}${stop.complete ? ". Completed" : ""}`}
               aria-disabled={!stop.canEnter}
               aria-current={nearestIndex === stop.index ? "step" : undefined}
-              onClick={(event) => { event.stopPropagation(); walkToStop(stop.index); }}
+              onClick={(event) => { event.stopPropagation(); openMarker(stop.index); }}
             >
               <span className="sc-book-walk-stop__art">{stop.art ? <img src={stop.art} alt="" /> : <span aria-hidden="true">✦</span>}</span>
               <span className="sc-book-walk-stop__pin">{stop.complete ? <Check size={16} /> : !stop.canEnter ? <LockKeyhole size={14} /> : String(stop.index + 1).padStart(2, "0")}</span>

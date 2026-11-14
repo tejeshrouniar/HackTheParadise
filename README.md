@@ -3,7 +3,9 @@
 
 ### Turn Coding Into an Adventure. Explore Magical Worlds. Cast Your First Spell.
 
-**Hack The Paradise** (formerly **Storicode**) is a browser-based coding adventure that transforms programming education into an immersive collection of interactive storybooks.
+**Hack The Paradise** is a browser-based coding adventure with interactive storybooks.
+
+[Play Hack The Paradise](https://www.hacktheparadise.com/)
 
 Step into a world where code becomes magic, programming concepts become quests, and every successfully solved challenge takes you one step further into an unfolding adventure.
 
@@ -155,7 +157,7 @@ Book transitions support two visual styles:
 - Full page flips.
 - Gentle fades.
 
-The default transition follows device and in-app motion preferences.
+Full page flips are the default. Gentle fades apply when selected or when the device or app requests reduced motion.
 
 ---
 
@@ -398,12 +400,12 @@ Each entry is keyed by book ID and stable chapter ID.
 
 Supported metadata includes:
 
-- HTTPS or root-relative video source.
+- HTTPS, root-relative, or bundled `media/` video source.
 - Optional poster image.
 - Optional duration.
 - Subtitle tracks with source, language, and label.
 
-Harry Potter's `BookVideoLibrary.tsx` appears in the Story Reader, separate from gameplay level results.
+Harry Potter's coding levels show the executed steps and a final effect before playing the matching film. The Story Reader can replay unlocked films.
 
 ### Video Availability
 
@@ -413,13 +415,11 @@ Harry Potter's `BookVideoLibrary.tsx` appears in the Story Reader, separate from
 - Playback position is device-local and account-scoped.
 - Completion continues to use the existing progress system.
 
-Chapter video files still need to be supplied.
-
-Until an MP4 is configured, the Story Reader displays an appropriate unavailable-media state rather than presenting gameplay animations as movies.
+The twelve chapter films and continuous movie are bundled in `public/media/harry-potter/`.
 
 When all clip durations are supplied in seconds, the movie player supports a single seek bar across chapters.
 
-For deployment under a subpath, use full HTTPS media URLs. HTTPS video and WebVTT subtitle hosts must allow the application origin through CORS.
+Use `media/` paths for bundled video so the build can serve the same files on the custom domain and GitHub Pages subpaths. External media and WebVTT hosts must use HTTPS and allow the application origin through CORS when required.
 
 Public media URLs are not DRM-protected or server-protected entitlements.
 

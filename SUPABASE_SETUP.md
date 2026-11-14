@@ -1,4 +1,4 @@
-# Storicode Supabase setup
+# Hack The Paradise Supabase setup
 
 Use this guide for setup and [the migration guide](docs/MIGRATIONS.md) for schema dependencies and the verified state of the current project. Existing installations should run only migrations they have not already applied.
 
@@ -25,7 +25,7 @@ The migrations create user profiles, cloud lesson progress, the account Spark wa
 
 **Recovery for the currently configured project:** the user applied migration 009, then 007. A follow-up read-only check confirmed the wallet/content tables and `get_spark_content` RPC now resolve; the public browser key receives PostgreSQL `42501` permission denials, as intended for these protected objects. No rows were read. Do not rerun 006, 007, or 008. A signed-in app check of balance, code redemption, and hint/solution retrieval remains. The verification and local test coverage are recorded in [docs/MIGRATIONS.md](docs/MIGRATIONS.md).
 
-After the recovery migrations or a full ordered setup, make your own account a Spark admin from **SQL Editor**. Replace the email below with the email you use to sign in to Storicode:
+After the recovery migrations or a full ordered setup, make your own account a Spark admin from **SQL Editor**. Replace the email below with the email you use to sign in to Hack The Paradise:
 
 ```sql
 insert into public.spark_admins(user_id)
@@ -48,16 +48,16 @@ Email and password sign-up/sign-in are handled by Supabase Auth. Email confirmat
    - `http://localhost:3000`
    - `http://127.0.0.1:3000`
    - The `http://localhost:3010` and `http://127.0.0.1:3010` origins if Vite is using its fallback port
-   - `https://tejeshrouniar.github.io`
-3. Copy the callback URL shown on Supabase's **Authentication → Providers → Google** page into Google's **Authorized redirect URIs**. For this project it is `https://qlptlxzrnvrahanlordb.supabase.co/auth/v1/callback`. The callback belongs here; the Storicode Pages URL belongs in Supabase's Redirect URLs.
+   - `https://www.hacktheparadise.com`
+3. Copy the callback URL shown on Supabase's **Authentication → Providers → Google** page into Google's **Authorized redirect URIs**. For this project it is `https://qlptlxzrnvrahanlordb.supabase.co/auth/v1/callback`. The Hack The Paradise app URL belongs in Supabase's Redirect URLs.
 4. Put Google's client ID and client secret into the Supabase Google provider settings and enable the provider. Keep the Google client secret in Supabase only.
 5. Add the local app URLs you use and the deployed app URL to Supabase's **Authentication → URL Configuration → Redirect URLs**:
    - `http://localhost:3000/`
    - `http://127.0.0.1:3000/`
    - `http://localhost:3010/` and `http://127.0.0.1:3010/` if you use the fallback port
-   - `https://tejeshrouniar.github.io/SpellScript/`
+   - `https://www.hacktheparadise.com/`
 
-Set the **Site URL** to `https://tejeshrouniar.github.io/SpellScript/`. The app sends the current app path as the OAuth redirect, so the Pages `/SpellScript/` path is preserved after Google returns.
+Set the **Site URL** to `https://www.hacktheparadise.com/`. The app sends its current origin and path as the OAuth redirect.
 
 ## 5. Deploying
 

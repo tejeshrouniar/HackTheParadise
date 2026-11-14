@@ -1,4 +1,4 @@
-import { Grimoire, GrimoireHeaderSlot, PageTurnProvider } from "../features/library/Grimoire";
+import { Grimoire, GrimoireHeaderSlot, PageTurnProvider, RoutePageTurn } from "../features/library/Grimoire";
 import { LibraryBookmarks, ToolsBookmark } from "../features/library/LibraryBookmarks";
 import { LibraryEntrance } from "../features/library/LibraryEntrance";
 import type { CSSProperties } from "react";
@@ -70,11 +70,21 @@ const levelRoutes = [
   ...Array.from({ length: 12 }, (_, index) => `quest/${index + 1}`),
   ...STORY_BOOKS.flatMap(book => book.kind === "coding" ? book.chapters.map(chapter => `book-level/${chapter.chapterId}`) : []),
 ];
+function bookIdForRoute(route: string) {
+  if (route.startsWith("quest/")) return "cinder";
+  const bookId = route.match(/^book(?:-story)?\/([a-z0-9-]+)$/)?.[1];
+  if (bookId && STORY_BOOKS.some(book => book.id === bookId)) return bookId;
+  if (route.startsWith("book-level/")) {
+    const chapterId = route.slice("book-level/".length);
+    return STORY_BOOKS.find(book => book.kind === "coding" && book.chapters.some(chapter => chapter.chapterId === chapterId))?.id;
+  }
+  return undefined;
+}
 function pageTurnDirection(from: string, to: string): "next" | "previous" {
   const fromLevel = levelRoutes.indexOf(from);
   const toLevel = levelRoutes.indexOf(to);
   if (fromLevel >= 0 && toLevel >= 0) return toLevel < fromLevel ? "previous" : "next";
-  if (isLibraryRoom(to) || (to.startsWith("book/") && !isLibraryRoom(from))) return "previous";
+  if (isLibraryRoom(to) || (to === "learn" && fromLevel >= 0) || (to.startsWith("book/") && !isLibraryRoom(from))) return "previous";
   return "next";
 }
 export function AppShell() {
@@ -91,8 +101,7 @@ export function AppShell() {
   const fromLibrary = isLibraryRoom(previousRoute);
   const returnToRoom = fromLibrary && route === "entrance";
   const lockedQuest = route.startsWith("quest/") && !canEnterLevel(Number(route.split("/")[1]), completed);
-  const levelTurn = levelRoutes.includes(route) && !lockedQuest ? pageTurn : undefined;
-  const coverTurn = !!previousRoute && !(inLibrary && fromLibrary) && !levelTurn;
+  const flipRoute = !!previousRoute && !(inLibrary && fromLibrary);
   function setRoute(next: string) {
     setRouteState(current => current.route === next ? current : {
       route: next,
@@ -102,9 +111,8 @@ export function AppShell() {
   }
   const [headerSlot, setHeaderSlot] = useState<HTMLDivElement | null>(null);
   const [selectedBookId, setSelectedBookId] = useState<string>(() => {
-    const routeMatch = routeFromHash().match(/^book(?:-story)?\/([a-z0-9-]+)$/);
-    const routeBook = routeMatch && STORY_BOOKS.find((book) => book.id === routeMatch[1]);
-    if (routeBook) return routeBook.id;
+    const routeBookId = bookIdForRoute(routeFromHash());
+    if (routeBookId) return routeBookId;
     const saved = readLocal("storicode-active-book-v2", "harry-potter");
     return STORY_BOOKS.some((book) => book.id === saved) ? saved : "harry-potter";
   });
@@ -118,17 +126,15 @@ export function AppShell() {
   const [journal, setJournal] = useState(false);
   const [playground, setPlayground] = useState(false);
   const [character, setCharacter] = useState(false);
-  const selectedBook = STORY_BOOKS.find((book) => book.id === selectedBookId) ?? STORY_BOOKS[0];
+  const routeBookId = bookIdForRoute(route);
+  const activeBookId = routeBookId ?? selectedBookId;
+  const selectedBook = STORY_BOOKS.find((book) => book.id === activeBookId) ?? STORY_BOOKS[0];
   useEffect(() => {
     writeLocal("storicode-active-book-v2", selectedBookId);
   }, [selectedBookId]);
   useEffect(() => {
-    if (route.startsWith("quest/")) setSelectedBookId("cinder");
-    const levelBook = STORY_BOOKS.find((book) => book.kind === "coding" && book.chapters.some((chapter) => `book-level/${chapter.chapterId}` === route));
-    if (levelBook) setSelectedBookId(levelBook.id);
-    const match = route.match(/^book(?:-story)?\/([a-z0-9-]+)$/);
-    if (match && STORY_BOOKS.some((book) => book.id === match[1])) setSelectedBookId(match[1]);
-  }, [route]);
+    if (routeBookId) setSelectedBookId(routeBookId);
+  }, [routeBookId]);
   function navigate(next: string) {
     if (location.hash !== `#/${next}`) location.hash = `/${next}`;
     setRoute(next);
@@ -207,7 +213,7 @@ export function AppShell() {
         >
           Skip to content
         </a>
-        <PageTurnProvider routeDirection={levelTurn} routeKey={route}><GrimoireHeaderSlot.Provider value={headerSlot}>
+        <PageTurnProvider routeKey={route}><GrimoireHeaderSlot.Provider value={headerSlot}>
         {!inLibrary && <LibraryBookmarks
           onLibrary={() => navigate("bookshelf")}
           onProfile={() => user ? navigate("library/profile") : setAuth(true)}
@@ -217,10 +223,7 @@ export function AppShell() {
         <div className="sc-workspace" {...(tools ? { inert: "" } : {})}>
           <main id="main-content" className="sc-route-turn" key={inLibrary ? "library" : route} tabIndex={-1}>
             <Suspense fallback={<BookNotice title="Turning the page"><Loading label="Opening your book…" /></BookNotice>}>
-              {coverTurn && <div className="sc-route-cover" data-direction={pageTurn} aria-hidden="true">
-                <i className="sc-route-cover__leaf sc-route-cover__leaf--left" data-book-transition="" />
-                <i className="sc-route-cover__leaf sc-route-cover__leaf--right" data-book-transition="" />
-              </div>}
+              {flipRoute && <RoutePageTurn direction={pageTurn} chapterToChapter={levelRoutes.includes(previousRoute) && levelRoutes.includes(route)} />}
               {inLibrary ? (
                 <LibraryEntrance
                   inside={route === "bookshelf"}
@@ -235,7 +238,7 @@ export function AppShell() {
                 />
               ) : route.startsWith("book-level/") ? (
                 <BookLevel
-                  bookId={selectedBookId}
+                  bookId={activeBookId}
                   chapterId={route.slice("book-level/".length)}
                   onLevels={() => navigate("learn")}
                   onStoryFilm={openBookMovie}
@@ -268,7 +271,7 @@ export function AppShell() {
               ) : route.startsWith("book-story/") ? (
                 <Story
                   mode="reader"
-                  selectedBookId={selectedBookId}
+                  selectedBookId={activeBookId}
                   chapterId={selectedChapterId}
                   onBookOpen={(id) => navigate(`book/${id}`)}
                   onBookHome={() => navigate(`book/${selectedBookId}`)}

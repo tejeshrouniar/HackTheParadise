@@ -9,7 +9,7 @@ The active catalog is `src/content/storyBooks.ts`. `StoryPage.tsx` renders only 
 | Book | Content source | Progress owner | Reader |
 | --- | --- | --- | --- |
 | *The Last Light* (Cinder) | `src/content/journey.json` | Existing quest IDs in `ProgressContext` / `player_progress` | `CinderBook` in the Story reader with `JourneyCinema.tsx` |
-| *The Horcrux Code* (Harry Potter) | `src/content/codeCampaign.ts` | Stable chapter IDs in `useBookProgress.ts` / Supabase `story_progress` | `BookLevelPage.tsx` for coding; level payoff in `WizardingLevelReveal.tsx`; MP4 films in the Story reader when supplied |
+| *The Horcrux Code* (Harry Potter) | `src/content/codeCampaign.ts` | Stable chapter IDs in `useBookProgress.ts` / Supabase `story_progress` | `BookLevelPage.tsx` for coding, `WizardingExecutionStage.tsx` for spell playback, and MP4s on completion and in the Story reader |
 
 The two books do not share chapter unlocks or completion state. Cinder’s twelve quests do not mark Harry Potter chapters complete; Harry Potter chapters do not advance Cinder’s journey. The book hub’s **Play levels** action opens the selected book’s walkable level route. **Read story** opens that book’s reader, so a chapter’s code task is not duplicated in the story reader.
 
@@ -37,7 +37,7 @@ The earlier merge stored Harry Potter’s twelve existing chapters as `relics-bo
 
 ## Narration and archival content
 
-Harry Potter coding levels use their supplied 12 pixel-art backgrounds for a short interactive completion payoff. These are gameplay results, not story movies. The Story reader plays the supplied chapter MP4s and continuous movie from `public/media/harry-potter/`, mapped by stable chapter ID in `src/content/bookMedia.ts` and rendered by `BookVideoLibrary.tsx`. For future books, add media there without changing the level completion scene. Do not substitute a looping level animation for a film.
+Harry Potter coding levels use their supplied pixel-art backgrounds to show the interpreter's inputs, steps, and results. Passing all checks plays the chapter's final effect and then opens its MP4 in the completion spread. The Story reader also plays unlocked chapters and the continuous movie. For future books, register films and optional captions by stable chapter ID in `src/content/bookMedia.ts`.
 
 The narration manifest is built from `src/content/journey.json` and `src/content/quest-narration.json`; it does not parse TypeScript. After changing spoken copy, rebuild with:
 

@@ -5,7 +5,7 @@ import { STORY_BOOKS } from "../../content/storyBooks";
 import { useProgress } from "../learning/ProgressContext";
 import { journeyProgress } from "../learning/journeyProgress";
 import { useBookProgress } from "./useBookProgress";
-import greatHall from "../../assets/storybooks/relics/great-hall.webp";
+import greatHall from "../../assets/storybooks/stages/great-hall.webp";
 import lanternwood from "../../assets/realms/lanternwood.png";
 
 interface BookHubPageProps {

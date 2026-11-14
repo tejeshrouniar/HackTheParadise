@@ -26,7 +26,7 @@ const defaults: Preferences = {
   focus_minutes: 25,
   gender: "",
 };
-export type BookMotion = "system" | "full" | "gentle";
+export type BookMotion = "full" | "gentle";
 const bookMotionKey = "storicode-book-motion";
 const reducedMotionQuery = "(prefers-reduced-motion: reduce), (forced-colors: active)";
 function subscribeToDeviceMotion(callback: () => void) {
@@ -48,7 +48,7 @@ const Context = createContext<{
   update: async () => {},
   error: "",
   loading: false,
-  bookMotion: "system",
+  bookMotion: "full",
   gentleBookMotion: false,
   setBookMotion: () => {},
 });
@@ -63,11 +63,10 @@ export function PreferencesProvider({ children }: PropsWithChildren) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(!!user);
   const [bookMotion, setBookMotion] = useState<BookMotion>(() => {
-    const saved = readLocal<string>(bookMotionKey, "system");
-    return saved === "full" || saved === "gentle" ? saved : "system";
+    return readLocal<string>(bookMotionKey, "full") === "gentle" ? "gentle" : "full";
   });
   const deviceReducesMotion = useSyncExternalStore(subscribeToDeviceMotion, () => window.matchMedia(reducedMotionQuery).matches);
-  const gentleBookMotion = bookMotion === "gentle" || (bookMotion === "system" && (preferences.reduced_motion || deviceReducesMotion));
+  const gentleBookMotion = bookMotion === "gentle" || preferences.reduced_motion || deviceReducesMotion;
   useEffect(() => {
     let active = true;
     if (user && supabase)

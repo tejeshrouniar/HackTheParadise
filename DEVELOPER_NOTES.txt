@@ -1,4 +1,4 @@
-Storicode project documentation now lives in Markdown so it can be reviewed in GitHub and read by both people and coding assistants.
+Hack The Paradise project documentation lives in Markdown so it can be reviewed in GitHub and read by both people and coding assistants.
 
 Start here:
 - README.md: product overview and local setup

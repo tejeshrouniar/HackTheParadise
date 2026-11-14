@@ -3,6 +3,23 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { BOOK_FULL_MOVIES, BOOK_VIDEOS, canWatchMovie, locateMovieTime, movieTimeline, playableVideo, validResume } from '../src/content/bookMedia.ts';
 import { BOOK_PUZZLES } from '../src/content/codeCampaign.ts';
+import { planSpellPlayback } from '../src/features/story/spellPlayback.ts';
+
+test('spell playback preserves interpreter steps and holds the solved scene before the film', () => {
+  const trace = Array.from({ length: 55 }, (_, index) => `Step ${index}`);
+  const result = { label: 'Long spell', input: [10], actual: 'a'.repeat(40), passed: true, trace };
+  const frames = planSpellPlayback([result], 450);
+  assert.deepEqual(frames.flatMap(frame => frame.trace), trace);
+  assert.ok(frames.filter(frame => frame.phase === 'work').length <= 6);
+  assert.equal(frames[0].phase, 'input');
+  assert.ok(frames[0].duration >= 900);
+  assert.equal(frames.at(-2).phase, 'complete');
+  assert.equal(frames.at(-2).revealed, 32);
+  assert.equal(frames.at(-1).phase, 'payoff');
+  assert.ok(frames.at(-1).duration >= 2600);
+  const failedRun = planSpellPlayback([{ ...result, passed: false }, result], 450);
+  assert.equal(failedRun.some(frame => frame.phase === 'payoff'), false);
+});
 
 test('movie access requires every real chapter and playable media, never just a matching completion count', () => {
   const chapters = [{ id: 'first' }, { id: 'second' }];

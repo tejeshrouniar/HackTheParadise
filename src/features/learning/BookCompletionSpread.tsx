@@ -102,7 +102,7 @@ export function BookCompletionSpread({
       className={`sc-quest-aftermath sc-completion-page sc-completion-page--${theme}`}
       aria-label={`${bookTitle} chapter complete`}
     >
-      <Grimoire className="sc-grimoire--completion" coverColor={theme === "cinder" ? "#9a4d29" : "#70272f"} label={`${bookTitle} completed spell`} pageKey={lessonId} animateRouteEntry={false} left={
+      <Grimoire className="sc-grimoire--completion" coverColor={theme === "cinder" ? "#9a4d29" : "#70272f"} label={`${bookTitle} completed spell`} pageKey={lessonId} left={
         <article className="sc-completion-page__leaf sc-completion-page__leaf--story">
           <header className="sc-completion-page__heading">
             <span className="sc-eyebrow">{chapterLabel}</span>

@@ -12,7 +12,7 @@ Accessibility is part of the interaction model, not a final styling pass. These 
 - The soundtrack does not autoplay. Tutorial quest-completion narration attempts to start with its scene; when a browser blocks autoplay, labeled play and seek controls remain available. Visible story text stays on the page, and browser text-to-speech controls remain keyboard operable.
 - The layout uses responsive breakpoints, touch-sized trail controls, and form labels. Pixel art uses crisp rendering while preserving the surrounding text interface.
 - The bookshelf uses labeled native buttons to select books. Route and book page turns honor reduced-motion preferences; the shelf changes to a compact two-column layout on narrow screens.
-- The library room uses a labeled bookcase button, and the open shelf moves focus to its heading. The book covers and tools bookmark have text equivalents. The bookmark’s Settings tab offers Full page flips and Gentle fades as browser-local choices. The default follows the device and in-app motion preferences and uses a short fade when reduced motion is active.
+- The library room uses a labeled bookcase button, and the open shelf moves focus to its heading. The book covers and tools bookmark have text equivalents. Full page flips are the default. The bookmark’s Settings tab can switch to Gentle fades, which also apply when the app or device requests reduced motion.
 - The coding editor can restore a draft after reset and focus the line associated with an error.
 
 ## When changing a screen

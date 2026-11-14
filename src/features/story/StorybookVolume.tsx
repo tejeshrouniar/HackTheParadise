@@ -6,11 +6,11 @@ import { usePreferences } from "../settings/PreferencesContext";
 import { LEVEL_PACES, LevelStage, showLevelStage } from "../learning/LevelStage";
 import type { CodingStoryBook } from "../../content/storyBooks";
 import { formatPuzzleValue, PuzzleCodeError, runPuzzleTests, type PuzzleTestResult } from "../learning/puzzleRunner";
-import { BookCutscene } from "./BookCutscene";
-import { BOOK_SCENE_ART, BOOK_SCENE_CHARACTERS, DEFAULT_BOOK_SCENE_ART } from "./bookSceneAssets";
+import { WizardingExecutionStage } from "./WizardingExecutionStage";
+import { planSpellPlayback, type SpellPlayback } from "./spellPlayback";
+import { ChapterCompletionFilm } from "./ChapterCompletionFilm";
 import { CodingEditorPanel, type CodingEditorError } from "../learning/CodingEditorPanel";
 import { BookCompletionSpread } from "../learning/BookCompletionSpread";
-import { WizardingLevelReveal } from "./WizardingLevelReveal";
 
 interface StorybookVolumeProps {
   book: CodingStoryBook;
@@ -43,10 +43,8 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [speaking, setSpeaking] = useState(false);
-  const [sceneSequence, setSceneSequence] = useState(0);
-  const [localOutcomeId, setLocalOutcomeId] = useState<string | null>(null);
+  const [playback, setPlayback] = useState<SpellPlayback | null>(null);
   const [showCompletion, setShowCompletion] = useState(false);
-  const [revealReady, setRevealReady] = useState(false);
   const liveRun = useRef(0);
   useEffect(() => () => { liveRun.current++; }, []);
   const chapterGuideRef = useRef<HTMLDetailsElement>(null);
@@ -56,7 +54,7 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
   const code = codeById[chapter?.chapterId ?? ""] ?? starterCode(chapter?.functionName ?? "spell", chapter?.parameters ?? []);
   const results = resultsById[chapter?.chapterId ?? ""];
   const finished = !!chapter && completedSet.has(chapter.chapterId);
-  const goalReached = finished || localOutcomeId === chapter?.chapterId;
+  const goalReached = !busy && (results ? results.length > 0 && results.length === chapter?.tests.length && results.every(item => item.passed) : finished);
   const passedChecks = results?.filter((item) => item.passed).length ?? 0;
   const previousChaptersComplete = !!chapter && book.chapters.slice(0, chapterIndex).every((item) => completedSet.has(item.chapterId));
   const canOpenChapter = (index: number) =>
@@ -67,11 +65,21 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
       setSelectedId(initialChapterId);
       setShowCompletion(false);
     }
-  }, [book, initialChapterId]);
+  }, [book.id, initialChapterId]);
 
   useEffect(() => () => {
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   }, []);
+
+  useEffect(() => {
+    liveRun.current++;
+    setBusy(false);
+    setSaving(false);
+    setPlayback(null);
+    setShowCompletion(false);
+    setSpeaking(false);
+    window.speechSynthesis?.cancel();
+  }, [selectedId]);
 
   function setChapter(id: string) {
     setSelectedId(id);
@@ -79,7 +87,7 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
     setNotice("");
     setSpeaking(false);
     setShowCompletion(false);
-    setRevealReady(false);
+
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   }
 
@@ -112,15 +120,6 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
     speak(`${chapter?.chapterTitle}. Your task: ${chapter?.taskObjective} Lesson: ${chapter?.lesson}`);
   }
 
-  function readScene() {
-    if (speaking) {
-      window.speechSynthesis.cancel();
-      setSpeaking(false);
-      return;
-    }
-    speak(`${chapter?.chapterTitle}. ${chapter?.story}${goalReached ? ` ${chapter?.outcome}` : ""}`);
-  }
-
   async function copyCode() {
     try {
       await navigator.clipboard.writeText(code);
@@ -135,6 +134,10 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
     const run = ++liveRun.current;
     showLevelStage(stageRef.current, preferences.reduced_motion);
     setBusy(true);
+    setPlayback(null);
+    setShowCompletion(false);
+    window.speechSynthesis?.cancel();
+    setSpeaking(false);
     setNotice("");
     setResultsById(current => ({ ...current, [chapter.chapterId]: [] }));
     setConsoleById(current => ({ ...current, [chapter.chapterId]: [`$ storicode run · ${chapter.title}`] }));
@@ -144,24 +147,27 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
       await new Promise((resolve) => setTimeout(resolve, 120));
       if (run !== liveRun.current) return;
       const outcome = runPuzzleTests(code, chapter.functionName, chapter.tests);
-      const quiet = preferences.reduced_motion || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      for (const [index, item] of outcome.entries()) {
-        await new Promise(resolve => setTimeout(resolve, quiet ? 0 : pace));
+      for (const frame of planSpellPlayback(outcome, pace)) {
         if (run !== liveRun.current) return;
-        setResultsById(current => ({ ...current, [chapter.chapterId]: outcome.slice(0, index + 1) }));
-        setConsoleById(current => ({ ...current, [chapter.chapterId]: [
-          ...current[chapter.chapterId], ...item.trace, `${item.passed ? "✓" : "✕"} ${item.label} · ${formatPuzzleValue(item.actual)}`,
-        ] }));
+        setPlayback(frame);
+        if (frame.trace.length) setConsoleById(current => ({ ...current, [chapter.chapterId]: [...current[chapter.chapterId], ...frame.trace] }));
+        if (frame.phase === "complete") {
+          setResultsById(current => ({ ...current, [chapter.chapterId]: outcome.slice(0, frame.test + 1) }));
+          setConsoleById(current => ({ ...current, [chapter.chapterId]: [...current[chapter.chapterId], `${frame.result.passed ? "✓" : "✕"} ${frame.result.label} · ${formatPuzzleValue(frame.result.actual)}`] }));
+        }
+        // Background tabs do not consume the learner's time to watch a step.
+        let remaining = frame.duration;
+        while (remaining > 0) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          if (run !== liveRun.current) return;
+          if (!document.hidden) remaining -= 100;
+        }
       }
-      if (outcome.every((item) => item.passed)) {
-        setSceneSequence((value) => value + 1);
-        speak(`${chapter.chapterTitle}. All ${outcome.length} code checks passed. ${chapter.lesson} ${chapter.outcome}`);
+      if (outcome.length > 0 && outcome.every(item => item.passed)) {
         setSaving(true);
         const saved = await onComplete(chapter.chapterId);
         if (run !== liveRun.current) return;
         if (saved) {
-          setLocalOutcomeId(chapter.chapterId);
-          setRevealReady(false);
           setShowCompletion(true);
           setNotice("");
         } else setNotice("This chapter is still locked. Complete the earlier pages first.");
@@ -169,6 +175,7 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
         setNotice("Some checks still need work. Open Hints and solution for a clue, then try again.");
       }
     } catch (error) {
+      if (run !== liveRun.current) return;
       const message = error instanceof Error ? error.message : "The spell could not be read.";
       const lineIndex = error instanceof PuzzleCodeError && error.line > 0 ? error.line - 1 : 0;
       const line = error instanceof PuzzleCodeError && error.line > 0 ? `Line ${error.line}: ${message}` : message;
@@ -184,8 +191,6 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
   }
 
   if (!chapter) return null;
-  const relicImage = BOOK_SCENE_ART[chapter.chapterId] ?? DEFAULT_BOOK_SCENE_ART;
-  const sceneCharacter = BOOK_SCENE_CHARACTERS[chapter.chapterId];
   const chapterSparkId = chapter.sparkLessonId;
 
   if (goalReached && showCompletion) {
@@ -204,20 +209,10 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
         code={code}
         lessonId={chapterSparkId}
         executionSteps={completionSteps}
-        scene={(
-          <WizardingLevelReveal
-            chapter={chapter}
-            sequence={sceneSequence}
-            onStart={() => setRevealReady(false)}
-            onFinish={() => setRevealReady(true)}
-          />
-        )}
-        canContinue={revealReady}
+        scene={<ChapterCompletionFilm bookId={book.id} chapterId={chapter.chapterId} title={chapter.chapterTitle} />}
         onContinue={() => nextChapter ? setChapter(nextChapter.chapterId) : onLevels()}
         continueLabel={nextChapter ? "Continue to next chapter →" : "Return to levels →"}
         onReview={() => setShowCompletion(false)}
-        onReadAloud={readScene}
-        speaking={speaking}
         narrationNotice={notice}
       />
     );
@@ -278,9 +273,11 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
           onStop={saving ? undefined : () => {
             liveRun.current++;
             setBusy(false);
+            setPlayback(null);
             setNotice("Spell stopped. Run it again when you’re ready.");
           }}
           onReset={() => {
+            setPlayback(null);
             setCodeById((current) => ({ ...current, [chapter.chapterId]: starterCode(chapter.functionName, chapter.parameters) }));
             setResultsById((current) => {
               const next = { ...current };
@@ -327,22 +324,10 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
         <LevelStage title={chapter.subtitle.split(" · ")[0]} stageRef={stageRef}
           status={busy ? "Running" : goalReached ? "Complete" : "Ready"}
           state={busy ? "casting" : errorsById[chapter.chapterId] || results?.some(item => !item.passed) ? "failed" : "ready"}
-          stepLabel={busy || results?.length ? `Step ${results?.length ?? 0} / ${chapter.tests.length}` : "Watch your spell unfold"}
+          stepLabel={playback?.phase === "payoff" ? "All checks passed" : playback ? `Check ${playback.test + 1} / ${chapter.tests.length}` : "Watch your spell unfold"}
           pace={pace} onPaceChange={setPace}
-          caption={busy ? results?.at(-1)?.label ?? "Preparing your spell…" : results?.length ? `${passedChecks} / ${chapter.tests.length} checks passed` : goalReached ? "Quest complete" : `Pass all ${chapter.tests.length} chapter checks`}>
-          <div className="htp-puzzle-stage">
-            <BookCutscene chapter={chapter} relicImage={relicImage} characterImage={sceneCharacter}
-              completed={goalReached} sequence={sceneSequence} mode="level" embedded playing={busy && !saving} />
-            <ol className="htp-puzzle-tiles" aria-label="Spell steps">
-              {chapter.tests.map((test, index) => {
-                const result = results?.[index];
-                const state = result ? result.passed ? "passed" : "failed" : !busy && goalReached && !results ? "passed" : "waiting";
-                return <li key={test.label} data-state={state} aria-label={`${test.label}: ${state}`}>
-                  {state === "passed" ? "✓" : state === "failed" ? "×" : index + 1}
-                </li>;
-              })}
-            </ol>
-          </div>
+          caption={busy ? saving ? "Saving your chapter…" : playback?.phase === "payoff" ? chapter.outcome : playback?.line ?? "Preparing your spell…" : results?.length ? `${passedChecks} / ${chapter.tests.length} checks passed` : goalReached ? "Quest complete" : `Pass all ${chapter.tests.length} chapter checks`}>
+          <WizardingExecutionStage chapter={chapter} playback={playback} reducedMotion={preferences.reduced_motion} />
         </LevelStage>
         <ExecutionTrace running={busy} logs={consoleById[chapter.chapterId] ?? []}>
           <section className="sc-volume-checks" aria-label="Level goal checks" aria-live="polite">

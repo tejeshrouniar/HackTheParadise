@@ -8,18 +8,17 @@ export const GrimoireHeaderSlot = createContext<HTMLElement | null>(null);
 
 type Direction = "next" | "previous";
 type TurnPhase = { direction: Direction; stage: "lift" | "land"; restoreChapterFocus: boolean };
-const LIFT_MS = 240;
-const LAND_MS = 300;
+const LIFT_MS = 275;
+const LAND_MS = 345;
 const PageTurnContext = createContext<{
   phase: TurnPhase | null;
-  routeDirection?: Direction;
   turn: (callback: (() => void) | undefined, direction?: Direction) => void;
 } | null>(null);
 
 /** Header, corner and touch controls share a short animation lock. This survives
  * route remounts, so double presses cannot skip a chapter during a page turn. */
-export function PageTurnProvider({ children, routeDirection, routeKey }: {
-  children: ReactNode; routeDirection?: Direction; routeKey?: string;
+export function PageTurnProvider({ children, routeKey }: {
+  children: ReactNode; routeKey?: string;
 }) {
   const { preferences, gentleBookMotion } = usePreferences();
   const [phase, setPhase] = useState<TurnPhase | null>(null);
@@ -54,12 +53,28 @@ export function PageTurnProvider({ children, routeDirection, routeKey }: {
     else timer.current = setTimeout(land, LIFT_MS);
   }
 
-  return <PageTurnContext.Provider value={{ phase, routeDirection, turn }}>{children}</PageTurnContext.Provider>;
+  return <PageTurnContext.Provider value={{ phase, turn }}>{children}</PageTurnContext.Provider>;
 }
 
 export function usePageTurn() {
   const shared = useContext(PageTurnContext);
-  return shared ?? { phase: null, routeDirection: undefined, turn: (callback: (() => void) | undefined, _direction?: Direction) => callback?.() };
+  return shared ?? { phase: null, turn: (callback: (() => void) | undefined, _direction?: Direction) => callback?.() };
+}
+
+/** A chapter turn already has a landing leaf. Other routes turn a single full-screen sheet. */
+export function RoutePageTurn({ direction, chapterToChapter }: { direction: Direction; chapterToChapter: boolean }) {
+  const { phase } = usePageTurn();
+  const [hasChapterTurn] = useState(chapterToChapter && phase?.stage === "land");
+  const [finished, setFinished] = useState(false);
+  useLayoutEffect(() => {
+    if (!hasChapterTurn && document.activeElement === document.body) {
+      document.getElementById("main-content")?.focus({ preventScroll: true });
+    }
+  }, [hasChapterTurn]);
+  if (hasChapterTurn || finished) return null;
+  return <div className="sc-route-page" data-direction={direction} aria-hidden="true">
+    <i className="sc-route-page__leaf" data-book-transition="" onAnimationEnd={() => setFinished(true)} />
+  </div>;
 }
 
 const interactive = (target: EventTarget | null) => target instanceof Element && !!target.closest("input,textarea,select,button,a,video,audio,[contenteditable=true],[role=slider],.sc-walking-stage");
@@ -73,7 +88,6 @@ export function Grimoire({
   coverColor,
   className = "",
   pageKey,
-  animateRouteEntry = true,
   onPreviousPage,
   onNextPage,
   navigationDisabled = false,
@@ -84,7 +98,6 @@ export function Grimoire({
   coverColor?: string;
   className?: string;
   pageKey?: string | number;
-  animateRouteEntry?: boolean;
   onPreviousPage?: () => void;
   onNextPage?: () => void;
   navigationDisabled?: boolean;
@@ -92,11 +105,6 @@ export function Grimoire({
   const navigation = usePageTurn();
   const touch = useRef<{ x: number; y: number } | null>(null);
   const phase = pageKey === undefined ? null : navigation.phase;
-  const routeDirection = pageKey === undefined || !animateRouteEntry ? undefined : navigation.routeDirection;
-  const turnDirection = phase?.direction ?? routeDirection;
-  // Keep the same leaf when the navigation lock clears after landing.
-  const [enteredWithTurn] = useState(() => !!routeDirection && phase?.stage !== "land");
-  const showTurnLeaf = phase?.stage === "land" || (!phase && !!routeDirection);
 
   return (
     <section
@@ -104,8 +112,8 @@ export function Grimoire({
       aria-label={label}
       tabIndex={onPreviousPage || onNextPage ? 0 : undefined}
       aria-keyshortcuts={onPreviousPage || onNextPage ? "PageUp PageDown" : undefined}
-      data-turn-direction={turnDirection}
-      data-turn-stage={phase?.stage ?? (routeDirection ? "arrival" : undefined)}
+      data-turn-direction={phase?.direction}
+      data-turn-stage={phase?.stage}
       onKeyDown={event => {
         if (navigationDisabled || event.repeat || event.ctrlKey || event.altKey || event.metaKey || interactive(event.target)) return;
         const action = event.key === "PageDown" ? onNextPage : event.key === "PageUp" ? onPreviousPage : undefined;
@@ -161,8 +169,8 @@ export function Grimoire({
         )}
       </div>
 
-      {showTurnLeaf && (
-        <div key={pageKey} className="sc-grimoire__turn-container" data-entry={enteredWithTurn || undefined} aria-hidden="true">
+      {phase?.stage === "land" && (
+        <div key={pageKey} className="sc-grimoire__turn-container" aria-hidden="true">
           <div className="sc-grimoire__turn-leaf" data-book-transition="" />
         </div>
       )}

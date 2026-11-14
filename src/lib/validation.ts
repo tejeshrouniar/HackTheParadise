@@ -58,7 +58,7 @@ export function errorMessage(error: unknown): string {
       message,
     )
   )
-    return "This feature is waiting for the Storicode database update. Learning is still available. Please contact the site owner.";
+    return "This feature needs a Hack The Paradise database update. You can still play the coding levels.";
   if (/fetch|network/i.test(message))
     return "Unable to connect. Check your connection and try again.";
   if (/duplicate|unique|23505/i.test(message))

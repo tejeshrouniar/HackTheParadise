@@ -10,7 +10,7 @@ Feature folders contain cohesive user-facing areas. Keep route wiring in `src/la
 | `library/` | Library room, unified bookshelf, navigation bookmarks, shared page turns and utility journals. Book metadata lives in `src/content/library.ts`. | `LibraryEntrance.tsx`, `LibraryBookmarks.tsx`, `Grimoire.tsx`, `LibraryUtilityPage.tsx` |
 | `profile/` | Public player profile and onboarding | `ProfileContext.tsx`, `ProfileForm.tsx` |
 | `settings/` | Private preferences and account settings | `SettingsPage.tsx`, `PreferencesContext.tsx` |
-| `story/` | Shared book hub and story readers; Harry Potter gameplay reveals are separate from optional MP4 films | `StoryPage.tsx`, `BookHubPage.tsx`, `JourneyCinema.tsx`, `BookCutscene.tsx`, `BookVideoLibrary.tsx`, `WizardingLevelReveal.tsx`, `StorybookVolume.tsx`, `useBookProgress.ts` |
+| `story/` | Shared book hub, story readers, and Harry Potter spell playback and chapter films | `StoryPage.tsx`, `BookHubPage.tsx`, `JourneyCinema.tsx`, `BookVideoLibrary.tsx`, `WizardingExecutionStage.tsx`, `ChapterCompletionFilm.tsx`, `StorybookVolume.tsx`, `useBookProgress.ts` |
 | `tools/` | Soundtrack, timer, notes, snippets, and references | `ToolsDrawer.tsx`, `MusicContext.tsx`, `StudyItems.tsx` |
 
 Prefer adding a feature to its existing owner over creating parallel implementations in `src/components/`. Keep server authority and data ownership in Supabase migrations/RPCs, not in UI state.

@@ -141,11 +141,10 @@ export default function ToolsDrawer({
             <h3>Settings</h3>
             <label htmlFor="book-motion">Book transitions</label>
             <select id="book-motion" value={bookMotion} onChange={event => setBookMotion(event.currentTarget.value as BookMotion)} aria-describedby="book-motion-note">
-              <option value="system">Follow motion preferences</option>
               <option value="full">Full page flips</option>
               <option value="gentle">Gentle fades</option>
             </select>
-            <p id="book-motion-note">{gentleBookMotion ? "Gentle fades are active on this browser." : "3D page flips and bookshelf motion are active on this browser."}</p>
+            <p id="book-motion-note">{bookMotion === "full" && gentleBookMotion ? "Reduced motion is active, so pages use gentle fades." : gentleBookMotion ? "Pages use a short fade." : "Pages turn in 3D as you navigate."}</p>
             <button type="button" className="sc-button secondary" onClick={onSettings}>All settings</button>
           </section>
         </div>
