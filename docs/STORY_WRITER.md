@@ -37,7 +37,7 @@ The earlier merge stored Harry Potter’s twelve existing chapters as `relics-bo
 
 ## Narration and archival content
 
-Harry Potter coding levels use their supplied 12 pixel-art backgrounds for a short interactive completion payoff. These are gameplay results, not story movies. The Story reader has a separate per-chapter film slot managed by `BookVideoLibrary.tsx`; add MP4 metadata to `src/content/bookMedia.ts` only when the user supplies the corresponding movie files. Do not substitute a looping level animation for a film.
+Harry Potter coding levels use their supplied 12 pixel-art backgrounds for a short interactive completion payoff. These are gameplay results, not story movies. The Story reader plays the supplied chapter MP4s and continuous movie from `public/media/harry-potter/`, mapped by stable chapter ID in `src/content/bookMedia.ts` and rendered by `BookVideoLibrary.tsx`. For future books, add media there without changing the level completion scene. Do not substitute a looping level animation for a film.
 
 The narration manifest is built from `src/content/journey.json` and `src/content/quest-narration.json`; it does not parse TypeScript. After changing spoken copy, rebuild with:
 

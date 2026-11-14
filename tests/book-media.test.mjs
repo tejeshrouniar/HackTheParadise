@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { canWatchMovie, locateMovieTime, movieTimeline, playableVideo, validResume } from '../src/content/bookMedia.ts';
+import { existsSync } from 'node:fs';
+import { BOOK_FULL_MOVIES, BOOK_VIDEOS, canWatchMovie, locateMovieTime, movieTimeline, playableVideo, validResume } from '../src/content/bookMedia.ts';
+import { BOOK_PUZZLES } from '../src/content/codeCampaign.ts';
 
 test('movie access requires every real chapter and playable media, never just a matching completion count', () => {
   const chapters = [{ id: 'first' }, { id: 'second' }];
@@ -10,6 +12,20 @@ test('movie access requires every real chapter and playable media, never just a 
   assert.equal(canWatchMovie(chapters, ['first', 'second'], { first: media.first }), false);
   assert.equal(canWatchMovie([], [], {}), false);
   for (const src of ['javascript:alert(1)', '//example.com/movie', 'http://example.com/movie', '']) assert.equal(playableVideo({ src }), false);
+});
+
+test('each Harry Potter chapter has its supplied film and the complete movie is present', () => {
+  const chapters = BOOK_PUZZLES.filter(chapter => chapter.bookId === 'harry-potter');
+  const media = BOOK_VIDEOS['harry-potter'];
+  assert.equal(chapters.length, 12);
+  assert.equal(Object.keys(media).length, chapters.length);
+  for (const chapter of chapters) {
+    const video = media[chapter.chapterId];
+    assert.equal(playableVideo(video), true, chapter.chapterId);
+    assert.equal(existsSync(`public/${video.src}`), true, chapter.chapterId);
+  }
+  assert.equal(playableVideo(BOOK_FULL_MOVIES['harry-potter']), true);
+  assert.equal(existsSync(`public/${BOOK_FULL_MOVIES['harry-potter'].src}`), true);
 });
 
 test('combined seeking handles boundaries, clamping, unknown durations and invalid input', () => {

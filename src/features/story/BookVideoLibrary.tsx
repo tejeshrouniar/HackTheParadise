@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { BOOK_VIDEOS, canWatchMovie, locateMovieTime, movieTimeline, playableVideo, validResume } from "../../content/bookMedia";
+import { BOOK_FULL_MOVIES, BOOK_VIDEOS, canWatchMovie, locateMovieTime, movieTimeline, playableVideo, validResume } from "../../content/bookMedia";
 import { readLocal, writeLocal } from "../../lib/validation";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -19,6 +19,7 @@ export function BookVideoLibrary(props: FilmLibraryProps) {
 }
 
 function FilmLibrary({ bookId, chapters, completed, chapterOnly = false, storageKey }: FilmLibraryProps & { storageKey: string }) {
+  const movieStorageKey = `${storageKey}:full`;
   const [active, setActive] = useState<number | null>(null);
   const [movie, setMovie] = useState(false);
   const [ended, setEnded] = useState(false);
@@ -34,20 +35,23 @@ function FilmLibrary({ bookId, chapters, completed, chapterOnly = false, storage
   const pendingTime = useRef(0);
   const loadedChapter = useRef<string | null>(null);
   const checkpoint = useRef<{ chapter: string; time: number } | null>(null);
+  const bookmarkKey = useRef(storageKey);
   const previousSource = useRef<string>();
   const media = BOOK_VIDEOS[bookId] ?? {};
+  const fullMovie = BOOK_FULL_MOVIES[bookId];
+  const singleMovie = movie && playableVideo(fullMovie);
   const filmChapter = chapters[0];
   const filmReady = !!filmChapter && completed.includes(filmChapter.id) && playableVideo(media[filmChapter.id]);
   const movieAvailable = canWatchMovie(chapters, completed, media);
   const chapter = active === null ? undefined : chapters[active];
-  const video = chapter && media[chapter.id];
+  const video = singleMovie ? fullMovie : chapter && media[chapter.id];
   const allowed = !!chapter && completed.includes(chapter.id) && (!movie || movieAvailable);
   const times = chapters.map(c => durations[c.id] ?? media[c.id]?.duration);
   const timeline = movieTimeline(times);
   const overall = timeline && active !== null ? Math.min(timeline.total, timeline.offsets[active] + time) : 0;
   const nextIndex = active === null ? -1 : chapters.findIndex((c, i) => i > active && completed.includes(c.id) && playableVideo(media[c.id]));
 
-  function persist() { if (checkpoint.current) writeLocal(storageKey, checkpoint.current); }
+  function persist() { if (checkpoint.current) writeLocal(bookmarkKey.current, checkpoint.current); }
   function capture() {
     const el = player.current;
     if (!el || !loadedChapter.current || !Number.isFinite(el.currentTime)) return;
@@ -56,7 +60,7 @@ function FilmLibrary({ bookId, chapters, completed, chapterOnly = false, storage
   }
   // Save on refresh and route changes. No clip is fetched before selection.
   useEffect(() => {
-    const save = () => { if (checkpoint.current) writeLocal(storageKey, checkpoint.current); };
+    const save = () => { if (checkpoint.current) writeLocal(bookmarkKey.current, checkpoint.current); };
     window.addEventListener("pagehide", save);
     return () => { window.removeEventListener("pagehide", save); save(); };
   }, [storageKey]);
@@ -74,12 +78,16 @@ function FilmLibrary({ bookId, chapters, completed, chapterOnly = false, storage
     const target = chapters[index];
     if (!target || !completed.includes(target.id) || !playableVideo(media[target.id]) || (asMovie && !movieAvailable)) return;
     capture(); persist();
-    const saved = validResume(readLocal(storageKey, null), chapters.map(c => c.id));
+    loadedChapter.current = null;
+    checkpoint.current = null;
+    bookmarkKey.current = asMovie && playableVideo(fullMovie) ? movieStorageKey : storageKey;
+    const saved = validResume(readLocal(bookmarkKey.current, null), chapters.map(c => c.id));
+    const sameSource = video?.src === (asMovie && playableVideo(fullMovie) ? fullMovie.src : media[target.id].src);
     const seek = position ?? (saved?.chapter === target.id ? saved.time : 0);
     pendingTime.current = seek;
     playAfterLoad.current = autoplay;
     setError(""); setLoadFailed(false); setEnded(false); setMovie(asMovie); setTime(seek);
-    if (index === active && player.current?.readyState) {
+    if (index === active && sameSource && player.current?.readyState) {
       loadedChapter.current = target.id;
       player.current.currentTime = Math.min(seek, Number.isFinite(player.current.duration) ? player.current.duration : seek);
       capture();
@@ -88,8 +96,9 @@ function FilmLibrary({ bookId, chapters, completed, chapterOnly = false, storage
     } else { loadedChapter.current = null; setActive(index); }
   }
   function resumeMovie() {
-    const saved = validResume(readLocal(storageKey, null), chapters.map(c => c.id));
-    start(Math.max(0, chapters.findIndex(c => c.id === saved?.chapter)), true, saved?.time ?? 0);
+    const saved = validResume(readLocal(playableVideo(fullMovie) ? movieStorageKey : storageKey, null), chapters.map(c => c.id));
+    const savedIndex = playableVideo(fullMovie) ? 0 : Math.max(0, chapters.findIndex(c => c.id === saved?.chapter));
+    start(savedIndex, true, saved?.chapter === chapters[savedIndex]?.id ? saved.time : 0);
   }
   function seekMovie(value: number) {
     const target = locateMovieTime(times, value);
@@ -114,13 +123,13 @@ function FilmLibrary({ bookId, chapters, completed, chapterOnly = false, storage
     </details>
     </>}
     {allowed && playableVideo(video) && <div className="htp-cinema" ref={cinema}>
-      <h3 ref={heading} tabIndex={-1}>{movie ? `Movie · ${active! + 1}/${chapters.length} · ` : ""}{chapter!.title}</h3>
-      <video ref={player} controls playsInline preload="metadata" poster={video.poster} crossOrigin={video.captions?.some(c => c.src.startsWith("https://")) ? "anonymous" : undefined} src={video.src} aria-label={`${chapter!.title} video`}
+      <h3 ref={heading} tabIndex={-1}>{singleMovie ? "Complete story film" : movie ? `Movie · ${active! + 1}/${chapters.length} · ${chapter!.title}` : chapter!.title}</h3>
+      <video ref={player} controls playsInline preload="metadata" poster={video.poster} crossOrigin={video.captions?.some(c => c.src.startsWith("https://")) ? "anonymous" : undefined} src={video.src} aria-label={singleMovie ? "Complete story film" : `${chapter!.title} video`}
         onLoadedMetadata={event => {
           const el = event.currentTarget;
           loadedChapter.current = chapter!.id;
           if (Number.isFinite(el.duration) && el.duration > 0) {
-            setDurations(previous => ({ ...previous, [chapter!.id]: el.duration }));
+            if (!singleMovie) setDurations(previous => ({ ...previous, [chapter!.id]: el.duration }));
             el.currentTime = Math.min(pendingTime.current, el.duration);
           }
           capture();
@@ -130,7 +139,7 @@ function FilmLibrary({ bookId, chapters, completed, chapterOnly = false, storage
         onError={() => { playAfterLoad.current = false; setLoadFailed(true); setError("This video could not load. Check your connection, then retry."); }}
         onEnded={() => {
           checkpoint.current = { chapter: chapter!.id, time: 0 };
-          if (movie && active! + 1 < chapters.length) { loadedChapter.current = null; start(active! + 1, true, 0); }
+          if (movie && !singleMovie && active! + 1 < chapters.length) { loadedChapter.current = null; start(active! + 1, true, 0); }
           else {
             loadedChapter.current = null;
             if (movie) checkpoint.current = { chapter: chapters[0].id, time: 0 };
@@ -144,10 +153,10 @@ function FilmLibrary({ bookId, chapters, completed, chapterOnly = false, storage
         }}>
         {video.captions?.map(c => <track key={`${chapter!.id}:${c.language}`} kind="subtitles" src={c.src} srcLang={c.language} label={c.label} />)}
       </video>
-      {movie && timeline && <label className="htp-movie-timeline">Full movie · {clock(overall)} / {clock(timeline.total)}
+      {movie && !singleMovie && timeline && <label className="htp-movie-timeline">Full movie · {clock(overall)} / {clock(timeline.total)}
         <input type="range" min={0} max={timeline.total} step="any" value={overall} aria-label="Seek across the full movie" aria-valuetext={`${clock(overall)} of ${clock(timeline.total)}`} onChange={e => seekMovie(Number(e.target.value))} />
       </label>}
-      {movie && !timeline && <p>Chapter {active! + 1} of {chapters.length} · Use the video controls to seek within this chapter.</p>}
+      {movie && !singleMovie && !timeline && <p>Chapter {active! + 1} of {chapters.length} · Use the video controls to seek within this chapter.</p>}
       {error && <div role="status"><p>{error}</p>{loadFailed && <button onClick={() => { setError(""); setLoadFailed(false); pendingTime.current = time; playAfterLoad.current = true; player.current?.load(); }}>Retry video</button>}</div>}
       {ended && <p role="status">{movie ? "The end. Your adventure is complete." : "Chapter film complete."}</p>}
       <div className="htp-cinema-actions">

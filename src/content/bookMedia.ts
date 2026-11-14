@@ -1,15 +1,36 @@
-/** Supply licensed video URLs here. An absent entry is unavailable, never a fake clip.
- * Keys are stable chapter IDs (Cinder uses its chapter title). */
+/** Film media is separate from the coding-level completion scenes. Keys are
+ * stable chapter IDs so existing progress unlocks the matching chapter film. */
 export interface ChapterVideo {
   src: string;
   poster?: string;
   duration?: number;
   captions?: { src: string; language: string; label: string }[];
 }
-export const BOOK_VIDEOS: Record<string, Record<string, ChapterVideo>> = {};
+const harryMedia = "media/harry-potter/";
+export const BOOK_VIDEOS: Record<string, Record<string, ChapterVideo>> = {
+  "harry-potter": {
+    "relics-book-one-01": { src: `${harryMedia}01-the-diary-in-the-bathroom.mp4` },
+    "relics-book-one-02": { src: `${harryMedia}02-the-ring-of-gaunt.mp4` },
+    "relics-book-one-03": { src: `${harryMedia}03-the-lockets-hiss.mp4` },
+    "relics-book-one-04": { src: `${harryMedia}04-the-cup-in-the-vault.mp4` },
+    "relics-book-one-05": { src: `${harryMedia}05-the-diadems-test.mp4` },
+    "relics-book-one-06": { src: `${harryMedia}06-naginis-trail.mp4` },
+    "relics-book-two-01": { src: `${harryMedia}07-the-scars-memories.mp4` },
+    "relics-book-two-02": { src: `${harryMedia}08-the-unwrapped-turban.mp4` },
+    "relics-book-two-03": { src: `${harryMedia}09-dobbys-missing-sock.mp4` },
+    "relics-book-two-04": { src: `${harryMedia}10-the-golden-snitch-key.mp4` },
+    "relics-book-two-05": { src: `${harryMedia}11-the-elder-wand-cipher.mp4` },
+    "relics-book-two-06": { src: `${harryMedia}12-the-final-merge.mp4` },
+  },
+};
+
+/** A book may also provide one continuous film, available after all chapters. */
+export const BOOK_FULL_MOVIES: Record<string, ChapterVideo> = {
+  "harry-potter": { src: `${harryMedia}complete-story.mp4` },
+};
 
 export function playableVideo(value: ChapterVideo | undefined): value is ChapterVideo {
-  return !!value && (/^https:\/\//.test(value.src) || /^\/(?!\/)/.test(value.src));
+  return !!value && (/^https:\/\//.test(value.src) || /^\/(?!\/)/.test(value.src) || /^media\/[a-zA-Z0-9/_-]+\.mp4$/.test(value.src));
 }
 
 /** Unknown durations never become invented timeline positions. Supply durations
