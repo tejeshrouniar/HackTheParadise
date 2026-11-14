@@ -152,7 +152,7 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
         </div>}
       </div>
       {!inside ? (
-        <h1 className="htp-foyer-heading" id="htp-library-title">The Grand Library</h1>
+        <h1 className="htp-foyer-heading" id="htp-library-title">The ITM Magic Library</h1>
       ) : (
         <div className="htp-library-interior" aria-label="Books on the grand bookshelf" data-book-transition="">
           <header className="htp-interior-heading">
