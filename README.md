@@ -531,51 +531,54 @@ Please ensure that your contributions:
 
 ---
 
+
 ## 👥 Meet the Contributors
 
-Hack The Paradise is brought to life by a team of passionate developers, creators, and educators working together to make programming more engaging, interactive, and accessible.
-
-We believe learning to code should be an adventure, not just an exercise.
+Hack The Paradise is built through collaboration, creativity, and a shared passion for making programming education engaging and accessible.
 
 <p align="center">
   <a href="https://github.com/tejeshrouniar">
-    <img src="https://avatars.githubusercontent.com/u/263394438?v=4" width="110" height="110" style="border-radius:50%;" alt="Tejesh Rouniar"/>
-    <br/>
-    <strong>Tejesh Rouniar</strong>
-    <br/>
-    <sub>@tejeshrouniar</sub>
+    <img src="https://avatars.githubusercontent.com/u/263394438?v=4" width="100" height="100" alt="Tejesh Rouniar"/>
   </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;
+  <br/>
+  <strong><a href="https://github.com/tejeshrouniar">Tejesh Rouniar</a></strong>
+  <br/>
+  <sub>@tejeshrouniar</sub>
+</p>
+
+<p align="center">
   <a href="https://github.com/pratyusha230607-afk">
-    <img src="https://avatars.githubusercontent.com/u/341763350?v=4" width="110" height="110" style="border-radius:50%;" alt="Pratyusha Purohit"/>
-    <br/>
-    <strong>Pratyusha Purohit</strong>
-    <br/>
-    <sub>@pratyusha230607-afk</sub>
+    <img src="https://avatars.githubusercontent.com/u/341763350?v=4" width="100" height="100" alt="Pratyusha Purohit"/>
   </a>
+  <br/>
+  <strong><a href="https://github.com/pratyusha230607-afk">Pratyusha Purohit</a></strong>
+  <br/>
+  <sub>@pratyusha230607-afk</sub>
 </p>
 
 <p align="center">
   <a href="https://github.com/aloksingh2007k">
-    <img src="https://avatars.githubusercontent.com/u/244542450?v=4" width="110" height="110" style="border-radius:50%;" alt="Alok Singh"/>
-    <br/>
-    <strong>Alok Singh</strong>
-    <br/>
-    <sub>@aloksingh2007k</sub>
+    <img src="https://avatars.githubusercontent.com/u/244542450?v=4" width="100" height="100" alt="Alok Singh"/>
   </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;
+  <br/>
+  <strong><a href="https://github.com/aloksingh2007k">Alok Singh</a></strong>
+  <br/>
+  <sub>@aloksingh2007k</sub>
+</p>
+
+<p align="center">
   <a href="https://github.com/amarcrj">
-    <img src="https://github.com/amarcrj.png" width="110" height="110" style="border-radius:50%;" alt="Amar Sinha"/>
-    <br/>
-    <strong>Amar Sinha</strong>
-    <br/>
-    <sub>@amarcrj</sub>
+    <img src="https://github.com/amarcrj.png" width="100" height="100" alt="Amar Sinha"/>
   </a>
+  <br/>
+  <strong><a href="https://github.com/amarcrj">Amar Sinha</a></strong>
+  <br/>
+  <sub>@amarcrj</sub>
 </p>
 
 <p align="center">
   <a href="https://github.com/tejeshrouniar/HackTheParadise/graphs/contributors">
-    <strong>View All GitHub Contributors →</strong>
+    <strong>View all contributors →</strong>
   </a>
 </p>
 
