@@ -52,7 +52,7 @@ export function BookHubPage({ bookId, onShelf, onPlayLevels, onReadStory }: Book
           </div>
 
           <div className="sc-book-hub__actions" aria-label="Choose how to explore this book">
-            <button className="sc-book-hub__action sc-book-hub__action--primary" type="button" onClick={onPlayLevels}>
+            <button className="sc-book-hub__action sc-book-hub__action--primary" type="button" data-guide="play-levels" onClick={onPlayLevels}>
               <Map size={19} />
               <span><strong>Play levels</strong><small>Walk the path and write code</small></span>
               <ArrowRight size={17} />

@@ -1,6 +1,7 @@
 import { Grimoire, GrimoireHeaderSlot, PageTurnProvider, RoutePageTurn } from "../features/library/Grimoire";
 import { LibraryBookmarks, ToolsBookmark } from "../features/library/LibraryBookmarks";
 import { LibraryEntrance } from "../features/library/LibraryEntrance";
+import { FirstVisitGuide, guideIndexForRoute } from "../features/library/FirstVisitGuide";
 import type { CSSProperties } from "react";
 import { LibraryUtilityPage } from "../features/library/LibraryUtilityPage";
 import { BOOKSHELVES, LIBRARY, PROJECT_REPOSITORY } from "../content/library";
@@ -28,6 +29,8 @@ import { readLocal, writeLocal } from "../lib/validation";
 import "../styles/adventure.css";
 import "../styles/trail.css";
 import "../styles/storybooks.css";
+import "../styles/first-visit-guide.css";
+const guideStorageKey = "htp-first-visit-guide-v1";
 const CharacterStudio = lazy(() =>
   import("../features/adventure/CharacterStudio").then((module) => ({
     default: module.CharacterStudio,
@@ -90,7 +93,7 @@ function pageTurnDirection(from: string, to: string): "next" | "previous" {
 export function AppShell() {
   const { user, isPasswordRecovery, signOut } = useAuth();
   const { completed } = useProgress();
-  const { profile } = useProfile();
+  const { profile, loading: profileLoading } = useProfile();
   const { preferences, gentleBookMotion } = usePreferences();
   const [{ route, previousRoute, pageTurn }, setRouteState] = useState<{
     route: string;
@@ -126,9 +129,15 @@ export function AppShell() {
   const [journal, setJournal] = useState(false);
   const [playground, setPlayground] = useState(false);
   const [character, setCharacter] = useState(false);
+  const [guideStep, setGuideStep] = useState(() => readLocal<boolean>(guideStorageKey, false) ? -1 : Math.max(0, guideIndexForRoute(routeFromHash())));
   const routeBookId = bookIdForRoute(route);
   const activeBookId = routeBookId ?? selectedBookId;
   const selectedBook = STORY_BOOKS.find((book) => book.id === activeBookId) ?? STORY_BOOKS[0];
+  const routeGuideStep = guideIndexForRoute(route);
+  const dismissGuide = () => { writeLocal(guideStorageKey, true); setGuideStep(-1); };
+  useEffect(() => {
+    if (routeGuideStep >= 0) setGuideStep((current) => current < 0 ? current : Math.max(current, routeGuideStep));
+  }, [routeGuideStep]);
   useEffect(() => {
     writeLocal("storicode-active-book-v2", selectedBookId);
   }, [selectedBookId]);
@@ -285,6 +294,7 @@ export function AppShell() {
                 <Settings
                   onSignIn={() => setAuth(true)}
                   onCharacter={() => setCharacter(true)}
+                  onReplayGuide={() => { writeLocal(guideStorageKey, false); setGuideStep(0); navigate("entrance"); }}
                 />
               ) : (
                 <Dashboard
@@ -383,6 +393,7 @@ export function AppShell() {
             />
           )}
         </Suspense>
+        {guideStep >= 0 && routeGuideStep === guideStep && !auth && !tools && !search && !journal && !playground && !character && !isPasswordRecovery && !(user && profileLoading) && !(profile && !profile.onboarding_completed) && <FirstVisitGuide step={guideStep} pageTurning={flipRoute} onDismiss={dismissGuide} />}
       </div>
     </MotionConfig>
   );

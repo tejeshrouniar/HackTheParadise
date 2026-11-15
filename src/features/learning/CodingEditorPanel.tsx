@@ -75,7 +75,7 @@ export function CodingEditorPanel({
     <section className="sc-card sc-spell-editor" aria-label="Code editor">
       <header>
         <h2>Spell weaving</h2>
-        <button type="button" className="sc-cast-button" onClick={onRun} disabled={isRunning || !canRun}>
+        <button type="button" className="sc-cast-button" data-guide="run-spell" onClick={onRun} disabled={isRunning || !canRun}>
           <Play size={14} aria-hidden="true" /> {isRunning ? "Casting…" : runLabel}
         </button>
       </header>

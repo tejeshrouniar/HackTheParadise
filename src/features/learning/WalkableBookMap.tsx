@@ -422,6 +422,7 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
             <button
               className={`sc-book-walk-stop${stop.complete ? " is-complete" : ""}${!stop.canEnter ? " is-locked" : ""}${nearestIndex === stop.index ? " is-current" : ""}${activatingStopId === stop.id ? " is-activating" : ""}`}
               key={stop.id}
+              data-guide={stop.index === 0 ? "first-level" : undefined}
               type="button"
               style={{ left: stop.x }}
               aria-label={`${stop.canEnter ? "Open level" : "Locked level"}: ${stop.title}. ${stop.subtitle}${stop.complete ? ". Completed" : ""}`}

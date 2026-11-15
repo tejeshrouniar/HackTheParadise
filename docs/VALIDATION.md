@@ -113,3 +113,10 @@
 - Verified in the local browser accessibility tree that the shelf contains only the two book entries, both hubs expose the same two actions, both chapter lists are present, and the Harry Potter hub opens its own 12-level map. The active book is initialized from a direct book URL to avoid a first-render theme mismatch.
 - `npm test`: **50 passing tests**. `npm run build`: TypeScript and Vite production build pass. `git diff --check` passes.
 - This was an accessibility-tree and route-flow check, not a screenshot-based visual comparison or cross-browser audit. No hosted Supabase checks, database writes, migration, or deployment were performed.
+
+## First-visit play guide — 15 November 2026
+
+- A first-visit spotlight follows the bookshelf, tutorial cover, book hub, level landmark, and Run spell control. Settings can replay the guide. The guide pauses behind authentication and profile setup, supports Escape/Skip, and respects reduced motion.
+- Local browser checks at desktop and 390px width covered each guide step, entering the first tutorial level, and replay from Settings. The guide targets remained clickable; no horizontal overflow was seen on the library and bookshelf screens. Browser logs exposed a React `fetchPriority` warning; the image attribute was corrected.
+- `npm test`: **55 passing tests**. `npm run build`: TypeScript and Vite production build pass. `git diff --check` passes.
+- Hosted HTTPS for `www.hacktheparadise.com` returned HTTP 200. The Supabase organization is on the Free plan; its branded Auth domain is a paid add-on. Google OAuth remains in Testing, so Google has not published the configured app name on the account chooser. No hosted auth or database configuration was changed.

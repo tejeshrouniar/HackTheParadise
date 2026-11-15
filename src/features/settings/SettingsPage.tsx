@@ -2,6 +2,7 @@ import { Grimoire } from "../library/Grimoire";
 import { useState } from "react";
 import { SparkWalletCard } from "../learning/SparkWalletCard";
 import {
+  BookOpen,
   LogOut,
   ShieldCheck,
   Shirt,
@@ -18,9 +19,11 @@ import { PixelJournalMark } from "../library/PixelJournalMark";
 export default function SettingsPage({
   onSignIn,
   onCharacter,
+  onReplayGuide,
 }: {
   onSignIn: () => void;
   onCharacter: () => void;
+  onReplayGuide: () => void;
 }) {
   const { user, signOut } = useAuth();
   const { profile, loading, error, refresh } = useProfile();
@@ -172,6 +175,11 @@ export default function SettingsPage({
             {(actionError || preferenceError) && (
               <ErrorNotice message={actionError || preferenceError} />
             )}
+          </section>
+          <section className="sc-card sc-settings-card">
+            <h2><BookOpen size={21} /> How to play</h2>
+            <p>Want another look around the library and your first level?</p>
+            <button className="sc-button secondary" type="button" onClick={onReplayGuide}>Replay the guide</button>
           </section>
           {user && (
             <section className="sc-card sc-settings-card">

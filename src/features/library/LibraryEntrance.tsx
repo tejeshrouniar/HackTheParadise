@@ -128,11 +128,11 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
             <img className="htp-library-room-art" src={libraryRoom}
               srcSet={`${libraryRoom} 2752w, ${largeLibraryRoom} 5504w`}
               sizes="(min-aspect-ratio: 43/24) 100vw, 179.167vh"
-              alt="" fetchPriority="high" draggable={false} />
+              alt="" {...{ fetchpriority: "high" }} draggable={false} />
             <span className="htp-room-candle htp-room-candle--left" />
           </div>
           {!inside && (
-            <button className="htp-foyer-bookcase" type="button" ref={roomButton}
+            <button className="htp-foyer-bookcase" type="button" ref={roomButton} data-guide="bookcase"
               data-selected={selectingShelf || undefined} data-returning={focusRoom || undefined} data-book-transition="" onClick={enterShelf}>
               <img src={adventureShelf} alt="" draggable={false} />
               <span className="htp-foyer-bookcase__plaque"><BookOpen size={17} aria-hidden="true" /> Browse the bookshelf <span aria-hidden="true">→</span></span>
@@ -152,7 +152,7 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
         </div>}
       </div>
       {!inside ? (
-        <h1 className="htp-foyer-heading" id="htp-library-title">The ITM Magic Library</h1>
+        <h1 className="htp-foyer-heading" id="htp-library-title">The Grand Library</h1>
       ) : (
         <div className="htp-library-interior" aria-label="Books on the grand bookshelf" data-book-transition="">
           <header className="htp-interior-heading">
@@ -177,6 +177,7 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
                         type="button"
                         style={{ "--book-cover": book.coverColor } as CSSProperties}
                         data-selected={selectedBook === book.id || undefined}
+                        data-guide={book.id === "cinder" ? "tutorial-book" : undefined}
                         data-book-transition=""
                         onClick={() => openShelfBook(book)}
                         aria-label={`Open ${book.title}${progress ? `. ${progress}` : ""}`}
