@@ -135,7 +135,7 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
             <button className="htp-foyer-bookcase" type="button" ref={roomButton} data-guide="bookcase"
               data-selected={selectingShelf || undefined} data-returning={focusRoom || undefined} data-book-transition="" onClick={enterShelf}>
               <img src={adventureShelf} alt="" draggable={false} />
-              <span className="htp-foyer-bookcase__plaque"><BookOpen size={17} aria-hidden="true" /> Browse the bookshelf <span aria-hidden="true">→</span></span>
+              <span className="htp-foyer-bookcase__plaque" data-guide-extension=""><BookOpen size={17} aria-hidden="true" /> Browse the bookshelf <span aria-hidden="true">→</span></span>
             </button>
           )}
         </div>

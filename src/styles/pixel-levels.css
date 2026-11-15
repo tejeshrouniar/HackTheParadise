@@ -109,6 +109,10 @@
   .sc-magical-app .sc-grimoire--coding { --panel-height: 430px; }
   .sc-magical-app .sc-grimoire--coding :is(.sc-code-highlight, .sc-code-input textarea, .sc-code-lines) { font-size: 16px; }
   .sc-magical-app .sc-grimoire--coding :is(.sc-editor-meta, .sc-editor-footer) button { min-width: 44px; min-height: 44px; }
+  .sc-magical-app .sc-grimoire--coding .sc-cast-button { min-height: 44px; padding-inline: 9px; white-space: nowrap; }
+}
+@media (max-width: 380px) {
+  .sc-magical-app .sc-grimoire--coding :is(.sc-spell-editor, .sc-live-world) > header h2::before { display: none; }
 }
 .sc-magical-app .sc-grimoire .sc-live-world {
   display: grid;

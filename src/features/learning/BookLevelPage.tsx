@@ -1,4 +1,4 @@
-import { ArrowLeft, BookOpen } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { STORY_BOOKS } from "../../content/storyBooks";
 import { StorybookVolume } from "../story/StorybookVolume";
 import { useBookProgress } from "../story/useBookProgress";
@@ -39,9 +39,8 @@ export function BookLevelPage({ bookId, chapterId, onLevels, onStoryFilm, onChap
   return (
     <div className={`sc-page sc-coding-book-page sc-book-theme--${book.theme}`}>
       <nav className="sc-coding-book-page__nav" aria-label="Coding level navigation">
-        <button type="button" onClick={onLevels}><ArrowLeft size={16} /> Play levels</button>
-        <span><BookOpen size={15} /> {book.title}</span>
-        <small>{progress.completed.length} / {book.chapters.length} chapters solved</small>
+        <button type="button" onClick={onLevels}><ArrowLeft size={16} aria-hidden="true" /> Play levels</button>
+        <small>{book.chapters.filter(chapter => finished.has(chapter.chapterId)).length} / {book.chapters.length} chapters solved</small>
       </nav>
       <StorybookVolume
         key={book.id}

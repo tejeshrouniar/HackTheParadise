@@ -359,8 +359,7 @@
   background: linear-gradient(180deg, #f2d993, #d5b765);
 }
 
-.sc-adventure-shell .sc-coding-book-page__nav button,
-.sc-adventure-shell .sc-coding-book-page__nav > span {
+.sc-adventure-shell .sc-coding-book-page__nav button {
   min-height: 40px;
   border-radius: 5px;
   background: var(--ui-frame-raised);

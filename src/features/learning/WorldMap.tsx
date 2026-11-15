@@ -61,7 +61,7 @@ export function WorldMap({ bookId, onQuest, onOpenBookChapter, onBack }: WorldMa
         <div><small>{isTutorial ? "STARTER TUTORIAL" : "FEATURED CODING ADVENTURE"} · {preset?.regions.length ?? 0} AREAS</small><h2>{selectedBook.title}</h2><p>{selectedBook.description}</p></div>
       </section>
 
-      {nextStop && <button className="sc-button htp-atlas-next" onClick={() => enter(nextStop)}>
+      {nextStop && <button className="sc-button htp-atlas-next" type="button" data-guide="level-entry" onClick={() => enter(nextStop)}>
         <span>Next level</span><strong>{nextStop.title}</strong>
       </button>}
       <details className="htp-atlas-index">

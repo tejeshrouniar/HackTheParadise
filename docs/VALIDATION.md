@@ -120,3 +120,9 @@
 - Local browser checks at desktop and 390px width covered each guide step, entering the first tutorial level, and replay from Settings. The guide targets remained clickable; no horizontal overflow was seen on the library and bookshelf screens. Browser logs exposed a React `fetchPriority` warning; the image attribute was corrected.
 - `npm test`: **55 passing tests**. `npm run build`: TypeScript and Vite production build pass. `git diff --check` passes.
 - Hosted HTTPS for `www.hacktheparadise.com` returned HTTP 200. The Supabase organization is on the Free plan; its branded Auth domain is a paid add-on. Google OAuth remains in Testing, so Google has not published the configured app name on the account chooser. No hosted auth or database configuration was changed.
+
+## Final mobile and playthrough pass
+
+- Checked the live library, bookshelf, level map, Harry Potter reader, and editor at narrow widths. All 12 chapter film files and the full movie returned HTTP 200 on the live host.
+- In the local browser, verified guide replay, Back navigation, Escape and reload persistence, and the final step's editor focus. At 320px, the replayed guide highlighted the next uncompleted level and the editor fit without page overflow.
+- Played the opening levels of both books locally. The Last Light showed its completion spread and narration controls. Harry Potter finished its code checks, started the correct MP4, and opened the next chapter.

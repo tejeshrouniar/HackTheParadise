@@ -422,7 +422,6 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
             <button
               className={`sc-book-walk-stop${stop.complete ? " is-complete" : ""}${!stop.canEnter ? " is-locked" : ""}${nearestIndex === stop.index ? " is-current" : ""}${activatingStopId === stop.id ? " is-activating" : ""}`}
               key={stop.id}
-              data-guide={stop.index === 0 ? "first-level" : undefined}
               type="button"
               style={{ left: stop.x }}
               aria-label={`${stop.canEnter ? "Open level" : "Locked level"}: ${stop.title}. ${stop.subtitle}${stop.complete ? ". Completed" : ""}`}
@@ -462,7 +461,7 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
               onClick={(event) => { if (event.detail === 0) { target.current = Math.max(42, Math.min(unlockedMaxX, x.current + step * 100)); stage.current?.focus(); } }}
             >{step < 0 ? <ArrowLeft size={18} /> : <ArrowRight size={18} />}</button>
           ))}
-          <button type="button" disabled={!currentStop?.canEnter} onClick={() => enterStop()}><Hand size={15} /> Enter level</button>
+          <button type="button" data-guide={currentStop?.canEnter ? "level-entry" : undefined} disabled={!currentStop?.canEnter} onClick={() => enterStop()}><Hand size={15} /> Enter level</button>
         </div>
       </div>
 

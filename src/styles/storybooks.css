@@ -660,11 +660,11 @@ html[data-reduce-motion="true"] .sc-book-cutscene .sc-book-cutscene__magic { opa
 /* Coding chapters are launched from the World Map; Story only replays finished films. */
 .sc-coding-book-page { max-width: 1640px; padding-top: 14px; padding-bottom: 110px; }
 .sc-coding-book-page__nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-.sc-coding-book-page__nav button, .sc-coding-book-page__nav > span { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 7px 10px; color: #e8dfca; border: 1px solid #75613d; background: #211d1a; font-size: 11px; }
+.sc-coding-book-page__nav button { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 7px 10px; color: #e8dfca; border: 1px solid #75613d; background: #211d1a; font-size: 11px; }
 .sc-coding-book-page__nav button { cursor: pointer; }
 .sc-coding-book-page__nav button:hover { background: #3d3424; }
 .sc-coding-book-page__nav button:focus-visible { outline: 3px solid #9fd7c5; outline-offset: 2px; }
-.sc-coding-book-page__nav > small { margin-left: auto; color: #d3c28d; font-size: 10px; }
+.sc-coding-book-page__nav > small { margin-left: auto; color: #d3c28d; font-size: 12px; text-align: right; }
 .sc-coding-book-page .sc-volume-page { padding: 18px; }
 .sc-coding-book-page .sc-volume-page--story h3 { margin-top: 13px; font-size: 30px; }
 .sc-coding-book-page .sc-volume-page__subtitle { margin-bottom: 13px; }
@@ -733,7 +733,6 @@ html[data-reduce-motion="true"] .sc-book-cutscene .sc-book-cutscene__magic { opa
 }
 @media (max-width: 600px) {
   .sc-coding-book-page { padding: 10px 10px 100px; }
-  .sc-coding-book-page__nav > span { max-width: 58%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .sc-harry-movie { border-width: 3px; }
   .sc-harry-movie__heading { align-items: start; flex-direction: column; }
   .sc-harry-movie__heading > button { align-self: stretch; justify-content: center; }
