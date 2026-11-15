@@ -5,7 +5,6 @@ import { useBookProgress } from "../story/useBookProgress";
 import { STORY_BOOKS } from "../../content/storyBooks";
 import { readLocal, writeLocal } from "../../lib/validation";
 import { BOOKSHELVES, getBookshelf, LIBRARY, type BookshelfId, type LibraryBook } from "../../content/library";
-import { usePreferences } from "../settings/PreferencesContext";
 import adventureShelfArt from "../../assets/library/bookshelf-adventures.png";
 import tutorialShelfArt from "../../assets/library/bookshelf-tutorial.png";
 import personalShelfArt from "../../assets/library/bookshelf-personal.png";
@@ -35,7 +34,6 @@ export function MagicalBookshelf({ bookshelfId = "adventures", onOpen, onTools, 
   const [query, setQuery] = useState("");
   const { completed } = useProgress();
   const bookProgress = useBookProgress();
-  const { preferences } = usePreferences();
   const [opening, setOpening] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>();
   const collection = getBookshelf(bookshelfId);
@@ -62,8 +60,7 @@ export function MagicalBookshelf({ bookshelfId = "adventures", onOpen, onTools, 
     if (opening) return;
     setOpening(book.id);
     if (book.storyId) writeLocal("htp-recent-book", book.id);
-    const quiet = preferences.reduced_motion || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    timer.current = setTimeout(() => onOpen(book), quiet ? 0 : 360);
+    timer.current = setTimeout(() => onOpen(book), 360);
   }
 
   function backToLibrary() {

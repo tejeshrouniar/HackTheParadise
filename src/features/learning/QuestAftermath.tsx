@@ -3,7 +3,6 @@ import { JourneyScene } from "../story/JourneyCinema";
 import { JOURNEY } from "../../content/journey";
 import narration from "../../content/quest-narration.json";
 import { BookCompletionSpread } from "./BookCompletionSpread";
-import { usePreferences } from "../settings/PreferencesContext";
 
 // Completion copy is shared with the offline narration manifest in quest-narration.json.
 const { explanations, outcomes } = narration;
@@ -15,18 +14,10 @@ export function QuestAftermath({ id, code, logs, onContinue }: { id: number; cod
   const [progress, setProgress] = useState(0);
   const [sequence, setSequence] = useState(0);
   const frame = useRef<number | null>(null);
-  const { preferences } = usePreferences();
   const chapter = Math.floor((id - 1) / 3);
   const beat = (id - 1) % 3;
 
   useEffect(() => {
-    const reducedMotion = preferences.reduced_motion || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) {
-      setProgress(1);
-      setReady(true);
-      return;
-    }
-
     setProgress(0);
     setReady(false);
     const startedAt = performance.now();
@@ -49,7 +40,7 @@ export function QuestAftermath({ id, code, logs, onContinue }: { id: number; cod
       if (frame.current !== null) window.cancelAnimationFrame(frame.current);
       frame.current = null;
     };
-  }, [preferences.reduced_motion, sequence]);
+  }, [sequence]);
 
   function finishReveal() {
     if (frame.current !== null) window.cancelAnimationFrame(frame.current);

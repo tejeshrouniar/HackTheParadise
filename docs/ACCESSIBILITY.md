@@ -6,13 +6,13 @@ Accessibility is part of the interaction model, not a final styling pass. These 
 
 - The application has a skip link, labeled route navigation, current-page state, semantic forms, and visible keyboard focus rules in `src/styles/tokens.css`.
 - Modal dialogs use the shared Radix-backed `src/components/ui/Modal.tsx` wrapper for focus handling, Escape, and background isolation.
-- The World Map supports keyboard movement, touch controls, click-to-walk, and a direct chapter list. Locked landmarks announce the progression requirement. Device reduced motion suppresses the chapter arrival effect. Harry’s walk frames follow player movement, and the in-app Reduce motion setting can keep his sprite still.
+- The World Map supports keyboard movement, touch controls, click-to-walk, and a direct chapter list. Locked landmarks announce the progression requirement. Harry’s walk frames follow player movement.
 - Quest completion, wallet errors, narration captions, and other changing status messages use live regions where appropriate.
-- The user preference and operating-system reduced-motion settings feed `MotionConfig`; CSS disables selected decorative loops and transitions.
+- Full motion is the site default, including book turns, chapter arrival, and completion scenes. The in-app reduced-motion option has been removed.
 - The soundtrack does not autoplay. Tutorial quest-completion narration attempts to start with its scene; when a browser blocks autoplay, labeled play and seek controls remain available. Visible story text stays on the page, and browser text-to-speech controls remain keyboard operable.
 - The layout uses responsive breakpoints, touch-sized trail controls, and form labels. Pixel art uses crisp rendering while preserving the surrounding text interface.
-- The bookshelf uses labeled native buttons to select books. Route and book page turns honor reduced-motion preferences; the shelf changes to a compact two-column layout on narrow screens.
-- The library room uses a labeled bookcase button, and the open shelf moves focus to its heading. The book covers and tools bookmark have text equivalents. Full page flips are the default. The bookmark’s Settings tab can switch to Gentle fades, which also apply when the app or device requests reduced motion.
+- The bookshelf uses labeled native buttons to select books. Route and book page turns play in full; the shelf changes to a compact two-column layout on narrow screens.
+- The library room uses a labeled bookcase button, and the open shelf moves focus to its heading. The book covers and tools bookmark have text equivalents. The bookmark’s Settings tab links to app settings.
 - The coding editor can restore a draft after reset and focus the line associated with an error.
 
 ## When changing a screen
@@ -21,7 +21,7 @@ Accessibility is part of the interaction model, not a final styling pass. These 
 2. Keep keyboard order aligned with the visual task order; do not remove focus outlines.
 3. Make locked/unavailable state clear in text, not only color or animation.
 4. Keep captions/transcripts visible when sound conveys story or result information.
-5. Honor reduced motion without skipping information or quest steps.
+5. Keep essential information and quest steps visible throughout every animation.
 6. Check narrow layouts and zoom; controls and status must not be clipped or covered by the floating player.
 
 ## Validation limits

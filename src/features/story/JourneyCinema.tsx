@@ -44,10 +44,7 @@ export function JourneyScene({
   playing?: boolean;
 }) {
   const { appearance } = useAppearance();
-  const { preferences } = usePreferences();
-  const progress = preferences.reduced_motion
-    ? Number(rawProgress >= 0.55)
-    : rawProgress;
+  const progress = rawProgress;
   const floor = chapter === 0 ? 312 : 288;
   const crossing = chapter === 1 || chapter === 3;
   const item = (name: string, x: number, y: number, size = 32) => (

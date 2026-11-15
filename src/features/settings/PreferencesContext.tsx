@@ -4,7 +4,6 @@ import {
   useEffect,
   useRef,
   useState,
-  useSyncExternalStore,
   type PropsWithChildren,
 } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -14,66 +13,49 @@ import { sound } from "../../utils/sound";
 
 export interface Preferences {
   sound_effects: boolean;
-  reduced_motion: boolean;
   music_volume: number;
   focus_minutes: number;
   gender: string;
 }
 const defaults: Preferences = {
   sound_effects: false,
-  reduced_motion: false,
   music_volume: 0.35,
   focus_minutes: 25,
   gender: "",
 };
-export type BookMotion = "full" | "gentle";
-const bookMotionKey = "storicode-book-motion";
-const reducedMotionQuery = "(prefers-reduced-motion: reduce), (forced-colors: active)";
-function subscribeToDeviceMotion(callback: () => void) {
-  const query = window.matchMedia(reducedMotionQuery);
-  query.addEventListener("change", callback);
-  return () => query.removeEventListener("change", callback);
-}
-
 const Context = createContext<{
   preferences: Preferences;
   update: (patch: Partial<Preferences>) => Promise<void>;
   error: string;
   loading: boolean;
-  bookMotion: BookMotion;
-  gentleBookMotion: boolean;
-  setBookMotion: (value: BookMotion) => void;
 }>({
   preferences: defaults,
   update: async () => {},
   error: "",
   loading: false,
-  bookMotion: "full",
-  gentleBookMotion: false,
-  setBookMotion: () => {},
 });
 export function PreferencesProvider({ children }: PropsWithChildren) {
   const { user } = useAuth();
   const key = `storicode_preferences_${user?.id ?? "guest"}`;
-  const [preferences, setPreferences] = useState<Preferences>(() => ({
-    ...defaults,
-    ...readLocal(key, {}),
-  }));
+  const [preferences, setPreferences] = useState<Preferences>(() => {
+    const saved = readLocal<Partial<Preferences>>(key, {});
+    return {
+      sound_effects: saved.sound_effects ?? defaults.sound_effects,
+      music_volume: saved.music_volume ?? defaults.music_volume,
+      focus_minutes: saved.focus_minutes ?? defaults.focus_minutes,
+      gender: saved.gender ?? defaults.gender,
+    };
+  });
   const current = useRef(preferences);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(!!user);
-  const [bookMotion, setBookMotion] = useState<BookMotion>(() => {
-    return readLocal<string>(bookMotionKey, "full") === "gentle" ? "gentle" : "full";
-  });
-  const deviceReducesMotion = useSyncExternalStore(subscribeToDeviceMotion, () => window.matchMedia(reducedMotionQuery).matches);
-  const gentleBookMotion = bookMotion === "gentle" || preferences.reduced_motion || deviceReducesMotion;
   useEffect(() => {
     let active = true;
     if (user && supabase)
       void supabase
         .from("user_preferences")
         .select(
-          "sound_effects,reduced_motion,music_volume,focus_minutes,gender",
+          "sound_effects,music_volume,focus_minutes,gender",
         )
         .eq("user_id", user.id)
         .maybeSingle()
@@ -93,10 +75,7 @@ export function PreferencesProvider({ children }: PropsWithChildren) {
   }, [user?.id]);
   useEffect(() => {
     sound.setEffectsEnabled(preferences.sound_effects);
-    document.documentElement.dataset.reduceMotion = String(
-      preferences.reduced_motion,
-    );
-  }, [preferences.sound_effects, preferences.reduced_motion]);
+  }, [preferences.sound_effects]);
   const update = async (patch: Partial<Preferences>) => {
     const next = { ...current.current, ...patch };
     current.current = next;
@@ -118,10 +97,7 @@ export function PreferencesProvider({ children }: PropsWithChildren) {
     setError("");
   };
   return (
-    <Context.Provider value={{ preferences, update, error, loading, bookMotion, gentleBookMotion, setBookMotion: (value) => {
-      setBookMotion(value);
-      writeLocal(bookMotionKey, value);
-    } }}>
+    <Context.Provider value={{ preferences, update, error, loading }}>
       {children}
     </Context.Provider>
   );

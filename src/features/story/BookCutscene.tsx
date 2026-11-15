@@ -3,7 +3,6 @@ import { RotateCcw, Volume2, VolumeX } from "lucide-react";
 import type { BookPuzzle } from "../../content/codeCampaign";
 import { AvatarGraphic, type SpriteAction } from "../adventure/AvatarGraphic";
 import { useAppearance } from "../adventure/AppearanceContext";
-import { usePreferences } from "../settings/PreferencesContext";
 import { getBookStage } from "./bookSceneAssets";
 
 type ScenePhase = "still" | "approach" | "inspect" | "reveal" | "settle";
@@ -43,7 +42,6 @@ export function BookCutscene({
   playing = true,
 }: BookCutsceneProps) {
   const { appearance } = useAppearance();
-  const { preferences } = usePreferences();
   const [phase, setPhase] = useState<ScenePhase>("still");
   const [replay, setReplay] = useState(0);
   const isHarry = chapter.bookId === "harry-potter";
@@ -60,11 +58,6 @@ export function BookCutscene({
       setPhase("still");
       return;
     }
-    if (preferences.reduced_motion || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setPhase("settle");
-      return;
-    }
-
     setPhase("approach");
     const inspect = window.setTimeout(() => setPhase("inspect"), 900);
     const reveal = window.setTimeout(() => setPhase("reveal"), 1_620);
@@ -74,7 +67,7 @@ export function BookCutscene({
       window.clearTimeout(reveal);
       window.clearTimeout(settle);
     };
-  }, [chapter.chapterId, completed, sequence, replay, preferences.reduced_motion, playing]);
+  }, [chapter.chapterId, completed, sequence, replay, playing]);
 
   const caption = mode === "level"
     ? completed

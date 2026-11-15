@@ -78,9 +78,3 @@ body:has(.sc-modal[data-state="open"]) .htp-first-guide { visibility: hidden !im
   .htp-first-guide__card { padding: 12px; }
   .htp-first-guide__card h2 { font-size: 16px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .htp-first-guide.is-delayed, .htp-first-guide__spotlight::after, .htp-first-guide__card[data-side] { animation: none; }
-}
-html[data-reduce-motion="true"] .htp-first-guide.is-delayed,
-html[data-reduce-motion="true"] .htp-first-guide__spotlight::after,
-html[data-reduce-motion="true"] .htp-first-guide__card[data-side] { animation: none; }

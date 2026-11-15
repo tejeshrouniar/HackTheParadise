@@ -467,17 +467,6 @@
     width: calc(100% - 32px);
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .sc-world-companion img {
-    animation: none;
-  }
-  .sc-world-primary {
-    transition: none;
-  }
-}
-[data-reduce-motion="true"] .sc-world-companion img {
-  animation: none;
-}
 /* Lesson panels share the forest palette while maintaining legible code. */
 .sc-adventure-shell.sc-on-quest {
   background: #10201d;

@@ -10,7 +10,7 @@ export type SpellPlayback = {
   trace: string[];
 };
 
-/** Bounded playback of real interpreter traces; reduced motion does not skip reading time. */
+/** Bounded playback of real interpreter traces; animation does not skip reading time. */
 export function planSpellPlayback(results: PuzzleTestResult[], pace: number): SpellPlayback[] {
   const unit = Number.isFinite(pace) ? Math.max(450, Math.min(1100, pace)) : 750;
   const frames: SpellPlayback[] = [];

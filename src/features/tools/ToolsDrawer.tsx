@@ -12,7 +12,6 @@ import { MusicTool } from "./MusicTool";
 import { FocusTimer } from "./FocusTimer";
 import { StudyItems } from "./StudyItems";
 import { References } from "./References";
-import { usePreferences, type BookMotion } from "../settings/PreferencesContext";
 const tools = [
   { id: "music", label: "Music", Icon: Headphones },
   { id: "timer", label: "Focus", Icon: Timer },
@@ -31,7 +30,6 @@ export default function ToolsDrawer({
   onSettings: () => void;
 }) {
   const [active, setActive] = useState("music");
-  const { bookMotion, gentleBookMotion, setBookMotion } = usePreferences();
   const panel = useRef<HTMLElement>(null);
   const close = useRef(onClose);
   close.current = onClose;
@@ -137,14 +135,8 @@ export default function ToolsDrawer({
           <div hidden={active !== "reference"}>
             <References />
           </div>
-          <section className="sc-tool-content htp-motion-settings" hidden={active !== "settings"}>
+          <section className="sc-tool-content" hidden={active !== "settings"}>
             <h3>Settings</h3>
-            <label htmlFor="book-motion">Book transitions</label>
-            <select id="book-motion" value={bookMotion} onChange={event => setBookMotion(event.currentTarget.value as BookMotion)} aria-describedby="book-motion-note">
-              <option value="full">Full page flips</option>
-              <option value="gentle">Gentle fades</option>
-            </select>
-            <p id="book-motion-note">{bookMotion === "full" && gentleBookMotion ? "Reduced motion is active, so pages use gentle fades." : gentleBookMotion ? "Pages use a short fade." : "Pages turn in 3D as you navigate."}</p>
             <button type="button" className="sc-button secondary" onClick={onSettings}>All settings</button>
           </section>
         </div>

@@ -12,7 +12,6 @@ import bookStack from "../../assets/library/room-book-stack.webp";
 import { useProgress } from "../learning/ProgressContext";
 import { journeyProgress } from "../learning/journeyProgress";
 import { useBookProgress } from "../story/useBookProgress";
-import { usePreferences } from "../settings/PreferencesContext";
 
 interface LibraryEntranceProps {
   inside: boolean;
@@ -40,7 +39,6 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
   const selectionTimer = useRef<number | null>(null);
   const [selectingShelf, setSelectingShelf] = useState(false);
   const [selectedBook, setSelectedBook] = useState<string | null>(null);
-  const { gentleBookMotion } = usePreferences();
   const { completed: questProgress } = useProgress();
   const bookProgress = useBookProgress();
 
@@ -81,10 +79,6 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
 
   function openShelfBook(book: LibraryBook) {
     if (selectionTimer.current !== null) return;
-    if (gentleBookMotion) {
-      onOpenBook(book);
-      return;
-    }
     setSelectedBook(book.id);
     selectionTimer.current = window.setTimeout(() => {
       selectionTimer.current = null;
@@ -93,7 +87,7 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
   }
 
   function setParallax(event: PointerEvent<HTMLElement>) {
-    if (inside || selectingShelf || event.pointerType !== "mouse" || gentleBookMotion || !room.current) return;
+    if (inside || selectingShelf || event.pointerType !== "mouse" || !room.current) return;
     const bounds = event.currentTarget.getBoundingClientRect();
     const x = (event.clientX - bounds.left) / bounds.width - .5;
     const y = (event.clientY - bounds.top) / bounds.height - .5;
@@ -133,7 +127,7 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
           </div>
           {!inside && (
             <button className="htp-foyer-bookcase" type="button" ref={roomButton} data-guide="bookcase"
-              data-selected={selectingShelf || undefined} data-returning={focusRoom || undefined} data-book-transition="" onClick={enterShelf}>
+              data-selected={selectingShelf || undefined} data-returning={focusRoom || undefined} onClick={enterShelf}>
               <img src={adventureShelf} alt="" draggable={false} />
               <span className="htp-foyer-bookcase__plaque" data-guide-extension=""><BookOpen size={17} aria-hidden="true" /> Browse the bookshelf <span aria-hidden="true">→</span></span>
             </button>
@@ -154,13 +148,13 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
       {!inside ? (
         <h1 className="htp-foyer-heading" id="htp-library-title">The ITM Grand Library</h1>
       ) : (
-        <div className="htp-library-interior" aria-label="Books on the grand bookshelf" data-book-transition="">
+        <div className="htp-library-interior" aria-label="Books on the grand bookshelf">
           <header className="htp-interior-heading">
             <button type="button" className="htp-interior-back" onClick={onExit}><ChevronLeft size={16} aria-hidden="true" /> Library room</button>
             <h1 id="htp-library-title" tabIndex={-1} ref={heading}>The Bookshelf</h1>
           </header>
 
-          <div className="htp-open-bookcase" data-from-room={selectingShelf || undefined} data-book-transition="">
+          <div className="htp-open-bookcase" data-from-room={selectingShelf || undefined}>
             {shelves.map((shelf) => (
               <section className={`htp-book-row htp-book-row--${shelf.id}`} key={shelf.id} aria-labelledby={`htp-row-${shelf.id}`}>
                 <div className="htp-book-row__heading">
@@ -178,7 +172,6 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
                         style={{ "--book-cover": book.coverColor } as CSSProperties}
                         data-selected={selectedBook === book.id || undefined}
                         data-guide={book.id === "cinder" ? "tutorial-book" : undefined}
-                        data-book-transition=""
                         onClick={() => openShelfBook(book)}
                         aria-label={`Open ${book.title}${progress ? `. ${progress}` : ""}`}
                       >

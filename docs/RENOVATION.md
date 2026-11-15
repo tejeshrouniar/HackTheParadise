@@ -25,7 +25,7 @@ The active app is a four-chapter, twelve-quest coding adventure. The player is t
 
 ## Music and access
 
-The music tool searches Openverse CC0/CC BY tracks and displays the source/license link. Three included synthesized soundscapes remain available if the external catalog fails. Audio never starts automatically. Keyboard focus, reduced motion, dialog behavior, and accessibility validation limits are in [Accessibility notes](ACCESSIBILITY.md).
+The music tool searches Openverse CC0/CC BY tracks and displays the source/license link. Three included synthesized soundscapes remain available if the external catalog fails. Audio never starts automatically. Keyboard focus, full motion, dialog behavior, and accessibility validation limits are in [Accessibility notes](ACCESSIBILITY.md).
 
 ## Validation record
 

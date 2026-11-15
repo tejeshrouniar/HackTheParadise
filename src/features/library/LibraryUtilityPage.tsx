@@ -83,7 +83,13 @@ export function LibraryUtilityPage({ id, onNavigate, onSignIn, onCharacter, onTo
     left = <>{intro}<h2>{user ? "Your account" : "Your place, saved"}</h2><p>{user?.email ?? "Sign in to sync progress, unlock hints and collect Sparks."}</p>{user ? <SignOutButton /> : <button className="sc-button" onClick={onSignIn}>Sign in</button>}<h2>Every book is yours to explore</h2><p>Stories keep separate progress. Your Spark balance and purchased help are saved to your account.</p></>;
     right = <SparkWalletCard onSignIn={onSignIn} />;
   } else if (id === "theme") {
-    left = <>{intro}<h2>Make the magic comfortable</h2>{([{ key: "reduced_motion", title: "Reduce motion", description: "Gentler page turns and scene effects." }, { key: "sound_effects", title: "Sound effects", description: "Spell sounds and small celebrations." }] as const).map((option) => <div className="sc-setting-row" key={option.key}><div><strong>{option.title}</strong><p>{option.description}</p></div><button className="sc-switch" role="switch" aria-label={option.title} aria-checked={preferences[option.key]} disabled={saving} onClick={() => save({ [option.key]: !preferences[option.key] })}><span /></button></div>)}{notice && <ErrorNotice message={notice} />}</>;
+    left = <>{intro}<h2>Sound preferences</h2>
+      <div className="sc-setting-row">
+        <div><strong>Sound effects</strong><p>Spell sounds and small celebrations.</p></div>
+        <button type="button" className="sc-switch" role="switch" aria-label="Sound effects" aria-checked={preferences.sound_effects} disabled={saving} onClick={() => save({ sound_effects: !preferences.sound_effects })}><span /></button>
+      </div>
+      {notice && <ErrorNotice message={notice} />}
+    </>;
     right = <><span className="sc-volume-kicker">COLOUR & SOUND</span><h2>Every book, its own atmosphere</h2><p>Copper and forest for Cinder. Burgundy, ink and gold for Hogwarts. The cover sets the mood when you open a book.</p>{bookLinks(false)}<button className="sc-button" onClick={onTools}><Headphones size={18} /> Choose your soundtrack</button></>;
   } else if (id === "lore") {
     left = <>{intro}<h2>The stories you bring to life</h2><p>Every solved level reveals another scene. Open a book to watch the chapters you have unlocked.</p>{bookLinks(true)}</>;

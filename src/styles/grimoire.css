@@ -578,13 +578,6 @@
   .sc-magical-app .sc-site-footer { flex-wrap: wrap; padding-bottom: 20px; gap: 12px; }
 }
 @media (max-width: 410px) { .sc-cabinet-row__books { gap: 9px; padding-inline: 10px; }.sc-cabinet-row--personal .sc-shelf-spine { width: 48px; }.sc-shelf-bookend { display: none; }.sc-cabinet-row--adventures .sc-shelf-spine { width: 85px; }.sc-cast-button svg { display: none; } }
-/* Book motion has its own setting. These effects use short fades in gentle mode. */
-.sc-magical-app[data-book-motion="gentle"] .sc-grimoire__turn-container { grid-column: 1 / -1; }
-.sc-magical-app[data-book-motion="gentle"] .sc-grimoire__turn-leaf {
-  animation: sc-page-dissolve 260ms ease-out both;
-  box-shadow: none;
-}
-@keyframes sc-page-dissolve { from { opacity: .8; } to { opacity: 0; visibility: hidden; } }
 @media (forced-colors: active) { .sc-code-highlight { display: none; }.sc-magical-app .sc-grimoire .sc-code-input textarea { color: CanvasText; -webkit-text-fill-color: CanvasText; }.sc-shelf-spine { border: 2px solid ButtonText; } }
 
 /* Layout & Alignment Polish */
@@ -816,8 +809,6 @@
 .htp-cinema button { color:#f3dfb4; }
 .sc-grimoire__leaf { color:var(--paper-ink); }
 @media(max-width:600px) { .htp-doorway {inset:32px 24px 0;border-width:8px} .htp-door::before {margin:48px 8px} .htp-library-catalog {padding:12px;gap:12px} .sc-cabinet-crown strong {font-size:14px} }
-@media(prefers-reduced-motion:reduce) { .htp-entrance *, .htp-dust i {animation:none!important;transition:none!important} }
-[data-reduce-motion="true"] .htp-dust i {animation:none!important}
 .sc-magical-app .sc-book-hub__contents { min-width:0; width:100%; overflow-x:hidden; }
 .sc-magical-app .sc-book-hub__contents li { min-width:0; }
 .sc-magical-app .sc-book-hub__contents li strong { white-space:normal; overflow-wrap:anywhere; }
@@ -874,8 +865,6 @@
 .sc-modal button:focus-visible,.htp-sketch-library button:focus-visible {outline:3px solid #68b9bb;outline-offset:5px}
 @media(max-width:1000px){.htp-welcome-book{max-width:310px}.htp-sketch-library .sc-cabinet-row__books{gap:12px;padding-inline:20px}.htp-sketch-library .sc-shelf-spine{width:54px}.htp-hanging-signs{gap:12px}.sc-magical-app .sc-grimoire.htp-atlas{grid-template-columns:1fr}.htp-atlas>.sc-grimoire__binding{display:none}}
 @media(max-width:760px){.htp-sketch-library{padding:12px}.htp-hanging-signs{flex-wrap:wrap;gap:12px;padding:0 0 20px}.htp-hanging-signs h1{order:-1;flex-basis:100%;margin:16px 0 0;font-size:20px}.htp-hanging-signs button{flex:1;padding:10px;margin-top:12px;font-size:12px}.htp-hanging-signs button:before,.htp-hanging-signs button:after{top:-16px;height:14px}.htp-welcome-book{max-width:none;width:100%;margin:24px 0 12px;transform:none}.htp-sketch-library .sc-cabinet-row__books{padding:28px 18px 0}.htp-sketch-library .sc-shelf-spine{width:52px;height:164px}.htp-sketch-library .sc-cabinet-row--adventures .sc-shelf-spine{width:76px;height:200px}.htp-shelf-stilllife{width:90px;transform:scale(.7);transform-origin:bottom right}.htp-sketch-library .sc-cabinet-crown strong{font-size:8px;letter-spacing:.15em}}
-@media(prefers-reduced-motion:reduce){.htp-shelf-stilllife span{animation:none}.htp-hanging-signs button,.htp-sketch-library .sc-shelf-spine{transition:none}}
-[data-reduce-motion='true'] .htp-shelf-stilllife span{animation:none}
 
 /* Shared books consume the catalog palette, including the desk and paper. */
 .sc-magical-app:not(.sc-on-story) {background:radial-gradient(ellipse at top,var(--book-secondary,#304631),transparent 70%),var(--book-background,#161213)}

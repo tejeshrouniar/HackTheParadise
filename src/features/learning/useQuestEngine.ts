@@ -62,7 +62,7 @@ export function useQuestEngine(
   // Execution & Diagnostics states
   const [isExecuting, setIsExecuting] = useState<boolean>(false);
   const [activeLine, setActiveLine] = useState<number | null>(null);
-  // Reading pace is independent of reduced motion: less movement must not skip the lesson.
+  // Reading pace stays long enough for learners to follow the lesson.
   const [stepDuration, setStepDuration] = useState(1100);
   const [executionStep, setExecutionStep] = useState({
     current: 0,
@@ -610,16 +610,11 @@ export function useQuestEngine(
 
     if (passed) {
       sound.playVictoryFanfare();
-      if (
-        !preferences.reduced_motion &&
-        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      )
-        confetti({
-          particleCount: 60,
-          spread: 65,
-          origin: { y: 0.6 },
-          disableForReducedMotion: true,
-        });
+      confetti({
+        particleCount: 60,
+        spread: 65,
+        origin: { y: 0.6 },
+      });
       logs.push(`================================`);
       logs.push(`🎉 QUEST COMPLETE! +150 XP`);
       logs.push(`> Well done wizard! Proceed to next quest.`);

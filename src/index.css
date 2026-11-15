@@ -164,16 +164,6 @@
     user-select: none;
   }
 
-  /* Framer Motion: respect reduced motion for accessibility */
-  @media (prefers-reduced-motion: reduce) {
-    .floating-orb,
-    .animate-float,
-    .animate-pulse-glow,
-    .animate-sparkle,
-    .animate-shimmer {
-      animation: none !important;
-    }
-  }
 }
 
 /* ─────────────────────────────────────────────────────────────

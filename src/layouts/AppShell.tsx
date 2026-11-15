@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useProfile } from "../features/profile/ProfileContext";
-import { usePreferences } from "../features/settings/PreferencesContext";
 import Dashboard from "../features/learning/Dashboard";
 import { AuthModal } from "../components/Auth/AuthModal";
 import { Modal } from "../components/ui/Modal";
@@ -95,7 +94,6 @@ export function AppShell() {
   const { user, isPasswordRecovery, signOut } = useAuth();
   const { completed } = useProgress();
   const { profile, loading: profileLoading } = useProfile();
-  const { preferences, gentleBookMotion } = usePreferences();
   const [{ route, previousRoute, pageTurn }, setRouteState] = useState<{
     route: string;
     previousRoute: string;
@@ -201,13 +199,10 @@ export function AppShell() {
     `${l.title} ${l.conceptName}`.toLowerCase().includes(query.toLowerCase()),
   );
   return (
-    <MotionConfig
-      reducedMotion={preferences.reduced_motion ? "always" : "user"}
-    >
+    <MotionConfig reducedMotion="never">
       <div
         className={`sc-app sc-adventure-shell sc-magical-app ${route === "learn" ? "sc-on-home sc-on-map" : ""} ${inLibrary ? "sc-on-entrance" : ""} ${route.startsWith("quest/") || route.startsWith("book-level/") ? "sc-on-quest" : ""} ${route.startsWith("book-level/") ? "sc-on-book-level" : ""}`}
         data-book-theme={selectedBook.theme}
-        data-book-motion={gentleBookMotion ? "gentle" : "full"}
         style={{ "--book-cover": selectedBook.palette.primary, "--book-secondary": selectedBook.palette.secondary, "--book-background": selectedBook.palette.background, "--paper": selectedBook.palette.paper, "--paper-ink": selectedBook.palette.text, "--gold-rim": selectedBook.palette.accent } as CSSProperties}
       >
         <a

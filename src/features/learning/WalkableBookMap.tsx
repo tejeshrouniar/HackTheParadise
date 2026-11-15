@@ -1,10 +1,8 @@
-import { useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent } from "react";
 import { ArrowLeft, ArrowRight, Check, Hand, LockKeyhole } from "lucide-react";
 import { sound } from "../../utils/sound";
 import { AvatarGraphic, type SpriteAction, type SpriteDirection } from "../adventure/AvatarGraphic";
 import { useAppearance } from "../adventure/AppearanceContext";
-import { usePreferences } from "../settings/PreferencesContext";
 import type { BookWalkPreset, WalkMapStop } from "./bookWalkPresets";
 
 const REGION_WIDTH = 960;
@@ -62,9 +60,6 @@ function savedPosition(preset: BookWalkPreset, firstOpenIndex: number, stops: re
  */
 export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookMapProps) {
   const { appearance } = useAppearance();
-  const { preferences } = usePreferences();
-  const systemReducedMotion = useReducedMotion();
-  const reducedMotion = preferences.reduced_motion || !!systemReducedMotion;
   const regionCount = preset.regions.length;
   const worldWidth = REGION_WIDTH * regionCount;
   const completed = useMemo(() => new Set(completedIds), [completedIds]);
@@ -223,7 +218,7 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
 
       if (walkerSprite.current) {
         // A step follows distance traveled, including short clicks and speed changes.
-        const moving = nextMotion !== "idle" && !preferences.reduced_motion;
+        const moving = nextMotion !== "idle";
         stride = moving ? stride + Math.abs(x.current - startX) : 0;
         const pose = moving ? WALK_FRAMES[Math.floor(stride / STRIDE_FRAME_DISTANCE) % WALK_FRAMES.length] : 1;
         if (pose !== paintedPose) {
@@ -265,7 +260,7 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
         setPlayId((id) => id + 1);
         sound.playWandCast();
         window.clearTimeout(arrivalTimer.current);
-        arrivalTimer.current = window.setTimeout(() => setArrival((active) => active === newRegion ? null : active), reducedMotion ? 120 : 1150);
+        arrivalTimer.current = window.setTimeout(() => setArrival((active) => active === newRegion ? null : active), 1150);
       }
       frame = requestAnimationFrame(animate);
     };
@@ -287,7 +282,7 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
     };
   // Stable RAF loop reads the current route and callbacks through refs.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset.bookId, preferences.reduced_motion, reducedMotion, worldWidth]);
+  }, [preset.bookId, worldWidth]);
 
   function enterStop(index = nearestIndex) {
     const stop = stops[index];
@@ -318,10 +313,6 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
     target.current = null;
     pending.current = null;
     sound.playClick();
-    if (reducedMotion) {
-      onEnter(stop);
-      return;
-    }
     setActivatingStopId(stop.id);
     openTimer.current = window.setTimeout(() => {
       openTimer.current = undefined;
@@ -396,7 +387,7 @@ export function WalkableBookMap({ preset, completedIds, onEnter }: WalkableBookM
       </div>
 
       <div
-        className={`sc-walking-stage sc-book-walk-stage${reducedMotion ? " is-reduced-motion" : ""}`}
+        className="sc-walking-stage sc-book-walk-stage"
         ref={stage}
         tabIndex={0}
         role="group"

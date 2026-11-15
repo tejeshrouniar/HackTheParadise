@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import atlas from "../../assets/trail/adventurer.png";
 import type { Appearance } from "./appearance";
-import { usePreferences } from "../settings/PreferencesContext";
 import {
   advanceSprite,
   changeSpriteAction,
@@ -155,7 +154,6 @@ export function AvatarGraphic({
   size = 32,
   playId = 0,
   loop = false,
-  directControl = false,
 }: {
   appearance: Appearance;
   action?: SpriteAction;
@@ -167,7 +165,6 @@ export function AvatarGraphic({
   loop?: boolean;
   directControl?: boolean;
 }) {
-  const { preferences } = usePreferences();
   const key = JSON.stringify(appearance);
   const [sheet, setSheet] = useState(() => cache.get(key));
   const imageRef = useRef<SVGImageElement>(null);
@@ -192,7 +189,6 @@ export function AvatarGraphic({
     previousPlayId.current = playId;
     const image = imageRef.current;
     if (!image || !ready) return;
-    const media = matchMedia("(prefers-reduced-motion: reduce)");
     let request = 0;
     let previous = performance.now();
     let painted = -1;
@@ -211,27 +207,19 @@ export function AvatarGraphic({
     function resume() {
       cancelAnimationFrame(request);
       previous = performance.now();
-      image!.setAttribute("data-motion", preferences.reduced_motion || (media.matches && !directControl)
-        ? "reduced" : document.hidden ? "paused" : "playing");
-      if (preferences.reduced_motion || (media.matches && !directControl)) {
-        playback.current.frame = 0;
-        playback.current.elapsed = 0;
-      } else if (!document.hidden) {
+      image!.setAttribute("data-motion", document.hidden ? "paused" : "playing");
+      if (!document.hidden) {
         request = requestAnimationFrame(animate);
       }
       paint();
     }
     resume();
-    if (typeof media.addEventListener === "function") media.addEventListener("change", resume);
-    else media.addListener(resume);
     document.addEventListener("visibilitychange", resume);
     return () => {
       cancelAnimationFrame(request);
-      if (typeof media.removeEventListener === "function") media.removeEventListener("change", resume);
-      else media.removeListener(resume);
       document.removeEventListener("visibilitychange", resume);
     };
-  }, [action, playId, loop, directControl, ready, preferences.reduced_motion]);
+  }, [action, playId, ready, loop]);
   const row = bands.indexOf(action) * 5 + rows[direction];
   return (
     <svg

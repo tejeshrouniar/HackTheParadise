@@ -121,7 +121,7 @@ export const CodedexApp = ({
             if (errorPointer) setErrorPointer(null);
           }}
           onRun={() => {
-            showLevelStage(worldRef.current, preferences.reduced_motion);
+            showLevelStage(worldRef.current);
             void handleRunCode();
           }}
           onReset={() => {

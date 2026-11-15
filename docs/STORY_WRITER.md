@@ -23,7 +23,7 @@ Both active routes use `src/features/learning/WalkableBookMap.tsx`. Add region g
 4. **Give it a soundtrack.** Select an existing track ID from `src/services/music.ts`, or register a new synthesized/free track there. Keep music optional and user-controlled; don’t autoplay audio without a user action.
 5. **Make progress stable.** Coding-book chapters need unique, permanent slugs. Add a new numbered migration for its story/chapter rows if cloud progress is needed. Never edit an applied migration or reuse a chapter ID. Use a new migration to rename/reorder/move existing rows, and preserve their IDs so saved progress follows.
 6. **Keep access sequential inside that book.** Readers may reopen completed pages; the next page unlocks after the previous chapter. A book’s completion must not gate a different book.
-7. **Verify accessibility and behavior.** Check keyboard chapter navigation, visible focus, mobile layout, reduced motion, locked/unlocked progression, and story/music controls. Keep expected interpreter outputs in test fixtures; do not add reference solutions to browser content.
+7. **Verify accessibility and behavior.** Check keyboard chapter navigation, visible focus, mobile layout, full page turns, locked/unlocked progression, and story/music controls. Keep expected interpreter outputs in test fixtures; do not add reference solutions to browser content.
 
 ## Coding chapter content
 

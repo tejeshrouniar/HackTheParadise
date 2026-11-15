@@ -134,7 +134,7 @@ export const SparkyCompanionModal: React.FC<SparkyCompanionModalProps> = ({
     ];
     setDialogue(petPhrases[Math.floor(Math.random() * petPhrases.length)]);
 
-    confetti({ disableForReducedMotion: true,
+    confetti({
       particleCount: 40,
       spread: 50,
       origin: { y: 0.5 },
@@ -160,7 +160,7 @@ export const SparkyCompanionModal: React.FC<SparkyCompanionModalProps> = ({
     ];
     setDialogue(feedPhrases[Math.floor(Math.random() * feedPhrases.length)]);
 
-    confetti({ disableForReducedMotion: true,
+    confetti({
       particleCount: 50,
       spread: 60,
       origin: { y: 0.5 },

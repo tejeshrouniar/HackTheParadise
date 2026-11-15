@@ -293,7 +293,7 @@
   background:#29190f;
   box-shadow:0 9px 0 #1b1009, 0 16px 32px #150a06b8, inset 0 0 0 4px #27170f;
 }
-.sc-magical-app[data-book-motion="full"] .htp-open-bookcase[data-from-room] { animation:htp-case-arrive 310ms cubic-bezier(.22,.61,.36,1) both; }
+.htp-open-bookcase[data-from-room] { animation:htp-case-arrive 310ms cubic-bezier(.22,.61,.36,1) both; }
 @keyframes htp-case-arrive { from { transform:scale(.96); } to { transform:none; } }
 .htp-foyer-bookcase[data-returning] { animation:htp-shelf-arrive 220ms ease-out both; }
 .htp-book-row {
@@ -468,10 +468,6 @@
 .htp-bookmark-drawer .sc-tool-tabs button:focus-visible { outline-offset:-4px; }
 .htp-bookmark-drawer .sc-now-playing { border-radius:0; border-color:#966f4c; background:#352637; }
 .htp-bookmark-drawer .sc-tool-content { padding:18px; }
-.htp-motion-settings label { display:block; margin-bottom:8px; }
-.htp-motion-settings select, .htp-motion-settings select option { color-scheme: dark; background:#261d21; color:#fff3dc; }
-.htp-motion-settings select { width:100%; min-height:44px; padding:8px; border:1px solid #c6a375; font:700 1rem/1.4 "Nunito Sans",system-ui,sans-serif; }
-.htp-motion-settings p { margin:8px 0 16px; color:#f0dbb7; font: .9375rem/1.5 "Nunito Sans",system-ui,sans-serif; }
 @media (max-width:420px) {
   .htp-bookmark-drawer .sc-tool-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); }
   .htp-bookmark-drawer .sc-tool-tabs button.active { min-height:58px; }
@@ -511,11 +507,6 @@
   .htp-open-bookcase { border-width:5px; }
   .htp-book-row__books { gap:8px; padding-inline:8px; }
 }
-.sc-magical-app[data-book-motion="gentle"] :is(.htp-room-backdrop,.htp-room-ivy,.htp-room-floor-prop) { transform:none; }
-.sc-magical-app[data-book-motion="gentle"] .htp-library-book { transform:none; }
-.sc-magical-app[data-book-motion="gentle"] .htp-library-interior { animation: htp-shelf-arrive 280ms ease-out both; }
-.sc-magical-app[data-book-motion="gentle"] .sc-route-page__leaf { background: #281e16; box-shadow: none; animation: htp-cover-dissolve 240ms ease-out both; }
-@keyframes htp-cover-dissolve { from { opacity:.75; } to { opacity:0; visibility:hidden; } }
 /* One collection at a time: the only route with a physical book display. */
 .htp-sketch-library { width:min(1460px,100%); margin:0 auto; padding:clamp(20px,4vw,48px) clamp(14px,4vw,52px) 64px; }
 .htp-bookshelf-page { --aisle-accent:#e7bd61; --aisle-wall:#172634; }

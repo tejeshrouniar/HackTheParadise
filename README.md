@@ -152,12 +152,7 @@ The Tools bookmark provides access to:
 - Code references.
 - Application settings.
 
-Book transitions support two visual styles:
-
-- Full page flips.
-- Gentle fades.
-
-Full page flips are the default. Gentle fades apply when selected or when the device or app requests reduced motion.
+Books use full 3D page flips when you navigate between chapters.
 
 ---
 
@@ -385,7 +380,7 @@ Never reuse chapter slugs or reset progress in an already-applied migration.
 - Cinder is the tutorial example, with four regions defined through `journey.json`.
 - Harry Potter is the coding-book example, with twelve stable chapter slugs defined through `codeCampaign.ts`.
 - The earlier `JourneyTrail.tsx` and `WizardingWalk.tsx` components are legacy implementations, not active map routes.
-- The page-turn effect uses native CSS and respects reduced-motion settings.
+- The page-turn effect uses native CSS and plays the full 3D turn.
 - The supplied Windows page-turn utility is not a runtime dependency.
 
 ---
@@ -525,7 +520,7 @@ Please ensure that your contributions:
 - Follow the existing project architecture.
 - Preserve independent storybook progression.
 - Include appropriate tests where applicable.
-- Respect accessibility and reduced-motion preferences.
+- Respect keyboard access, focus, labels, and readable animation timing.
 - Use properly licensed assets.
 - Never expose secret keys or sensitive credentials.
 

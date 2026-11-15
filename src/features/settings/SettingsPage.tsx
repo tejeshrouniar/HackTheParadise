@@ -130,27 +130,6 @@ export default function SettingsPage({
                 <span />
               </button>
             </div>
-            <div className="sc-setting-row">
-              <div>
-                <strong>Reduce motion</strong>
-                <p>
-                  Keep transitions quiet. Your device’s reduced-motion setting
-                  is always respected.
-                </p>
-              </div>
-              <button
-                role="switch"
-                aria-checked={preferences.reduced_motion}
-                aria-label="Reduce motion"
-                className="sc-switch"
-                disabled={preferencesLoading || savingPreference}
-                onClick={() =>
-                  void save({ reduced_motion: !preferences.reduced_motion })
-                }
-              >
-                <span />
-              </button>
-            </div>
             <label className="sc-setting-row">
               <div>
                 <strong>Default focus session</strong>

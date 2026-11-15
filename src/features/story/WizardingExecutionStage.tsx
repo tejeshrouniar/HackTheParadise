@@ -52,7 +52,7 @@ function spellTokens(value: PuzzleValue): string[] {
 }
 
 /** Actual interpreter values drive the scene. Idle/saved progress never starts it. */
-export function WizardingExecutionStage({ chapter, playback, reducedMotion }: { chapter: BookPuzzle; playback: SpellPlayback | null; reducedMotion: boolean }) {
+export function WizardingExecutionStage({ chapter, playback }: { chapter: BookPuzzle; playback: SpellPlayback | null }) {
   const stage = getBookStage(chapter.scene);
   const labels = operations[chapter.scene] ?? ["Spell input", "Run your instructions", "Goal reached"];
   const [color, glyph, effect] = reactions[chapter.scene] ?? ["#ffce70", "✦", "rise"];
@@ -79,7 +79,7 @@ export function WizardingExecutionStage({ chapter, playback, reducedMotion }: { 
     "--harry-sheet": `url(${harrySprite})`,
   } as CSSProperties;
 
-  return <div className="sc-spell-lab" data-scene={chapter.scene} data-phase={phase} data-passed={playback?.result.passed} data-reduced-motion={reducedMotion} style={sceneStyle}>
+  return <div className="sc-spell-lab" data-scene={chapter.scene} data-phase={phase} data-passed={playback?.result.passed} style={sceneStyle}>
     <div className="sc-spell-lab__viewport">
       <div className="sc-spell-lab__world">
       {stage && <img className="sc-spell-lab__backdrop" src={stage.backdrop} alt={chapter.subtitle.split(" · ")[0]} />}

@@ -20,7 +20,7 @@ const PageTurnContext = createContext<{
 export function PageTurnProvider({ children, routeKey }: {
   children: ReactNode; routeKey?: string;
 }) {
-  const { preferences, gentleBookMotion } = usePreferences();
+  const { preferences } = usePreferences();
   const [phase, setPhase] = useState<TurnPhase | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>();
   const pending = useRef(false);
@@ -40,17 +40,15 @@ export function PageTurnProvider({ children, routeKey }: {
     const restoreChapterFocus = document.activeElement?.matches(".sc-chapter-pill button:focus-visible") ?? false;
     pending.current = true;
     if (preferences.sound_effects) sound.playPageTurn();
-    if (!gentleBookMotion) setPhase({ direction, stage: "lift", restoreChapterFocus });
-    function land() {
+    setPhase({ direction, stage: "lift", restoreChapterFocus });
+    timer.current = setTimeout(() => {
       setPhase({ direction, stage: "land", restoreChapterFocus });
       timer.current = setTimeout(() => {
         pending.current = false;
         setPhase(null);
       }, LAND_MS);
       callback?.();
-    }
-    if (gentleBookMotion) land();
-    else timer.current = setTimeout(land, LIFT_MS);
+    }, LIFT_MS);
   }
 
   return <PageTurnContext.Provider value={{ phase, turn }}>{children}</PageTurnContext.Provider>;
@@ -73,14 +71,14 @@ export function RoutePageTurn({ direction, chapterToChapter }: { direction: Dire
   }, [hasChapterTurn]);
   if (hasChapterTurn || finished) return null;
   return <div className="sc-route-page" data-direction={direction} aria-hidden="true">
-    <i className="sc-route-page__leaf" data-book-transition="" onAnimationEnd={() => setFinished(true)} />
+    <i className="sc-route-page__leaf" onAnimationEnd={() => setFinished(true)} />
   </div>;
 }
 
 const interactive = (target: EventTarget | null) => target instanceof Element && !!target.closest("input,textarea,select,button,a,video,audio,[contenteditable=true],[role=slider],.sc-walking-stage");
 
 /** All opened books share these leaves. Content owns behavior; the frame owns
- * proportions, parchment, the binding, and the reduced-motion-safe 3D page turn. */
+ * proportions, parchment, the binding, and the 3D page turn. */
 export function Grimoire({
   left,
   right,
@@ -132,7 +130,7 @@ export function Grimoire({
       style={coverColor ? ({ "--book-cover": coverColor } as CSSProperties) : undefined}
     >
       <div className="sc-grimoire__pages">
-        <div className="sc-grimoire__leaf sc-grimoire__leaf--left" data-book-transition="">
+        <div className="sc-grimoire__leaf sc-grimoire__leaf--left">
           <div className="sc-grimoire__content" key={pageKey} tabIndex={0} role="group" aria-label="Left page">{left}</div>
           {onPreviousPage && (
             <button
@@ -152,7 +150,7 @@ export function Grimoire({
 
         <div className="sc-grimoire__binding" aria-hidden="true" />
 
-        <div className="sc-grimoire__leaf sc-grimoire__leaf--right" data-book-transition="">
+        <div className="sc-grimoire__leaf sc-grimoire__leaf--right">
           <div className="sc-grimoire__content" key={pageKey} tabIndex={0} role="group" aria-label="Right page">{right}</div>
           {onNextPage && (
             <button
@@ -172,7 +170,7 @@ export function Grimoire({
 
         {phase?.stage === "land" && (
           <div key={pageKey} className="sc-grimoire__turn-container" aria-hidden="true">
-            <div className="sc-grimoire__turn-leaf" data-book-transition="" />
+            <div className="sc-grimoire__turn-leaf" />
           </div>
         )}
       </div>

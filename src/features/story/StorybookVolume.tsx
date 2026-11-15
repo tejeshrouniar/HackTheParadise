@@ -2,7 +2,6 @@ import { Grimoire, ChapterNavigation, ExecutionTrace, usePageTurn } from "../lib
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, LockKeyhole, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import toast from "react-hot-toast";
-import { usePreferences } from "../settings/PreferencesContext";
 import { LEVEL_PACES, LevelStage, showLevelStage } from "../learning/LevelStage";
 import type { CodingStoryBook } from "../../content/storyBooks";
 import { formatPuzzleValue, PuzzleCodeError, runPuzzleTests, type PuzzleTestResult } from "../learning/puzzleRunner";
@@ -27,7 +26,6 @@ const starterCode = (functionName: string, parameters: readonly string[]) =>
   `def ${functionName}(${parameters.join(", ")}):\n    # Write your spell here.\n    return None\n`;
 export function StorybookVolume({ book, completed, progressStatus, onLevels, onComplete, initialChapterId, onChapterChange, onWatchMovie }: StorybookVolumeProps) {
   const navigation = usePageTurn();
-  const { preferences } = usePreferences();
   const stageRef = useRef<HTMLElement>(null);
   const [pace, setPace] = useState<number>(LEVEL_PACES[1].value);
   const [saving, setSaving] = useState(false);
@@ -132,7 +130,7 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
   async function runSpell() {
     if (!chapter || !previousChaptersComplete || busy) return;
     const run = ++liveRun.current;
-    showLevelStage(stageRef.current, preferences.reduced_motion);
+    showLevelStage(stageRef.current);
     setBusy(true);
     setPlayback(null);
     setShowCompletion(false);
@@ -327,7 +325,7 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
           stepLabel={playback?.phase === "payoff" ? "All checks passed" : playback ? `Check ${playback.test + 1} / ${chapter.tests.length}` : "Watch your spell unfold"}
           pace={pace} onPaceChange={setPace}
           caption={busy ? saving ? "Saving your chapter…" : playback?.phase === "payoff" ? chapter.outcome : playback?.line ?? "Preparing your spell…" : results?.length ? `${passedChecks} / ${chapter.tests.length} checks passed` : goalReached ? "Quest complete" : `Pass all ${chapter.tests.length} chapter checks`}>
-          <WizardingExecutionStage chapter={chapter} playback={playback} reducedMotion={preferences.reduced_motion} />
+          <WizardingExecutionStage chapter={chapter} playback={playback} />
         </LevelStage>
         <ExecutionTrace running={busy} logs={consoleById[chapter.chapterId] ?? []}>
           <section className="sc-volume-checks" aria-label="Level goal checks" aria-live="polite">

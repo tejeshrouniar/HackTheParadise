@@ -213,10 +213,6 @@
   animation: none;
   transition: none;
 }
-html[data-reduce-motion="true"] .sc-volume-scene[data-stage-art="true"] :is(.sc-volume-scene__harry, .sc-volume-scene__relic-art) {
-  animation: none;
-  transition: none;
-}
 .sc-volume-scene[data-playing="false"] .sc-book-cutscene__magic { opacity: 0; }
 .sc-magical-app .sc-execution-trace .sc-volume-aftermath :is(p, strong) { color: #e3d5b8; }
 .htp-puzzle-tiles {
@@ -292,5 +288,3 @@ html[data-reduce-motion="true"] .sc-volume-scene[data-stage-art="true"] :is(.sc-
 @keyframes spell-clear { 0% { opacity:0; transform:rotate(calc(var(--spark-index) * 51deg)) translateX(5px); } 25% { opacity:1; } 100% { opacity:0; transform:rotate(calc(var(--spark-index) * 51deg)) translateX(80px); } }
 @keyframes spell-lift { to { transform:translate(-50%,-110%); } }
 @keyframes spell-vanish { to { opacity:0; transform:translateY(-6px); } }
-.sc-spell-lab[data-reduced-motion="true"] *, .sc-spell-lab[data-reduced-motion="true"] *::after { animation:none!important; transition:none!important; }
-@media (prefers-reduced-motion:reduce) { .sc-spell-lab * { animation:none!important; transition:none!important; } }

@@ -114,8 +114,3 @@
   border: 4px solid #80623a;
   box-shadow: inset 4px 4px #ab825944, inset -4px -4px #0c0706;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .sc-magical-app :is(.sc-button, .sc-book-hub__action, .htp-hanging-signs button):active { translate: none; }
-}
-:root[data-reduce-motion="true"] .sc-magical-app :is(.sc-button, .sc-book-hub__action, .htp-hanging-signs button):active { translate: none; }

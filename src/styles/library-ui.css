@@ -1219,11 +1219,6 @@
   .sc-adventure-shell .sc-harry-opening__contents li small { font-size: 7px; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .sc-adventure-shell .sc-harry-opening__harry,
-  .sc-adventure-shell .sc-volume-scene__harry { animation: none; }
-  .sc-adventure-shell .sc-volume-scene__harry { transition: none; }
-}
 
 /* The bookshelf is a destination of its own; opening a cover uses the shared book hub below. */
 .sc-adventure-shell .sc-story-library {
@@ -1414,9 +1409,4 @@
   .sc-adventure-shell .sc-book-hub__progress { align-self: start; }
   .sc-adventure-shell .sc-book-hub__contents { grid-template-columns: 1fr; }
   .sc-adventure-shell .sc-book-hub__page--contents { grid-template-rows: 170px auto auto auto; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sc-adventure-shell .sc-story-shelf__book,
-  .sc-adventure-shell .sc-book-hub__action { transition: none; }
 }

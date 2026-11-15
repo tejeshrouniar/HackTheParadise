@@ -21,12 +21,6 @@
   45% { opacity: 1; }
   to { transform: translateY(0); opacity: 1; }
 }
-:root[data-reduce-motion="true"] .world-victory {
-  animation: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .world-victory { animation: none; }
-}
 .sc-world text {
   font:
     15px "Nunito Sans",
@@ -179,17 +173,6 @@
   to {
     opacity: 0;
     transform: scale(1.5);
-  }
-}
-[data-reduce-motion="true"] .sc-world *,
-[data-reduce-motion="true"] .sc-world {
-  animation: none !important;
-  transition: none !important;
-}
-@media (prefers-reduced-motion: reduce) {
-  .sc-world * {
-    animation: none !important;
-    transition: none !important;
   }
 }
 

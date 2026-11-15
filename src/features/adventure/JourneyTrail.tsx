@@ -1,11 +1,10 @@
-import { motion as animated, useReducedMotion } from "framer-motion";
+import { motion as animated } from "framer-motion";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowLeft, ArrowRight, Hand, LockKeyhole } from "lucide-react";
 import { JOURNEY } from "../../content/journey";
 import { canEnterLevel, journeyProgress } from "../learning/journeyProgress";
 import { AvatarGraphic } from "./AvatarGraphic";
 import { useAppearance } from "./AppearanceContext";
-import { usePreferences } from "../settings/PreferencesContext";
 import { sound } from "../../utils/sound";
 import forest from "../../assets/realms/lanternwood.png";
 import moon from "../../assets/realms/moonlit.png";
@@ -29,9 +28,6 @@ const stops = JOURNEY.flatMap((realm, chapter) => realm.levels.map((id, index) =
 export function JourneyTrail({completed,onQuest,onLocation}:{completed:number[];onQuest:(id:number)=>void;onLocation:(chapter:number)=>void}) {
   const progress = journeyProgress(completed);
   const mistId = useId().replace(/:/g, "");
-  const {preferences} = usePreferences();
-  const systemReduced = useReducedMotion();
-  const reduced = preferences.reduced_motion || !!systemReduced;
   const {appearance} = useAppearance();
   const [start] = useState(() => {
     try {
@@ -124,12 +120,12 @@ export function JourneyTrail({completed,onQuest,onLocation}:{completed:number[];
               {[-1,0,1,2].map(tile=><image key={tile} href={asset} x={snap(i*WIDTH+tile*BACKGROUND_TILE_WIDTH+(camera-i*WIDTH)*.12)} y="55" width={BACKGROUND_TILE_WIDTH} height={BACKGROUND_TILE_HEIGHT}/>)}
             </g>
             <image href={walkway} x={i*WIDTH} y="304" width={WIDTH} height="32"/>
-            {Array.from({length:14},(_,j)=><animated.circle key={j} cx={i*WIDTH+70+j*87} cy={140+(j%4)*37} r={j%3===0?2:1} fill={i===1?"#a8dcdf":"#f5da91"} animate={reduced?{opacity:.4}:{y:[0,-12,0],opacity:[.2,.8,.2]}} transition={{duration:4+j%4,repeat:Infinity,delay:j*.3}}/>) }
-            {i>0&&<g pointerEvents="none"><image href={arch} x={i*WIDTH-64} y="194" width="128" height="110"/><animated.rect x={i*WIDTH-110} y="0" width="220" height="352" fill={`url(#${mistId})`} animate={reduced?{opacity:.45}:{opacity:[.4,.65,.4],x:[-10,10,-10]}} transition={{duration:9,repeat:Infinity}}/></g>}
+            {Array.from({length:14},(_,j)=><animated.circle key={j} cx={i*WIDTH+70+j*87} cy={140+(j%4)*37} r={j%3===0?2:1} fill={i===1?"#a8dcdf":"#f5da91"} animate={{y:[0,-12,0],opacity:[.2,.8,.2]}} transition={{duration:4+j%4,repeat:Infinity,delay:j*.3}}/>) }
+            {i>0&&<g pointerEvents="none"><image href={arch} x={i*WIDTH-64} y="194" width="128" height="110"/><animated.rect x={i*WIDTH-110} y="0" width="220" height="352" fill={`url(#${mistId})`} animate={{opacity:[.4,.65,.4],x:[-10,10,-10]}} transition={{duration:9,repeat:Infinity}}/></g>}
           </g>)}
           {stops.filter(stop=>stop.chapter<=progress.chapter).map(stop=><g key={stop.id} opacity={canEnterLevel(stop.id,completed)?1:.65}>
             <ellipse cx={stop.x} cy="302" rx="25" ry="4" fill="#081c16" opacity=".4"/>
-            <animated.g animate={reduced?{y:0}:{y:[0,-7,0]}} transition={{duration:3.5,repeat:Infinity,ease:"easeInOut",delay:(stop.id%3)*.5}}>
+            <animated.g animate={{y:[0,-7,0]}} transition={{duration:3.5,repeat:Infinity,ease:"easeInOut",delay:(stop.id%3)*.5}}>
               <image href={sprite(PROPS[stop.id-1])} x={stop.x-48} y="204" width="96" height="96"/>
             </animated.g>
           </g>)}
@@ -143,7 +139,7 @@ export function JourneyTrail({completed,onQuest,onLocation}:{completed:number[];
               </filter>
             </defs>
             <rect x={(progress.chapter+1)*WIDTH} y="0" width={WIDTH*3} height="352" fill="#6c8485"/>
-            <animated.rect x={(progress.chapter+1)*WIDTH-150} y="-30" width="340" height="412" fill={`url(#${mistId}-veil)`} filter={`url(#${mistId}-fog)`} animate={reduced?{x:0}:{x:[-8,8,-8]}} transition={{duration:14,repeat:Infinity,ease:"easeInOut"}}/>
+            <animated.rect x={(progress.chapter+1)*WIDTH-150} y="-30" width="340" height="412" fill={`url(#${mistId}-veil)`} filter={`url(#${mistId}-fog)`} animate={{x:[-8,8,-8]}} transition={{duration:14,repeat:Infinity,ease:"easeInOut"}}/>
           </g>}
         </g>
         <AvatarGraphic appearance={appearance} action={motion} directControl={motion!=="idle"} direction={direction} x={snap(position-camera-48)} y={208} size={96}/>

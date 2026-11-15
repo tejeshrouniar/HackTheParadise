@@ -365,8 +365,7 @@ export function JourneyScene({
   playing?: boolean;
 }) {
   const { appearance } = useAppearance();
-  const { preferences } = usePreferences();
-  const moving = playing && !preferences.reduced_motion;
+  const moving = playing;
   const floor = chapter === 0 ? 312 : 288;
   const crossing = chapter === 1 || chapter === 3;
   const left = chapter === 1 ? 224 : 256;

@@ -150,7 +150,6 @@ export function StageWorld({ state: s, bridgeCrossed, onBridgeCrossed }: {
   bridgeCrossed: boolean;
   onBridgeCrossed: () => void;
 }) {
-  const reduceMotion = s.preferences.reduced_motion;
   const crossing = s.lesson.stageType === "bridge" && s.questSuccess && !bridgeCrossed;
   const [walking, setWalking] = useState(false);
   const id = useId().replace(/:/g, "");
@@ -517,12 +516,12 @@ export function StageWorld({ state: s, bridgeCrossed, onBridgeCrossed }: {
             />
             <path d="M693 284v-52h5v-8h16v8h5v52Z" fill="#ccebc0" />
             <path d="M697 176h17v30h-17Z" fill="#e4cc95" />
-            <MotionConfig reducedMotion={reduceMotion ? "always" : "never"}>
+            <MotionConfig reducedMotion="never">
               <motion.g
                 initial={false}
                 animate={{ x: s.questSuccess ? 580 : 0 }}
                 transition={{
-                  duration: crossing && !reduceMotion ? 3.7 : 0,
+                  duration: crossing ? 3.7 : 0,
                   ease: "linear",
                 }}
                 onAnimationComplete={() => {
@@ -530,7 +529,7 @@ export function StageWorld({ state: s, bridgeCrossed, onBridgeCrossed }: {
                 }}
               >
                 <QuestAvatar
-                  action={crossing && !reduceMotion ? "walk" : spellAction}
+                  action={crossing ? "walk" : spellAction}
                   playId={s.executionStep.current}
                   direction="right"
                   x={125}
