@@ -2163,6 +2163,34 @@
   align-items: center;
   gap: 7px;
 }
+.sc-playback-bar__controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.sc-sfx-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 30px;
+  padding: 4px 7px;
+  color: #f5e1b7;
+  background: #2d3540;
+  border: 1px solid #bb9c67;
+  font: inherit;
+  cursor: pointer;
+}
+.sc-sfx-toggle:hover:not(:disabled), .sc-sfx-toggle[aria-pressed="true"] {
+  background: #43503d;
+}
+.sc-sfx-toggle:focus-visible {
+  outline: 2px solid #f5d980;
+  outline-offset: 2px;
+}
+.sc-sfx-toggle:disabled { opacity: .6; cursor: wait; }
 .sc-playback-bar select {
   color: #e5e9e2;
   background: #243041;

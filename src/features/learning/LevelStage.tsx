@@ -7,7 +7,7 @@ export const LEVEL_PACES = [
 ] as const;
 
 /** The live work area is the same for movement spells and chapter puzzles. */
-export function LevelStage({ title, status, state, stepLabel, pace, onPaceChange, caption, stageRef, children }: {
+export function LevelStage({ title, status, state, stepLabel, pace, onPaceChange, caption, stageRef, soundControl, children }: {
   title: string;
   status: "Ready" | "Running" | "Complete";
   state: "ready" | "casting" | "failed";
@@ -16,15 +16,19 @@ export function LevelStage({ title, status, state, stepLabel, pace, onPaceChange
   onPaceChange: (pace: number) => void;
   caption: string;
   stageRef?: Ref<HTMLElement>;
+  soundControl?: ReactNode;
   children: ReactNode;
 }) {
   return <section className="sc-card sc-live-world" ref={stageRef} data-cast={state} aria-label={`${title} live scene`}>
     <header><h2>{title}</h2><span className={status === "Complete" ? "complete" : ""}>{status}</span></header>
     <div className="sc-playback-bar">
       <span>{stepLabel}</span>
-      <label>Pace{" "}<select aria-label="Animation pace" value={pace} disabled={state === "casting"} onChange={event => onPaceChange(Number(event.target.value))}>
-        {LEVEL_PACES.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
-      </select></label>
+      <div className="sc-playback-bar__controls">
+        {soundControl}
+        <label>Pace{" "}<select aria-label="Animation pace" value={pace} disabled={state === "casting"} onChange={event => onPaceChange(Number(event.target.value))}>
+          {LEVEL_PACES.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
+        </select></label>
+      </div>
     </div>
     <div className="sc-stage-canvas"><div className="sc-stage-content">{children}</div></div>
     <p className="sc-action-caption" role="status">{caption}</p>

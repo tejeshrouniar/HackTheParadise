@@ -142,6 +142,12 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
         );
       },
     );
+    await db.exec(migration("202611150013_enable_sound_effects_for_new_players.sql"));
+    assert.equal(
+      (await db.query("select sound_effects from user_preferences where user_id=$1", [A])).rows[0].sound_effects,
+      false,
+      "an existing sound choice survives the new default",
+    );
     await t.test(
       "new Google and email users get one incomplete profile and private preferences",
       async () => {
@@ -170,6 +176,11 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
             .rows[0].n,
           3,
         );
+        const preferences = await db.query(
+          "select sound_effects from user_preferences where user_id in ($1,$2)",
+          [B, C],
+        );
+        assert.ok(preferences.rows.every((row) => row.sound_effects));
       },
     );
     await t.test(

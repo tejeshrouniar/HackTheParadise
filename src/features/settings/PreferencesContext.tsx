@@ -18,7 +18,7 @@ export interface Preferences {
   gender: string;
 }
 const defaults: Preferences = {
-  sound_effects: false,
+  sound_effects: true,
   music_volume: 0.35,
   focus_minutes: 25,
   gender: "",

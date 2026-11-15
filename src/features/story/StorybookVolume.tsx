@@ -10,6 +10,8 @@ import { planSpellPlayback, type SpellPlayback } from "./spellPlayback";
 import { ChapterCompletionFilm } from "./ChapterCompletionFilm";
 import { CodingEditorPanel, type CodingEditorError } from "../learning/CodingEditorPanel";
 import { BookCompletionSpread } from "../learning/BookCompletionSpread";
+import { usePreferences } from "../settings/PreferencesContext";
+import { sound } from "../../utils/sound";
 
 interface StorybookVolumeProps {
   book: CodingStoryBook;
@@ -24,8 +26,36 @@ interface StorybookVolumeProps {
 
 const starterCode = (functionName: string, parameters: readonly string[]) =>
   `def ${functionName}(${parameters.join(", ")}):\n    # Write your spell here.\n    return None\n`;
+
+function playScenePayoff(scene: string) {
+  switch (scene) {
+    case "bathroom":
+    case "old-classroom": sound.playPageTurn(); break;
+    case "gaunt-shack":
+    case "room-of-requirement": sound.playCurseBreak(); break;
+    case "seaside-cave":
+    case "laundry-room": sound.playPotionBubble(); break;
+    case "lestrange-vault":
+    case "quidditch-pitch": sound.playCrystalCollect(); break;
+    case "courtyard": sound.playDragonStep(); break;
+    case "pensieve": sound.playFlowerBloom(); break;
+    case "wand-chamber": sound.playWandCast(); break;
+    case "great-hall": sound.playVictoryFanfare(); break;
+    default: sound.playSuccessChime();
+  }
+}
+
+function playSpellFrameCue(frame: SpellPlayback, previousPhase: SpellPlayback["phase"] | null, scene: string) {
+  if (frame.phase === previousPhase) return;
+  if (frame.phase === "work") sound.playPotionBubble();
+  else if (frame.phase === "output") sound.playCrystalCollect();
+  else if (frame.phase === "complete") frame.result.passed ? sound.playSuccessChime() : sound.playError();
+  else if (frame.phase === "payoff") playScenePayoff(scene);
+}
+
 export function StorybookVolume({ book, completed, progressStatus, onLevels, onComplete, initialChapterId, onChapterChange, onWatchMovie }: StorybookVolumeProps) {
   const navigation = usePageTurn();
+  const { preferences, update: updatePreferences, loading: preferencesLoading } = usePreferences();
   const stageRef = useRef<HTMLElement>(null);
   const [pace, setPace] = useState<number>(LEVEL_PACES[1].value);
   const [saving, setSaving] = useState(false);
@@ -140,14 +170,18 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
     setResultsById(current => ({ ...current, [chapter.chapterId]: [] }));
     setConsoleById(current => ({ ...current, [chapter.chapterId]: [`$ storicode run · ${chapter.title}`] }));
     setErrorsById((current) => ({ ...current, [chapter.chapterId]: null }));
+    sound.playWandCast();
     try {
       // Let the casting state paint; cancel if this page is left before execution.
       await new Promise((resolve) => setTimeout(resolve, 120));
       if (run !== liveRun.current) return;
       const outcome = runPuzzleTests(code, chapter.functionName, chapter.tests);
+      let previousPhase: SpellPlayback["phase"] | null = null;
       for (const frame of planSpellPlayback(outcome, pace)) {
         if (run !== liveRun.current) return;
         setPlayback(frame);
+        if (!document.hidden) playSpellFrameCue(frame, previousPhase, chapter.scene);
+        previousPhase = frame.phase;
         if (frame.trace.length) setConsoleById(current => ({ ...current, [chapter.chapterId]: [...current[chapter.chapterId], ...frame.trace] }));
         if (frame.phase === "complete") {
           setResultsById(current => ({ ...current, [chapter.chapterId]: outcome.slice(0, frame.test + 1) }));
@@ -168,12 +202,16 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
         if (saved) {
           setShowCompletion(true);
           setNotice("");
-        } else setNotice("This chapter is still locked. Complete the earlier pages first.");
+        } else {
+          sound.playError();
+          setNotice("This chapter is still locked. Complete the earlier pages first.");
+        }
       } else {
         setNotice("Some checks still need work. Open Hints and solution for a clue, then try again.");
       }
     } catch (error) {
       if (run !== liveRun.current) return;
+      sound.playError();
       const message = error instanceof Error ? error.message : "The spell could not be read.";
       const lineIndex = error instanceof PuzzleCodeError && error.line > 0 ? error.line - 1 : 0;
       const line = error instanceof PuzzleCodeError && error.line > 0 ? `Line ${error.line}: ${message}` : message;
@@ -324,6 +362,18 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
           state={busy ? "casting" : errorsById[chapter.chapterId] || results?.some(item => !item.passed) ? "failed" : "ready"}
           stepLabel={playback?.phase === "payoff" ? "All checks passed" : playback ? `Check ${playback.test + 1} / ${chapter.tests.length}` : "Watch your spell unfold"}
           pace={pace} onPaceChange={setPace}
+          soundControl={<button type="button" className="sc-sfx-toggle"
+            aria-label={preferences.sound_effects ? "Disable sound effects" : "Enable sound effects"}
+            aria-pressed={preferences.sound_effects} disabled={preferencesLoading}
+            onClick={() => {
+              const enabled = !preferences.sound_effects;
+              sound.setEffectsEnabled(enabled);
+              if (enabled) sound.playSuccessChime();
+              void updatePreferences({ sound_effects: enabled }).catch(() => toast.error("Could not sync your sound setting."));
+            }}>
+            {preferences.sound_effects ? <Volume2 size={14} aria-hidden="true" /> : <VolumeX size={14} aria-hidden="true" />}
+            <span>{preferences.sound_effects ? "Sound on" : "Sound off"}</span>
+          </button>}
           caption={busy ? saving ? "Saving your chapter…" : playback?.phase === "payoff" ? chapter.outcome : playback?.line ?? "Preparing your spell…" : results?.length ? `${passedChecks} / ${chapter.tests.length} checks passed` : goalReached ? "Quest complete" : `Pass all ${chapter.tests.length} chapter checks`}>
           <WizardingExecutionStage chapter={chapter} playback={playback} />
         </LevelStage>

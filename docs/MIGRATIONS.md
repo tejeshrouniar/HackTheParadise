@@ -16,6 +16,7 @@ Apply migrations in filename order on a clean project. Existing projects should 
 | `202611090010` | Seeds the early split Harry Potter adventure chapters | 002–004 |
 | `202611100011` | Consolidates those chapters into one Harry Potter book while preserving chapter IDs and progress | 010 |
 | `202611100012` | Scopes Spark unlocks and protected hint/solution content by book ID; seeds Harry Potter lessons 1–12 | 006–009 |
+| `202611150013` | Enables sound effects for new players; preserves existing preferences | 002 |
 
 ## Current hosted project check
 

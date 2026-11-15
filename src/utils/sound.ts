@@ -648,9 +648,10 @@ class SoundSystem {
 
   /** Soft rustling parchment page turn sound synthesized with filtered noise and resonance */
   public playPageTurn() {
-    this.initCtx();
-    if (this.isMuted || !this.ctx) return;
+    if (this.isMuted) return;
     try {
+      this.initCtx();
+      if (!this.ctx) return;
       const now = this.ctx.currentTime;
       const bufferSize = Math.floor(this.ctx.sampleRate * 0.28);
       const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
