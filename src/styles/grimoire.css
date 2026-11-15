@@ -374,7 +374,7 @@
 
 /* The live leaf rises from the binding. Its paper reverse lands on the next spread. */
 .sc-grimoire[data-turn-stage] { overflow-anchor: none; }
-.sc-grimoire[data-turn-stage="lift"]::before {
+.sc-grimoire[data-turn-stage="lift"] .sc-grimoire__pages::before {
   content: "";
   position: absolute;
   grid-area: 1 / 3 / 2 / 4;
@@ -382,17 +382,17 @@
   background: var(--paper);
   box-shadow: inset 12px 0 28px #6142254d;
 }
-.sc-grimoire[data-turn-stage="lift"][data-turn-direction="previous"]::before { grid-column: 1 / 2; }
-.sc-grimoire[data-turn-stage="lift"] > .sc-grimoire__leaf { pointer-events: none; }
-.sc-grimoire[data-turn-stage="lift"][data-turn-direction="next"] > .sc-grimoire__leaf--right,
-.sc-grimoire[data-turn-stage="lift"][data-turn-direction="previous"] > .sc-grimoire__leaf--left {
+.sc-grimoire[data-turn-stage="lift"][data-turn-direction="previous"] .sc-grimoire__pages::before { grid-column: 1 / 2; }
+.sc-grimoire[data-turn-stage="lift"] .sc-grimoire__leaf { pointer-events: none; }
+.sc-grimoire[data-turn-stage="lift"][data-turn-direction="next"] .sc-grimoire__leaf--right,
+.sc-grimoire[data-turn-stage="lift"][data-turn-direction="previous"] .sc-grimoire__leaf--left {
   z-index: 8;
   animation: sc-page-lift 275ms cubic-bezier(.45,0,.72,.62) both;
   backface-visibility: hidden;
   transform-origin: left center;
 }
 .sc-grimoire[data-turn-direction="previous"] { --turn-sign: -1; }
-.sc-grimoire[data-turn-stage="lift"][data-turn-direction="previous"] > .sc-grimoire__leaf--left {
+.sc-grimoire[data-turn-stage="lift"][data-turn-direction="previous"] .sc-grimoire__leaf--left {
   transform-origin: right center;
 }
 .sc-grimoire__turn-container {
@@ -559,12 +559,12 @@
   .sc-magical-app .sc-grimoire { grid-template-columns: 1fr; padding: 7px; min-height: 0; gap: 12px; }
   .sc-grimoire__binding { display: none; }.sc-grimoire__leaf { min-height: 0; border-radius: 4px; }
   .sc-grimoire__corner { top: 7px; }.sc-grimoire__corner--left { left: 7px; }.sc-grimoire__corner--right { right: 7px; }
-  .sc-grimoire[data-turn-stage="lift"]::before,
-  .sc-grimoire[data-turn-stage="lift"][data-turn-direction="previous"]::before,
+  .sc-grimoire[data-turn-stage="lift"] .sc-grimoire__pages::before,
+  .sc-grimoire[data-turn-stage="lift"][data-turn-direction="previous"] .sc-grimoire__pages::before,
   .sc-grimoire[data-turn-direction] .sc-grimoire__turn-container { grid-column: 1 / 2; }
   .sc-grimoire__turn-container { overflow: hidden; }
-  .sc-grimoire[data-turn-stage="lift"][data-turn-direction="next"] > .sc-grimoire__leaf--left { z-index: 8; animation: sc-page-lift 275ms cubic-bezier(.45,0,.72,.62) both; transform-origin: left center; }
-  .sc-grimoire[data-turn-stage="lift"][data-turn-direction="next"] > .sc-grimoire__leaf--right { animation: none; }
+  .sc-grimoire[data-turn-stage="lift"][data-turn-direction="next"] .sc-grimoire__leaf--left { z-index: 8; animation: sc-page-lift 275ms cubic-bezier(.45,0,.72,.62) both; transform-origin: left center; }
+  .sc-grimoire[data-turn-stage="lift"][data-turn-direction="next"] .sc-grimoire__leaf--right { animation: none; }
   .sc-grimoire--coding .sc-grimoire__leaf { padding: 18px 12px; }.sc-grimoire-editor-page { grid-template-rows: var(--panel-height) auto; }
   .sc-magical-app .sc-grimoire--coding { --panel-height: 385px; }.sc-magical-app .sc-grimoire-help { min-height: 180px; }
   .sc-magical-app .sc-completion-page { padding: 18px 12px; }.sc-magical-app .sc-utility-book .sc-grimoire__leaf { padding: 25px 20px; }

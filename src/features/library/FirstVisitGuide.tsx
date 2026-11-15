@@ -33,6 +33,19 @@ function targetBounds(target: HTMLElement) {
   return new DOMRect(left, top, right - left, bottom - top);
 }
 
+function visibleTargetBounds(target: HTMLElement, rect: DOMRect) {
+  let top = Math.max(0, rect.top);
+  let bottom = Math.min(window.innerHeight, rect.bottom);
+  for (let parent = target.parentElement; parent; parent = parent.parentElement) {
+    if (!parent.matches(".sc-grimoire__pages, .sc-grimoire__content, .htp-open-bookcase")) continue;
+    if (!/auto|scroll/.test(getComputedStyle(parent).overflowY)) continue;
+    const frame = parent.getBoundingClientRect();
+    top = Math.max(top, frame.top + parent.clientTop);
+    bottom = Math.min(bottom, frame.top + parent.clientTop + parent.clientHeight);
+  }
+  return new DOMRect(rect.left, top, rect.width, Math.max(0, bottom - top));
+}
+
 export function FirstVisitGuide({ step, onDismiss, pageTurning }: { step: number; onDismiss: () => void; pageTurning: boolean }) {
   const [placement, setPlacement] = useState<Placement | null>(null);
   const card = useRef<HTMLElement>(null);
@@ -60,11 +73,13 @@ export function FirstVisitGuide({ step, onDismiss, pageTurning }: { step: number
         if (!rect.width || !rect.height) { setPlacement(null); return; }
         const viewWidth = document.documentElement.clientWidth;
         const viewHeight = window.innerHeight;
+        let clipped = visibleTargetBounds(element, rect);
         if (!revealed) {
           revealed = true;
-          if (rect.top < 0 || rect.bottom > viewHeight) {
+          if (clipped.height < rect.height - 1) {
             element.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
             rect = targetBounds(element);
+            clipped = visibleTargetBounds(element, rect);
           }
         }
         const width = card.current.offsetWidth;
@@ -73,7 +88,7 @@ export function FirstVisitGuide({ step, onDismiss, pageTurning }: { step: number
         const margin = 12;
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
-        const visible = rect.bottom > 0 && rect.top < viewHeight;
+        const visible = clipped.height > 0;
         let side: Placement["side"] = "floating";
         let left = (viewWidth - width) / 2;
         let top = centerY > viewHeight / 2 ? margin : viewHeight - height - margin;
@@ -91,7 +106,7 @@ export function FirstVisitGuide({ step, onDismiss, pageTurning }: { step: number
         const arrow = side === "left" || side === "right"
           ? clamp(centerY - top, gap, height - gap)
           : clamp(centerX - left, gap, width - gap);
-        setPlacement({ target: visible ? rect : null, side, left, top, arrow });
+        setPlacement({ target: visible ? clipped : null, side, left, top, arrow });
       });
     };
     const observer = new ResizeObserver(update);

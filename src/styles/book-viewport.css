@@ -1,0 +1,126 @@
+/* The original flowing layout also serves narrow windows and portrait displays. */
+.sc-grimoire__pages,
+.sc-grimoire__content { display: contents; }
+
+@media (min-width: 900px) and (min-aspect-ratio: 3/2) {
+  .sc-app.sc-adventure-shell.sc-magical-app:has(main .sc-grimoire) {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100dvh;
+  }
+
+  .sc-magical-app:has(main .sc-grimoire) > .sc-workspace,
+  .sc-magical-app main.sc-route-turn:has(.sc-grimoire),
+  .sc-magical-app main.sc-route-turn :is(.sc-page, .sc-story-volume, .sc-world-map, .sc-harry-book-pages, .sc-harry-movie, .sc-completion-page):has(.sc-grimoire) {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+  }
+
+  .sc-magical-app:has(main .sc-grimoire) > .htp-page-bookmarks,
+  .sc-magical-app:has(main .sc-grimoire) .sc-site-footer { flex: none; }
+
+  .sc-magical-app .sc-route-turn > :is(.sc-page, .sc-completion-page):has(.sc-grimoire) {
+    padding-block: clamp(5px, 1.25dvh, 14px);
+  }
+  .sc-magical-app .sc-route-turn :is(.sc-page > .sc-completion-page, .sc-story-volume):has(.sc-grimoire) { padding-block: 0; }
+  .sc-magical-app .sc-route-turn :is(.sc-book-hub__back, .sc-coding-book-page__nav, .sc-grimoire-chapter-directory) { margin-bottom: 4px; }
+  .sc-magical-app .sc-route-turn .sc-coding-book-page__nav { padding-bottom: 3px; }
+  .sc-magical-app .sc-route-turn .sc-book-hub__back { align-self: flex-start; }
+  .sc-magical-app .sc-route-turn .sc-world-map-heading { margin-bottom: 6px; }
+  .sc-magical-app .sc-route-turn .sc-grimoire-quest > .sc-quest-intro { margin-bottom: 5px; }
+  .sc-magical-app .sc-route-turn .sc-coding-book--wizarding > .sc-quest-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 12px;
+  }
+  .sc-coding-book--wizarding > .sc-quest-intro > :not(button) { grid-column: 1; }
+  .sc-coding-book--wizarding > .sc-quest-intro > button { grid-area: 1 / 2 / 4; align-self: center; }
+  .sc-magical-app .sc-route-turn .sc-grimoire-quest > .sc-volume-footer { padding-top: 4px; }
+  .sc-magical-app .sc-route-turn .sc-harry-movie__heading { padding: clamp(9px, 2dvh, 20px); }
+
+  .sc-magical-app .sc-route-turn :is(.sc-quest-intro, .sc-harry-movie__heading, .sc-book-heading, .sc-world-map-heading) {
+    flex: none;
+    max-height: 22dvh;
+    overflow: auto;
+  }
+  .sc-magical-app .sc-route-turn :is(.sc-harry-movie__reel, .sc-book-chapter-index, .sc-grimoire-chapter-directory[open]) {
+    flex: none;
+    max-height: min(15dvh, 102px);
+    overflow: auto;
+  }
+
+  .sc-magical-app:has(main .sc-grimoire) .sc-site-footer {
+    width: 100%;
+    min-height: 0;
+    margin-block: 0;
+    padding-block: 4px;
+    gap: 2px 12px;
+  }
+  .sc-magical-app:has(main .sc-grimoire) .sc-site-footer strong { display: none; }
+
+  /* The cover gets the available height. Each page scrolls without moving its binding. */
+  .sc-magical-app .sc-route-turn .sc-grimoire {
+    --book-gutter: clamp(12px, 2vw, 28px);
+    --book-columns: minmax(0, 1fr) clamp(12px, 2vw, 26px) minmax(0, 1fr);
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    width: 100%;
+    min-height: 0;
+    margin-block: 4px 0;
+    padding: clamp(5px, 1.4dvh, 12px);
+  }
+  .sc-magical-app .sc-grimoire.htp-atlas { --book-columns: minmax(0, .65fr) 20px minmax(0, 1.35fr); }
+  .sc-grimoire__pages {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--book-columns);
+    grid-template-rows: minmax(0, 1fr);
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    container-type: size;
+  }
+  .sc-magical-app .sc-grimoire.htp-atlas .sc-grimoire__binding { display: block; }
+  .sc-magical-app .sc-grimoire .sc-grimoire__leaf { min-height: 0; padding: 0; }
+  .sc-grimoire__content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: inherit;
+    min-height: 0;
+    min-width: 0;
+    padding: var(--book-gutter);
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: #a18154 transparent;
+  }
+  .sc-grimoire__content > * { flex: 0 0 auto; min-width: 0; }
+  .sc-grimoire__leaf:has(> .sc-grimoire__edge-turn) .sc-grimoire__content { padding-bottom: max(62px, var(--book-gutter)); }
+  .sc-magical-app .sc-grimoire .sc-grimoire__content:focus-visible { outline-offset: -5px; }
+  .sc-magical-app .sc-route-turn .sc-grimoire--coding {
+    --panel-height: clamp(252px, calc(100cqh - 2 * var(--book-gutter) - 108px), 430px);
+  }
+  .sc-magical-app .sc-grimoire .sc-grimoire-editor-page { flex: 0 0 auto; }
+  .sc-magical-app .sc-route-turn .sc-grimoire--coding .sc-code-input { min-height: 80px; }
+
+  .htp-library-foyer.is-inside { height: 100dvh; min-height: 0; }
+  .htp-library-foyer.is-inside .htp-library-interior { min-height: 0; }
+  .htp-library-foyer.is-inside .htp-open-bookcase {
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: #a18154 #29190f;
+    container-type: size;
+  }
+  .htp-open-bookcase .htp-library-book {
+    --shelf-cover-width: clamp(74px, calc((100cqh - 154px) * .27), 164px);
+    flex-basis: var(--shelf-cover-width);
+    width: var(--shelf-cover-width);
+  }
+  .htp-open-bookcase .htp-library-book strong { font-size: clamp(10px, 2.4cqh, 16px); }
+}

@@ -32,7 +32,9 @@ export function LevelStage({ title, status, state, stepLabel, pace, onPaceChange
 }
 
 export function showLevelStage(stage: HTMLElement | null, reducedMotion: boolean) {
-  if (!window.matchMedia("(max-width: 1100px)").matches) return;
+  if (!stage) return;
+  const page = stage.closest<HTMLElement>(".sc-grimoire__content");
+  if (!window.matchMedia("(max-width: 1100px)").matches && !page?.scrollTop) return;
   const quiet = reducedMotion || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  stage?.scrollIntoView({ block: "start", behavior: quiet ? "auto" : "smooth" });
+  stage.scrollIntoView({ block: "start", behavior: quiet ? "instant" : "smooth" });
 }

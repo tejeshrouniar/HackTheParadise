@@ -126,3 +126,8 @@
 - Checked the live library, bookshelf, level map, Harry Potter reader, and editor at narrow widths. All 12 chapter film files and the full movie returned HTTP 200 on the live host.
 - In the local browser, verified guide replay, Back navigation, Escape and reload persistence, and the final step's editor focus. At 320px, the replayed guide highlighted the next uncompleted level and the editor fit without page overflow.
 - Played the opening levels of both books locally. The Last Light showed its completion spread and narration controls. Harry Potter finished its code checks, started the correct MP4, and opened the next chapter.
+
+## Wide desktop book fit
+
+- Checked the library, both book hubs and readers, map, coding routes, journals, community, and settings at 1024×576. Also checked representative routes at 1280×720, 1366×680, and 1920×970. Both the frame and footer fit the viewport. All nine shelf covers were visible at 1024×576.
+- Verified keyboard scrolling inside a page, coding and completion in both books, Harry Potter video readiness, and a keyboard chapter turn. `npm test` passed all 55 tests, and `npm run build` succeeded.

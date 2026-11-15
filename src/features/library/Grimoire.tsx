@@ -115,7 +115,7 @@ export function Grimoire({
       data-turn-direction={phase?.direction}
       data-turn-stage={phase?.stage}
       onKeyDown={event => {
-        if (navigationDisabled || event.repeat || event.ctrlKey || event.altKey || event.metaKey || interactive(event.target)) return;
+        if (event.target !== event.currentTarget || navigationDisabled || event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
         const action = event.key === "PageDown" ? onNextPage : event.key === "PageUp" ? onPreviousPage : undefined;
         if (action) { event.preventDefault(); navigation.turn(action, event.key === "PageUp" ? "previous" : "next"); }
       }}
@@ -131,49 +131,51 @@ export function Grimoire({
       }}
       style={coverColor ? ({ "--book-cover": coverColor } as CSSProperties) : undefined}
     >
-      <div className="sc-grimoire__leaf sc-grimoire__leaf--left" data-book-transition="">
-        {left}
-        {onPreviousPage && (
-          <button
-            type="button"
-            className="sc-grimoire__edge-turn sc-grimoire__edge-turn--prev"
-            disabled={navigationDisabled}
-            onClick={() => navigation.turn(onPreviousPage, "previous")}
-            aria-label="Turn to previous page"
-            title="Previous page"
-          >
-            <span className="sc-grimoire__dogear" aria-hidden="true">
-              <ChevronLeft size={16} />
-            </span>
-          </button>
-        )}
-      </div>
-
-      <div className="sc-grimoire__binding" aria-hidden="true" />
-
-      <div className="sc-grimoire__leaf sc-grimoire__leaf--right" data-book-transition="">
-        {right}
-        {onNextPage && (
-          <button
-            type="button"
-            className="sc-grimoire__edge-turn sc-grimoire__edge-turn--next"
-            disabled={navigationDisabled}
-            onClick={() => navigation.turn(onNextPage)}
-            aria-label="Turn to next page"
-            title="Next page"
-          >
-            <span className="sc-grimoire__dogear" aria-hidden="true">
-              <ChevronRight size={16} />
-            </span>
-          </button>
-        )}
-      </div>
-
-      {phase?.stage === "land" && (
-        <div key={pageKey} className="sc-grimoire__turn-container" aria-hidden="true">
-          <div className="sc-grimoire__turn-leaf" data-book-transition="" />
+      <div className="sc-grimoire__pages">
+        <div className="sc-grimoire__leaf sc-grimoire__leaf--left" data-book-transition="">
+          <div className="sc-grimoire__content" key={pageKey} tabIndex={0} role="group" aria-label="Left page">{left}</div>
+          {onPreviousPage && (
+            <button
+              type="button"
+              className="sc-grimoire__edge-turn sc-grimoire__edge-turn--prev"
+              disabled={navigationDisabled}
+              onClick={() => navigation.turn(onPreviousPage, "previous")}
+              aria-label="Turn to previous page"
+              title="Previous page"
+            >
+              <span className="sc-grimoire__dogear" aria-hidden="true">
+                <ChevronLeft size={16} />
+              </span>
+            </button>
+          )}
         </div>
-      )}
+
+        <div className="sc-grimoire__binding" aria-hidden="true" />
+
+        <div className="sc-grimoire__leaf sc-grimoire__leaf--right" data-book-transition="">
+          <div className="sc-grimoire__content" key={pageKey} tabIndex={0} role="group" aria-label="Right page">{right}</div>
+          {onNextPage && (
+            <button
+              type="button"
+              className="sc-grimoire__edge-turn sc-grimoire__edge-turn--next"
+              disabled={navigationDisabled}
+              onClick={() => navigation.turn(onNextPage)}
+              aria-label="Turn to next page"
+              title="Next page"
+            >
+              <span className="sc-grimoire__dogear" aria-hidden="true">
+                <ChevronRight size={16} />
+              </span>
+            </button>
+          )}
+        </div>
+
+        {phase?.stage === "land" && (
+          <div key={pageKey} className="sc-grimoire__turn-container" aria-hidden="true">
+            <div className="sc-grimoire__turn-leaf" data-book-transition="" />
+          </div>
+        )}
+      </div>
 
       <i className="sc-grimoire__corner sc-grimoire__corner--left" aria-hidden="true" />
       <i className="sc-grimoire__corner sc-grimoire__corner--right" aria-hidden="true" />

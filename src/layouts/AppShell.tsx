@@ -30,6 +30,7 @@ import "../styles/adventure.css";
 import "../styles/trail.css";
 import "../styles/storybooks.css";
 import "../styles/first-visit-guide.css";
+import "../styles/book-viewport.css";
 const guideStorageKey = "htp-first-visit-guide-v1";
 const CharacterStudio = lazy(() =>
   import("../features/adventure/CharacterStudio").then((module) => ({
