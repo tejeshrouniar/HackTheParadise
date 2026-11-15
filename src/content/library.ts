@@ -68,3 +68,10 @@ export const LIBRARY: readonly LibraryBook[] = [
 ];
 
 export const PROJECT_REPOSITORY = "https://github.com/tejeshrouniar/HackTheParadise";
+
+export const PROJECT_CONTRIBUTORS = [
+  { name: "Tejesh Rouniar", github: "tejeshrouniar" },
+  { name: "Pratyusha Purohit", github: "pratyusha230607-afk" },
+  { name: "Amar Sinha", github: "amarcrj" },
+  { name: "Alok Singh", github: "aloksingh2007k" },
+] as const;

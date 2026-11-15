@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowRight, Headphones, LogOut, Shirt } from "lucide-react";
-import { LIBRARY, PROJECT_REPOSITORY } from "../../content/library";
+import { LIBRARY, PROJECT_CONTRIBUTORS, PROJECT_REPOSITORY } from "../../content/library";
 import { STORY_BOOKS } from "../../content/storyBooks";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProfile } from "../profile/ProfileContext";
@@ -94,9 +94,26 @@ export function LibraryUtilityPage({ id, onNavigate, onSignIn, onCharacter, onTo
       { label: "Patreon", href: safeUrl(import.meta.env.VITE_PROJECT_PATREON_URL) },
       { label: "Instagram", href: safeUrl(import.meta.env.VITE_PROJECT_INSTAGRAM_URL) },
     ];
-    left = <>{intro}<h2>Hack The Paradise</h2><p>Explore the project, follow its development, or get in touch.</p><p>© 2026 Hack The Paradise</p></>;
+    left = <>
+      {intro}
+      <h2>Contributors</h2>
+      <ul className="sc-utility-links htp-contributor-list">
+        {PROJECT_CONTRIBUTORS.map(({ name, github }) => (
+          <li key={github}>
+            <a href={`https://github.com/${github}`} target="_blank" rel="noreferrer">
+              <span><strong>{name}</strong><small>@{github}</small></span>
+              <ArrowRight size={18} aria-hidden="true" />
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p>© 2026 Hack The Paradise</p>
+    </>;
     right = <><h2>Project links</h2><div className="sc-utility-links">
       {links.map(({ label, href }) => href && <a key={label} href={href} target="_blank" rel="noreferrer">{label}<ArrowRight size={18} /></a>)}
+      <a href={`${PROJECT_REPOSITORY}/graphs/contributors`} target="_blank" rel="noreferrer">
+        All GitHub contributors <ArrowRight size={18} aria-hidden="true" />
+      </a>
       <button type="button" onClick={() => onNavigate("library/contact")}>Contact / feedback <ArrowRight size={18} /></button>
     </div></>;
   } else {

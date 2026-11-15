@@ -40,6 +40,10 @@
 .sc-magical-app .htp-pixel-journal .sc-utility-links :is(button, a):hover {
   background: #e8d3a7;
 }
+.htp-contributor-list { padding: 0; list-style: none; }
+.htp-contributor-list a > span { min-width: 0; }
+.htp-contributor-list a > svg { flex-shrink: 0; }
+.sc-utility-links.htp-contributor-list small { font: .8125rem/1.4 system-ui, sans-serif; }
 .sc-utility-links .htp-journal-swatches {
   display: grid;
   grid-template: repeat(2, 1fr) / repeat(2, 1fr);
