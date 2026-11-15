@@ -4,6 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { Modal } from "../ui/Modal";
 import { ErrorNotice } from "../ui/Status";
 import { errorMessage } from "../../lib/validation";
+import googleSignIn from "../../assets/google-sign-in.png";
 type Mode = "signin" | "signup" | "reset" | "new-password";
 export function AuthModal({
   isOpen,
@@ -88,14 +89,14 @@ export function AuthModal({
       onClose={onClose}
       title={
         mode === "signup"
-          ? "Your next chapter starts here"
+          ? "Create your Hack The Paradise account"
           : mode === "reset"
             ? "Reset your password"
             : mode === "new-password"
               ? "Choose a new password"
-              : "Welcome back, adventurer"
+              : "Sign in to Hack The Paradise"
       }
-      description="A little curiosity. A little code. A whole new world."
+      description="Save your progress and Sparks across devices."
       required={busy}
     >
       <div className="sc-auth-emblem">
@@ -104,14 +105,12 @@ export function AuthModal({
       {(mode === "signin" || mode === "signup") && (
         <>
           <button
-            className="sc-button secondary sc-full"
+            type="button"
+            className="sc-google-sign-in"
             onClick={google}
             disabled={busy || !auth.configured}
           >
-            <span className="sc-google-mark" aria-hidden="true">
-              G
-            </span>
-            Continue with Google
+            <img src={googleSignIn} width={180} height={40} alt="Sign in with Google" />
           </button>
           <div className="sc-divider">or use email</div>
         </>

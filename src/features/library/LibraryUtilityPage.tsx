@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, Headphones, Shirt } from "lucide-react";
+import { ArrowRight, Headphones, LogOut, Shirt } from "lucide-react";
 import { LIBRARY, PROJECT_REPOSITORY } from "../../content/library";
 import { STORY_BOOKS } from "../../content/storyBooks";
 import { useAuth } from "../../contexts/AuthContext";
@@ -14,16 +14,40 @@ import { PixelJournalMark, type PixelJournalKind } from "./PixelJournalMark";
 import { AvatarGraphic } from "../adventure/AvatarGraphic";
 import { useAppearance } from "../adventure/AppearanceContext";
 
+function SignOutButton() {
+  const { signOut } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSignOut() {
+    setBusy(true);
+    setError("");
+    try {
+      await signOut();
+    } catch (error) {
+      setError(errorMessage(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return <>
+    <button type="button" className="sc-button secondary" disabled={busy} onClick={handleSignOut}>
+      <LogOut size={16} aria-hidden="true" /> {busy ? "Signing out…" : "Sign out"}
+    </button>
+    {error && <ErrorNotice message={error} />}
+  </>;
+}
+
 export function LibraryUtilityPage({ id, onNavigate, onSignIn, onCharacter, onTools }: {
   id: string; onNavigate: (route: string) => void; onSignIn: () => void; onCharacter: () => void; onTools: () => void;
 }) {
   const entry = LIBRARY.find((book) => book.id === id)!;
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { profile, loading, error, refresh } = useProfile();
   const { appearance } = useAppearance();
   const { preferences, update, loading: saving } = usePreferences();
   const [notice, setNotice] = useState("");
-  const [busy, setBusy] = useState(false);
   const [preferenceStatus, setPreferenceStatus] = useState("");
   const save = (patch: Parameters<typeof update>[0]) => {
     setNotice("");
@@ -48,7 +72,7 @@ export function LibraryUtilityPage({ id, onNavigate, onSignIn, onCharacter, onTo
   </div>;
   let left, right;
   if (id === "profile") {
-    left = <>{intro}{loading ? <Loading /> : error ? <ErrorNotice message={error} retry={() => void refresh()} /> : user && profile ? <ProfileForm key={profile.id} /> : <><p>Keep your place in every book and make your adventurer your own.</p><button className="sc-button" onClick={onSignIn}>Sign in or create an account</button></>}</>;
+    left = <>{intro}{user && <SignOutButton />}{!user ? <><p>Keep your place in every book and make your adventurer your own.</p><button className="sc-button" onClick={onSignIn}>Sign in or create an account</button></> : loading ? <Loading /> : error ? <ErrorNotice message={error} retry={() => void refresh()} /> : profile && <ProfileForm key={profile.id} />}</>;
     right = <><h2>Your adventurer</h2>
       <div className="htp-journal-avatar" role="img" aria-label="Preview of your current adventurer"><AvatarGraphic appearance={appearance} size={96} /></div>
       <p>Choose your character’s hair, outfit and accessories for the walking paths.</p>
@@ -56,7 +80,7 @@ export function LibraryUtilityPage({ id, onNavigate, onSignIn, onCharacter, onTo
       {bookLinks(false)}
     </>;
   } else if (id === "account") {
-    left = <>{intro}<h2>{user ? "Your account" : "Your place, saved"}</h2><p>{user?.email ?? "Sign in to sync progress, unlock hints and collect Sparks."}</p>{user ? <button className="sc-button secondary" disabled={busy} onClick={async () => { setBusy(true); try { await signOut(); } catch (err) { setNotice(errorMessage(err)); } finally { setBusy(false); } }}>{busy ? "Signing out…" : "Sign out"}</button> : <button className="sc-button" onClick={onSignIn}>Sign in</button>}<h2>Every book is yours to explore</h2><p>Stories keep separate progress. Your Spark balance and purchased help are saved to your account.</p>{notice && <ErrorNotice message={notice} />}</>;
+    left = <>{intro}<h2>{user ? "Your account" : "Your place, saved"}</h2><p>{user?.email ?? "Sign in to sync progress, unlock hints and collect Sparks."}</p>{user ? <SignOutButton /> : <button className="sc-button" onClick={onSignIn}>Sign in</button>}<h2>Every book is yours to explore</h2><p>Stories keep separate progress. Your Spark balance and purchased help are saved to your account.</p></>;
     right = <SparkWalletCard onSignIn={onSignIn} />;
   } else if (id === "theme") {
     left = <>{intro}<h2>Make the magic comfortable</h2>{([{ key: "reduced_motion", title: "Reduce motion", description: "Gentler page turns and scene effects." }, { key: "sound_effects", title: "Sound effects", description: "Spell sounds and small celebrations." }] as const).map((option) => <div className="sc-setting-row" key={option.key}><div><strong>{option.title}</strong><p>{option.description}</p></div><button className="sc-switch" role="switch" aria-label={option.title} aria-checked={preferences[option.key]} disabled={saving} onClick={() => save({ [option.key]: !preferences[option.key] })}><span /></button></div>)}{notice && <ErrorNotice message={notice} />}</>;

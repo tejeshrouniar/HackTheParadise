@@ -421,17 +421,18 @@ button:not(:disabled):active {
 .sc-auth-links button:hover {
   color: var(--sc-purple);
 }
-.sc-google-mark {
-  background: white;
-  color: #4285f4;
-  font:
-    bold 18px/1 Arial,
-    sans-serif;
-  border-radius: 50%;
-  width: 23px;
-  height: 23px;
-  display: grid;
-  place-items: center;
+.sc-google-sign-in {
+  display: block;
+  margin: 0 auto;
+  padding: 2px;
+}
+.sc-google-sign-in:disabled {
+  opacity: .55;
+}
+.sc-google-sign-in img {
+  display: block;
+  max-width: 100%;
+  height: auto;
 }
 .sc-skip {
   position: fixed;

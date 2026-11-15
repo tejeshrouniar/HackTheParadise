@@ -59,6 +59,16 @@ Email and password sign-up/sign-in are handled by Supabase Auth. Email confirmat
 
 Set the **Site URL** to `https://www.hacktheparadise.com/`. The app sends its current origin and path as the OAuth redirect.
 
+### Brand the Google consent screen
+
+Open [Google Auth Platform → Branding](https://console.cloud.google.com/auth/branding) in the project that owns the Google OAuth client used by Supabase.
+
+1. Set **App name** to **Hack The Paradise** and choose your support email.
+2. Set **Application home page** to `https://www.hacktheparadise.com/` and **Application privacy policy link** to `https://www.hacktheparadise.com/privacy.html`.
+3. Verify ownership of `hacktheparadise.com` in [Google Search Console](https://search.google.com/search-console), then use **Verify branding** and **Publish branding** in the Google project. [Google OAuth brand verification](https://developers.google.com/identity/verification/authentication-verification)
+
+Google controls the exact wording on the account chooser. If it still shows the Supabase callback hostname after branding is published, a branded callback such as `auth.hacktheparadise.com` requires the Supabase custom-domain add-on. Register the new callback with Google before activating the custom domain. [Supabase custom domains](https://supabase.com/docs/guides/platform/custom-domains)
+
 ## 5. Deploying
 
 Open the GitHub repository's **Settings → Secrets and variables → Actions → Variables** and add:

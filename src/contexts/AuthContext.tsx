@@ -97,7 +97,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       setIsPasswordRecovery(false);
     },
     signOut: async () => {
-      const { error } = await requireSupabase().auth.signOut();
+      const { error } = await requireSupabase().auth.signOut({ scope: 'local' });
       if (error) throw error;
     },
   }), [session, loading, isPasswordRecovery]);

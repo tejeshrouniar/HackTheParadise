@@ -198,7 +198,9 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
       )}
       {bookmark}
       <footer className="htp-library-colophon">
+        {!inside && <small>Learn Python through interactive storybooks.</small>}
         <small>© 2026 Hack The Paradise</small>
+        <a href={`${import.meta.env.BASE_URL}privacy.html`}>Privacy policy</a>
         <a href={PROJECT_REPOSITORY} target="_blank" rel="noreferrer">Repository</a>
         <a href="#/library/contact">Contact / feedback</a>
       </footer>
