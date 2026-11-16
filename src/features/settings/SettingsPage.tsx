@@ -34,6 +34,7 @@ export default function SettingsPage({
     loading: preferencesLoading,
   } = usePreferences();
   const [actionError, setActionError] = useState("");
+  const [logoutError, setLogoutError] = useState("");
   const [busy, setBusy] = useState(false);
   const [preferenceStatus, setPreferenceStatus] = useState("");
   const [savingPreference, setSavingPreference] = useState(false);
@@ -52,11 +53,12 @@ export default function SettingsPage({
     }
   };
   async function logout() {
+    setLogoutError("");
     setBusy(true);
     try {
       await signOut();
     } catch (error) {
-      setActionError(errorMessage(error));
+      setLogoutError(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -171,6 +173,7 @@ export default function SettingsPage({
                 Your email and preferences stay private. Other learners can see
                 your name, username, avatar, and bio.
               </p>
+              {logoutError && <ErrorNotice message={logoutError} />}
               <button
                 className="sc-button secondary"
                 disabled={busy}

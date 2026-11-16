@@ -584,7 +584,7 @@
 .sc-magical-app .sc-site-footer a { border-radius:0; }
 .sc-magical-app :where(input,textarea,select) { border-radius:0; }
 .sc-magical-app :where(button,a,summary) { cursor:pointer; }
-.sc-magical-app :where(button,a):disabled { cursor:wait; }
+.sc-magical-app :where(button,a):disabled { cursor:not-allowed; }
 
 /* Front-facing shelf artwork: one themed cabinet illustration beside the
    live book spines, so the asset art never obscures keyboard-accessible links. */

@@ -131,3 +131,10 @@
 
 - Checked the library, both book hubs and readers, map, coding routes, journals, community, and settings at 1024×576. Also checked representative routes at 1280×720, 1366×680, and 1920×970. Both the frame and footer fit the viewport. All nine shelf covers were visible at 1024×576.
 - Verified keyboard scrolling inside a page, coding and completion in both books, Harry Potter video readiness, and a keyboard chapter turn. `npm test` passed all 55 tests, and `npm run build` succeeded.
+
+## Library polish — 17 November 2026
+
+- Fixed a laptop layout regression where the book hub's chapter directory shrank to 13px high. The containing leaf now scrolls naturally. Coding panels have more space for the editor and execution scene; the book cover stays inside the desktop viewport.
+- Gave portal dialogs a parchment-specific palette, including readable search status, close controls, and buttons. Search now covers both books with completion and lock labels. Tools have keyboard-operable tabs, reset tab scroll position, clear draft/save feedback, and disable conflicting note edits during saves. Leaderboard refresh preserves the visible table and reports failures and visibility changes.
+- Local browser checks covered the room, bookshelf, Harry Potter hub/map/level, tutorial level, Credits, guest leaderboard, search, and Tools. Checked book bounds at 1024×576, 1280×720, 1366×768, and 1920×1080 with no document overflow on the measured routes. Verified Harry Potter search navigation, empty search, chapter-turn lift/settle, tab arrow navigation, scroll reset, and Escape returning focus to the bookmark. Browser error/warning log was empty during these checks.
+- `npm test`: 56 passing. `npm run build`: TypeScript and Vite pass. No database migrations or authentication configuration changes are part of this polish pass; signed-in leaderboard mutations and cloud note writes were not re-tested against production.

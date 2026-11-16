@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {
   BookOpen,
   Code2,
@@ -30,7 +30,9 @@ export default function ToolsDrawer({
   onSettings: () => void;
 }) {
   const [active, setActive] = useState("music");
+  const idPrefix = useId();
   const panel = useRef<HTMLElement>(null);
+  const body = useRef<HTMLDivElement>(null);
   const close = useRef(onClose);
   close.current = onClose;
   useEffect(() => {
@@ -40,9 +42,9 @@ export default function ToolsDrawer({
     const controls = () =>
       Array.from(
         panel.current?.querySelectorAll<HTMLElement>(
-          "button:not(:disabled),input,textarea,select,a[href]",
+          "button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),a[href]",
         ) ?? [],
-      ).filter((el) => el.getClientRects().length);
+      ).filter((el) => el.tabIndex >= 0 && el.getClientRects().length);
     controls()[0]?.focus();
     const key = (event: KeyboardEvent) => {
       if (
@@ -73,6 +75,9 @@ export default function ToolsDrawer({
       document.body.style.overflow = overflow;
     };
   }, [open]);
+  useEffect(() => {
+    body.current?.scrollTo({ top: 0, behavior: "instant" });
+  }, [active]);
   return (
     <>
       {open && (
@@ -106,36 +111,51 @@ export default function ToolsDrawer({
             <X size={20} />
           </button>
         </header>
-        <nav className="sc-tool-tabs" aria-label="Coding utilities">
+        <div className="sc-tool-tabs" role="tablist" aria-label="Coding utilities">
           {tools.map(({ id, label, Icon }) => (
             <button
               key={id}
-              aria-pressed={active === id}
+              type="button"
+              id={`${idPrefix}-${id}-tab`}
+              role="tab"
+              aria-selected={active === id}
+              aria-controls={`${idPrefix}-${id}-panel`}
+              tabIndex={active === id ? 0 : -1}
               className={active === id ? "active" : ""}
               onClick={() => setActive(id)}
+              onKeyDown={(event) => {
+                const index = tools.findIndex((tool) => tool.id === id);
+                const next = event.key === "ArrowRight" ? (index + 1) % tools.length
+                  : event.key === "ArrowLeft" ? (index + tools.length - 1) % tools.length
+                    : event.key === "Home" ? 0 : event.key === "End" ? tools.length - 1 : -1;
+                if (next < 0) return;
+                event.preventDefault();
+                setActive(tools[next].id);
+                document.getElementById(`${idPrefix}-${tools[next].id}-tab`)?.focus();
+              }}
             >
               <Icon size={20} />
               <span>{label}</span>
             </button>
           ))}
-        </nav>
-        <div className="sc-tools-body">
-          <div hidden={active !== "music"}>
+        </div>
+        <div className="sc-tools-body" ref={body}>
+          <div id={`${idPrefix}-music-panel`} role="tabpanel" aria-labelledby={`${idPrefix}-music-tab`} hidden={active !== "music"}>
             <MusicTool />
           </div>
-          <div hidden={active !== "timer"}>
+          <div id={`${idPrefix}-timer-panel`} role="tabpanel" aria-labelledby={`${idPrefix}-timer-tab`} hidden={active !== "timer"}>
             <FocusTimer />
           </div>
-          <div hidden={active !== "notes"}>
+          <div id={`${idPrefix}-notes-panel`} role="tabpanel" aria-labelledby={`${idPrefix}-notes-tab`} hidden={active !== "notes"}>
             <StudyItems kind="note" />
           </div>
-          <div hidden={active !== "snippets"}>
+          <div id={`${idPrefix}-snippets-panel`} role="tabpanel" aria-labelledby={`${idPrefix}-snippets-tab`} hidden={active !== "snippets"}>
             <StudyItems kind="snippet" />
           </div>
-          <div hidden={active !== "reference"}>
+          <div id={`${idPrefix}-reference-panel`} role="tabpanel" aria-labelledby={`${idPrefix}-reference-tab`} hidden={active !== "reference"}>
             <References />
           </div>
-          <section className="sc-tool-content" hidden={active !== "settings"}>
+          <section className="sc-tool-content" id={`${idPrefix}-settings-panel`} role="tabpanel" aria-labelledby={`${idPrefix}-settings-tab`} hidden={active !== "settings"}>
             <h3>Settings</h3>
             <button type="button" className="sc-button secondary" onClick={onSettings}>All settings</button>
           </section>

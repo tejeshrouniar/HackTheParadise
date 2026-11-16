@@ -100,10 +100,18 @@
     scrollbar-color: #a18154 transparent;
   }
   .sc-grimoire__content > * { flex: 0 0 auto; min-width: 0; }
+  /* Let the page scroll as a whole; a fixed-height article was squeezing the
+     chapter directory into a nearly invisible inner scrollbar on laptop screens. */
+  .sc-magical-app .sc-grimoire .sc-book-hub__page {
+    height: auto;
+    min-height: 100%;
+  }
+  .sc-magical-app .sc-book-hub__page > * { flex-shrink: 0; }
+  .sc-magical-app .sc-book-hub__contents { overflow: visible; }
   .sc-grimoire__leaf:has(> .sc-grimoire__edge-turn) .sc-grimoire__content { padding-bottom: max(62px, var(--book-gutter)); }
   .sc-magical-app .sc-grimoire .sc-grimoire__content:focus-visible { outline-offset: -5px; }
   .sc-magical-app .sc-route-turn .sc-grimoire--coding {
-    --panel-height: clamp(252px, calc(100cqh - 2 * var(--book-gutter) - 108px), 430px);
+    --panel-height: clamp(280px, calc(100cqh - 2 * var(--book-gutter) - 36px), 480px);
   }
   .sc-magical-app .sc-grimoire .sc-grimoire-editor-page { flex: 0 0 auto; }
   .sc-magical-app .sc-route-turn .sc-grimoire--coding .sc-code-input { min-height: 80px; }

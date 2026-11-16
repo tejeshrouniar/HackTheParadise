@@ -6,6 +6,8 @@ This document maps the running app and its sources so developers can make change
 
 `index.html` loads `src/main.tsx`. `main.tsx` installs global styles, auth, error handling, and toast notifications. `src/App.tsx` waits for session discovery and composes profile, preferences, progress, music, and avatar providers. `src/layouts/AppShell.tsx` owns the hash routes, shared navigation, dialogs, and lazy-loaded screens.
 
+The shell's quest search indexes the story catalog and tutorial lessons together. It uses the same account-scoped progress and sequential gates as the level routes, labels locked results, and never indexes protected hint or solution bodies.
+
 | Route or area | Main entry | Owns |
 | --- | --- | --- |
 | Library room and bookshelf (`#/entrance`, `#/bookshelf`) | `src/features/library/LibraryEntrance.tsx`, `src/content/library.ts`, `src/styles/landing.css` | One full-screen room with a shared background layer and a case with personal, story, and community rows. Legacy collection links open the case. |

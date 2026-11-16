@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Copy, Plus, Save, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "../../contexts/AuthContext";
@@ -27,26 +27,34 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
   const [loading, setLoading] = useState(!!user);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [loadError, setLoadError] = useState("");
   const [remove, setRemove] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const titleInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (draft && !items.some(item => item.id === draft.id)) titleInput.current?.focus();
+  }, [draft?.id]);
   useEffect(() => {
     let active = true;
     if (user && supabase) {
       setLoading(true);
-      void supabase
+      void Promise.resolve(supabase
         .from("study_items")
         .select("id,kind,title,body,language,updated_at")
         .eq("user_id", user.id)
         .eq("kind", kind)
-        .order("updated_at", { ascending: false })
+        .order("updated_at", { ascending: false }))
         .then(({ data, error }) => {
           if (!active) return;
-          if (error) setError(errorMessage(error));
+          if (error) setLoadError(errorMessage(error));
           else {
             setItems(data ?? []);
-            setError("");
+            setLoadError("");
           }
-          setLoading(false);
+        }).catch(error => {
+          if (active) setLoadError(errorMessage(error));
+        }).finally(() => {
+          if (active) setLoading(false);
         });
     }
     return () => {
@@ -54,6 +62,8 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
     };
   }, [user?.id, kind, attempt]);
   const choose = (item: Item) => {
+    if (busy || draft?.id === item.id) return;
+    setError("");
     if (dirty) {
       setPending(item);
       setConfirm(true);
@@ -73,6 +83,7 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
     setDirty(true);
   };
   async function save() {
+    if (busy) return;
     if (!draft?.title.trim()) {
       setError("Give this a short title first.");
       return;
@@ -107,7 +118,7 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
     }
   }
   async function destroy() {
-    if (!draft) return;
+    if (!draft || busy) return;
     setBusy(true);
     setError("");
     try {
@@ -148,6 +159,7 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
         <button
           className="sc-icon-button"
           onClick={create}
+          disabled={busy || loading}
           aria-label={`New ${kind}`}
         >
           <Plus size={20} />
@@ -158,9 +170,10 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
           ? "Private to your account. Save to sync across devices."
           : "Guest mode · saved on this device only."}
       </p>
-      {error && (
-        <ErrorNotice message={error} retry={() => setAttempt((n) => n + 1)} />
+      {loadError && (
+        <ErrorNotice message={loadError} retry={() => setAttempt((n) => n + 1)} />
       )}
+      {error && !remove && <ErrorNotice message={error} />}
       {loading ? (
         <Loading />
       ) : (
@@ -169,13 +182,15 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
             <button
               key={item.id}
               className={draft?.id === item.id ? "active" : ""}
+              aria-pressed={draft?.id === item.id}
+              disabled={busy}
               onClick={() => choose(item)}
             >
               {item.title}
               <small>{new Date(item.updated_at).toLocaleDateString()}</small>
             </button>
           ))}
-          {!items.length && !draft && (
+          {!items.length && !draft && !loadError && (
             <div className="sc-empty">
               <p>
                 {kind === "note"
@@ -193,6 +208,7 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
       {draft && (
         <form
           className="sc-form"
+          aria-busy={busy}
           onSubmit={(e) => {
             e.preventDefault();
             void save();
@@ -201,7 +217,9 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
           <label>
             Title
             <input
+              ref={titleInput}
               required
+              disabled={busy}
               maxLength={100}
               value={draft.title}
               onChange={(e) => edit({ title: e.target.value })}
@@ -217,6 +235,7 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
               Language
               <select
                 value={draft.language}
+                disabled={busy}
                 onChange={(e) => edit({ language: e.target.value })}
               >
                 <option value="python">Python</option>
@@ -230,6 +249,7 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
             <textarea
               className={kind === "snippet" ? "font-code" : ""}
               rows={10}
+              disabled={busy}
               maxLength={20000}
               value={draft.body}
               onChange={(e) => edit({ body: e.target.value })}
@@ -237,7 +257,7 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
             />
           </label>
           <small>
-            {draft.body.length}/20,000 · {dirty ? "Unsaved changes" : "Saved"}
+            {draft.body.length}/20,000 · <span role="status">{dirty ? "Unsaved changes" : items.some((item) => item.id === draft.id) ? "Saved" : "New draft"}</span>
           </small>
           <div className="sc-row">
             <button className="sc-button" disabled={busy}>
@@ -248,16 +268,14 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
               className="sc-icon-button"
               type="button"
               aria-label="Copy content"
-              onClick={() =>
-                void navigator.clipboard
-                  .writeText(draft.body)
-                  .then(() => toast.success("Copied"))
-                  .catch(() =>
-                    setError(
-                      "Copy was blocked by your browser. Select and copy the text instead.",
-                    ),
-                  )
-              }
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(draft.body);
+                  toast.success("Copied");
+                } catch {
+                  setError("Copy was blocked by your browser. Select and copy the text instead.");
+                }
+              }}
             >
               <Copy size={18} />
             </button>
@@ -265,7 +283,8 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
               className="sc-icon-button"
               type="button"
               aria-label={`Delete ${kind}`}
-              onClick={() => setRemove(true)}
+              disabled={busy}
+              onClick={() => { setError(""); setRemove(true); }}
             >
               <Trash2 size={18} />
             </button>
@@ -276,7 +295,7 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
         open={confirm}
         onClose={() => setConfirm(false)}
         title="Keep your changes?"
-        description="Save this draft before switching, or discard its unsaved changes."
+        description="Keep editing to save your draft, or discard its unsaved changes."
       >
         <div className="sc-row">
           <button
@@ -306,6 +325,7 @@ export function StudyItems({ kind }: { kind: "note" | "snippet" }) {
         description="This cannot be undone."
         required={busy}
       >
+        {error && <ErrorNotice message={error} />}
         <button
           className="sc-button danger"
           disabled={busy}

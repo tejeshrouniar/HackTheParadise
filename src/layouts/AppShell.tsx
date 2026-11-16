@@ -24,6 +24,7 @@ import { CODEDEX_LESSONS } from "../data/codedexLessons";
 import toast from "react-hot-toast";
 import { errorMessage } from "../lib/validation";
 import { STORY_BOOKS } from "../content/storyBooks";
+import { useBookProgress } from "../features/story/useBookProgress";
 import { readLocal, writeLocal } from "../lib/validation";
 import "../styles/adventure.css";
 import "../styles/trail.css";
@@ -31,6 +32,11 @@ import "../styles/storybooks.css";
 import "../styles/first-visit-guide.css";
 import "../styles/book-viewport.css";
 const guideStorageKey = "htp-first-visit-guide-v1";
+type SearchEntry = {
+  route: string; bookId: string; bookTitle: string;
+  number: number; title: string; topic: string;
+  complete: boolean; unlocked: boolean;
+};
 const CharacterStudio = lazy(() =>
   import("../features/adventure/CharacterStudio").then((module) => ({
     default: module.CharacterStudio,
@@ -94,6 +100,7 @@ function pageTurnDirection(from: string, to: string): "next" | "previous" {
 export function AppShell() {
   const { user, isPasswordRecovery, signOut } = useAuth();
   const { completed } = useProgress();
+  const { completed: completedChapters } = useBookProgress();
   const { profile, loading: profileLoading } = useProfile();
   const [{ route, previousRoute, pageTurn }, setRouteState] = useState<{
     route: string;
@@ -196,9 +203,23 @@ export function AppShell() {
     toolsTrigger.current.focus({ preventScroll: true });
     toolsTrigger.current = null;
   }, [tools]);
-  const results = CODEDEX_LESSONS.filter((l) =>
-    `${l.title} ${l.conceptName}`.toLowerCase().includes(query.toLowerCase()),
-  );
+  const searchEntries = STORY_BOOKS.flatMap<SearchEntry>(book => book.kind === "journey"
+    ? CODEDEX_LESSONS.map(lesson => ({
+      route: `quest/${lesson.id}`, bookId: book.id, bookTitle: book.title,
+      number: lesson.id, title: lesson.title, topic: lesson.conceptName,
+      complete: completed.includes(lesson.id), unlocked: canEnterLevel(lesson.id, completed),
+    }))
+    : book.chapters.map((chapter, index) => ({
+      route: `book-level/${chapter.chapterId}`, bookId: book.id, bookTitle: book.title,
+      number: index + 1, title: chapter.chapterTitle, topic: chapter.conceptName,
+      complete: completedChapters.includes(chapter.chapterId),
+      unlocked: completedChapters.includes(chapter.chapterId) || book.chapters.slice(0, index).every(previous => completedChapters.includes(previous.chapterId)),
+    })));
+  const searchWords = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  const results = searchEntries.filter(entry => {
+    const text = `${entry.bookTitle} ${entry.title} ${entry.topic}`.toLowerCase();
+    return searchWords.every(word => text.includes(word));
+  });
   return (
     <MotionConfig reducedMotion="never">
       <div
@@ -335,7 +356,7 @@ export function AppShell() {
           open={search}
           onClose={() => setSearch(false)}
           title="Find your next discovery"
-          description="Search quests by topic or title."
+          description="Find a level in any book by title or coding topic."
         >
           <label className="sc-search-form">
             <Search size={19} />
@@ -344,28 +365,34 @@ export function AppShell() {
               aria-label="Search quests"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Try movement, loops, functions…"
+              placeholder="Try Harry Potter, loops, functions…"
             />
           </label>
+          <p className="sc-search-meta" role="status">{results.length} {results.length === 1 ? "level" : "levels"} found</p>
           <div className="sc-search-results">
             {results.map((l) => (
               <button
-                key={l.id}
+                key={l.route}
+                type="button"
+                aria-disabled={!l.unlocked}
                 onClick={() => {
+                  if (!l.unlocked) return;
                   setSearch(false);
-                  openQuest(l.id);
+                  setSelectedBookId(l.bookId);
+                  navigate(l.route);
                 }}
               >
-                <span className="sc-search-number">{l.id}</span>
+                <span className="sc-search-number">{String(l.number).padStart(2, "0")}</span>
                 <span>
                   <strong>{l.title}</strong>
-                  <small>{l.conceptName}</small>
+                  <small>{l.bookTitle} · {l.topic}</small>
+                  <span className="sc-search-status">{l.complete ? "Completed · Play again" : l.unlocked ? "Available · Enter level" : "Locked · Finish earlier levels in this book"}</span>
                 </span>
                 <ArrowIcon />
               </button>
             ))}
             {!results.length && (
-              <p>No quests match that search. Try another topic.</p>
+              <div className="sc-search-empty"><p>No levels match that search. Try a book name or coding topic.</p><button className="sc-button secondary" type="button" onClick={() => setQuery("")}>Clear search</button></div>
             )}
           </div>
         </Modal>

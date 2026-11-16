@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Headphones, LogOut, Shirt } from "lucide-react";
 import { LIBRARY, PROJECT_CONTRIBUTORS, PROJECT_REPOSITORY } from "../../content/library";
 import { STORY_BOOKS } from "../../content/storyBooks";
@@ -46,20 +46,35 @@ export function LibraryUtilityPage({ id, onNavigate, onSignIn, onCharacter, onTo
   const { user } = useAuth();
   const { profile, loading, error, refresh } = useProfile();
   const { appearance } = useAppearance();
-  const { preferences, update, loading: saving } = usePreferences();
+  const { preferences, update, loading: preferencesLoading, error: preferenceError } = usePreferences();
+  const heading = useRef<HTMLHeadingElement>(null);
+  const preferencePending = useRef(false);
+  const [preferenceSaving, setPreferenceSaving] = useState(false);
   const [notice, setNotice] = useState("");
   const [preferenceStatus, setPreferenceStatus] = useState("");
-  const save = (patch: Parameters<typeof update>[0]) => {
+  useEffect(() => {
+    heading.current?.focus({ preventScroll: true });
+  }, [id]);
+  const save = async (patch: Parameters<typeof update>[0]) => {
+    if (preferencePending.current || preferencesLoading) return;
+    preferencePending.current = true;
+    setPreferenceSaving(true);
     setNotice("");
     setPreferenceStatus("Saving preference…");
-    void update(patch).then(() => setPreferenceStatus("Preference saved")).catch((err) => {
+    try {
+      await update(patch);
+      setPreferenceStatus("Preference saved");
+    } catch (err) {
       setPreferenceStatus("");
       setNotice(errorMessage(err));
-    });
+    } finally {
+      preferencePending.current = false;
+      setPreferenceSaving(false);
+    }
   };
   const intro = <div className="sc-utility-intro">
     <PixelJournalMark kind={id as PixelJournalKind} />
-    <div><h1>{entry.title}</h1><p>{entry.subtitle}</p></div>
+    <div><h1 ref={heading} tabIndex={-1}>{entry.title}</h1><p>{entry.subtitle}</p></div>
   </div>;
   const bookLinks = (story: boolean) => <div className="sc-utility-links">
     {STORY_BOOKS.map((book) => <button key={book.id} onClick={() => onNavigate(`${story ? "book-story" : "book"}/${book.id}`)}>
@@ -86,9 +101,9 @@ export function LibraryUtilityPage({ id, onNavigate, onSignIn, onCharacter, onTo
     left = <>{intro}<h2>Sound preferences</h2>
       <div className="sc-setting-row">
         <div><strong>Sound effects</strong><p>Spell sounds and small celebrations.</p></div>
-        <button type="button" className="sc-switch" role="switch" aria-label="Sound effects" aria-checked={preferences.sound_effects} disabled={saving} onClick={() => save({ sound_effects: !preferences.sound_effects })}><span /></button>
+        <button type="button" className="sc-switch" role="switch" aria-label="Sound effects" aria-checked={preferences.sound_effects} disabled={preferencesLoading || preferenceSaving} onClick={() => void save({ sound_effects: !preferences.sound_effects })}><span /></button>
       </div>
-      {notice && <ErrorNotice message={notice} />}
+      {(notice || preferenceError) && <ErrorNotice message={notice || preferenceError} />}
     </>;
     right = <><span className="sc-volume-kicker">COLOUR & SOUND</span><h2>Every book, its own atmosphere</h2><p>Copper and forest for Cinder. Burgundy, ink and gold for Hogwarts. The cover sets the mood when you open a book.</p>{bookLinks(false)}<button className="sc-button" onClick={onTools}><Headphones size={18} /> Choose your soundtrack</button></>;
   } else if (id === "lore") {

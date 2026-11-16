@@ -17,6 +17,7 @@
   background-attachment: fixed;
 }
 .sc-magical-app .sc-workspace { margin: 0; padding: 0; width: 100%; min-width: 0; }
+.sc-magical-app .sc-story-volume.sc-grimoire-quest::before { content: none; }
 .sc-magical-app main.sc-route-turn { min-height: calc(100dvh - 140px); padding: 0; }
 .sc-magical-app .sc-page { width: min(1480px, 100%); margin-inline: auto; padding: 24px 32px 36px; }
 .sc-magical-app .sc-site-footer { max-width: 1416px; margin: 12px auto 0; padding: 18px 24px; min-height: 58px; font-size: 11px; border-color: #80633a55; color: #c2b59e; }

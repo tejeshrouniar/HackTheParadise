@@ -109,6 +109,49 @@
 .htp-rank-table tbody th { font-weight: 600; overflow-wrap: anywhere; }
 .htp-rank-table tbody tr:nth-child(odd) { background: #eadaba; }
 .htp-rank-table tbody tr[data-player] { background: #c8d9bd; color: #1e3324; }
+.htp-rank-table { table-layout: fixed; }
+.htp-rank-table :is(th, td):first-child { width: 4.5rem; }
+.htp-rank-table :is(th, td):last-child { width: 4.5rem; }
+.htp-rank-table tbody :is(th, td) { vertical-align: top; }
+.htp-rank-table tbody bdi { overflow-wrap: anywhere; }
+
+.htp-bookmark-drawer .sc-tools-body { min-height: 0; scrollbar-gutter: stable; }
+.htp-bookmark-drawer .sc-tool-tabs { flex-shrink: 0; }
+.htp-bookmark-drawer :is(.sc-item-list button, .sc-timer-presets button, .sc-track-list button) {
+  min-height: 44px;
+  border-radius: 0;
+}
+.htp-bookmark-drawer .sc-item-list button[aria-pressed="true"] {
+  background: #57412c;
+  border-color: #e9bf78;
+  box-shadow: inset 3px 0 #e9bf78;
+}
+.htp-bookmark-drawer .sc-form small { color: #dac3a1; }
+
+/* Dialogs render outside the themed app through a portal. Give their parchment
+   its own palette instead of inheriting pale dark-theme labels and buttons. */
+.sc-modal {
+  --sc-text: #302419;
+  --sc-muted: #62513a;
+  --sc-faint: #715e46;
+  --sc-purple: #315849;
+  --sc-mint: #315849;
+  --sc-border: #bda376;
+  --sc-raised: #e8d5ae;
+  color-scheme: light;
+  font-family: "Pixelify Sans", "Courier New", monospace;
+}
+.sc-modal .sc-button { background: #e5c982; color: #302419; border-color: #927142; border-radius: 0; }
+.sc-modal .sc-button:hover:not(:disabled) { background: #f3dca5; }
+.sc-modal .sc-button.secondary { background: #f7ecd2; color: #302419; }
+.sc-modal .sc-button.danger { background: #9a3540; color: #fff5dc; }
+.sc-modal .sc-button.danger:hover:not(:disabled) { background: #7f2730; }
+.sc-modal .sc-link:hover { color: #1d4032; }
+.sc-modal .sc-search-number { background: #ded0ad; color: #3b472b; border-radius: 0; }
+.sc-modal .sc-search-results button:hover:not([aria-disabled="true"]) { background: #ddcda6; }
+.sc-modal .sc-search-results button:focus-visible { outline-offset: -3px; }
+.sc-modal :is(input, textarea, select) { border-radius: 0; }
+.sc-modal :is(input, textarea, select):focus-visible { outline-color: #315849; }
 
 @media (max-width: 480px) {
   .htp-pixel-journal .sc-grimoire__leaf { padding-inline: 1rem; }
