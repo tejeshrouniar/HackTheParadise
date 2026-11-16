@@ -490,6 +490,7 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
       await db.exec("reset role");
       await db.exec(migration("202611100011_story_catalog.sql"));
       await db.exec(migration("202611160014_library_leaderboard.sql"));
+      await db.exec(migration("202611170015_leaderboard_display_names.sql"));
       await db.query(
         `insert into public.story_progress(user_id, chapter_id, completed)
          values ($1, 'relics-book-one-01', true), ($1, 'relics-book-one-03', true),
@@ -509,26 +510,30 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
 
       await as(A);
       assert.deepEqual(await readBoard(), {
-        leaders: [], player: { username: "sparky", cinder: 1, harry: 1, total: 2, visible: false, place: null },
+        leaders: [], player: { username: "sparky", display_name: "Existing Learner", cinder: 1, harry: 1, total: 2, visible: false, place: null },
       });
       assert.equal((await db.query("update public.user_preferences set leaderboard_visible = true where user_id = $1 returning user_id", [C])).rows.length, 0);
       await db.exec("update public.user_preferences set leaderboard_visible = true where user_id = auth.uid()");
 
       await as(B);
+      await db.exec("update public.profiles set display_name = 'Existing Learner' where id = auth.uid()");
       await db.exec("update public.user_preferences set leaderboard_visible = true where user_id = auth.uid()");
       const board = await readBoard();
       assert.deepEqual(board.leaders, [
-        { username: "new_learner", cinder: 2, harry: 0, total: 2, place: 1 },
-        { username: "sparky", cinder: 1, harry: 1, total: 2, place: 1 },
+        { username: "new_learner", display_name: "Existing Learner", cinder: 2, harry: 0, total: 2, place: 1 },
+        { username: "sparky", display_name: "Existing Learner", cinder: 1, harry: 1, total: 2, place: 1 },
       ]);
       assert.equal(board.player.place, 1);
 
       await db.exec("update public.user_preferences set leaderboard_visible = false where user_id = auth.uid()");
       assert.equal((await readBoard()).player.place, null);
+      await as(A);
+      await db.exec("update public.profiles set display_name = 'Renamed Learner' where id = auth.uid()");
       await as(C);
       const privateBoard = await readBoard();
       assert.equal(privateBoard.player.total, 4);
       assert.deepEqual(privateBoard.leaders.map(leader => leader.username), ["sparky"]);
+      assert.equal(privateBoard.leaders[0].display_name, "Renamed Learner");
     });
   } finally {
     await db.close();

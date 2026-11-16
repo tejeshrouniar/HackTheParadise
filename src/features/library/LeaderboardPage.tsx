@@ -8,7 +8,7 @@ import { errorMessage } from "../../lib/validation";
 import { Grimoire } from "./Grimoire";
 import { PixelJournalMark } from "./PixelJournalMark";
 
-type Score = { username: string; cinder: number; harry: number; total: number };
+type Score = { username: string; display_name: string; cinder: number; harry: number; total: number };
 type Leader = Score & { place: number };
 type Standings = {
   leaders: Leader[];
@@ -83,8 +83,8 @@ export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) 
           <div><dt>The Horcrux Code</dt><dd>{player.harry}</dd></div>
         </dl>
         <p>{player.visible
-          ? player.total === 0 ? "You’ll appear after your first synced level." : `You’ve joined as @${player.username}.`
-          : "Join to share your username and level count with other signed-in players."}</p>
+          ? player.total === 0 ? "You’ll appear after your first synced level." : <>You’ve joined as <bdi>{player.display_name}</bdi>.</>
+          : "Join to share your display name and level count with other signed-in players."}</p>
         <button type="button" className="sc-button" disabled={saving || loading} onClick={() => void changeVisibility(!player.visible)}>
           {saving ? "Saving…" : player.visible ? "Hide my ranking" : "Join the leaderboard"}
         </button>
@@ -105,7 +105,7 @@ export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) 
         <tbody>{standings.leaders.map(leader => {
           const isPlayer = leader.username === player?.username;
           return <tr key={leader.username} data-player={isPlayer || undefined}>
-            <td>{leader.place}</td><th scope="row">@{leader.username}{isPlayer && <span> · You</span>}</th><td>{leader.total}</td>
+            <td>{leader.place}</td><th scope="row"><bdi>{leader.display_name}</bdi>{isPlayer && <span> · You</span>}</th><td>{leader.total}</td>
           </tr>;
         })}</tbody>
       </table> : <p>No rankings yet. Clear a level and join to be listed.</p>)}

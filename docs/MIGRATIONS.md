@@ -18,6 +18,7 @@ Apply migrations in filename order on a clean project. Existing projects should 
 | `202611100012` | Scopes Spark unlocks and protected hint/solution content by book ID; seeds Harry Potter lessons 1–12 | 006–009 |
 | `202611150013` | Enables sound effects for new players; preserves existing preferences | 002 |
 | `202611160014` | Adds an opt-in leaderboard for synced, sequential levels | 002, 005, 011 |
+| `202611170015` | Adds profile display names to leaderboard results | 014 |
 
 ## Current hosted project check
 
