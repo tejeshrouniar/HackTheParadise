@@ -1,10 +1,10 @@
 import { Grimoire, GrimoireHeaderSlot, PageTurnProvider, RoutePageTurn } from "../features/library/Grimoire";
-import { LibraryBookmarks, ToolsBookmark } from "../features/library/LibraryBookmarks";
+import { LeaderboardBookmark, LibraryBookmarks, ToolsBookmark } from "../features/library/LibraryBookmarks";
 import { LibraryEntrance } from "../features/library/LibraryEntrance";
 import { FirstVisitGuide, guideIndexForRoute } from "../features/library/FirstVisitGuide";
 import type { CSSProperties } from "react";
 import { LibraryUtilityPage } from "../features/library/LibraryUtilityPage";
-import { BOOKSHELVES, LIBRARY, PROJECT_REPOSITORY } from "../content/library";
+import { BOOKSHELVES, LEADERBOARD_ROUTE, LIBRARY, PROJECT_REPOSITORY } from "../content/library";
 import { useProgress } from "../features/learning/ProgressContext";
 import { canEnterLevel, journeyProgress } from "../features/learning/journeyProgress";
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -45,6 +45,7 @@ const Story = lazy(() => import("../features/story/StoryPage"));
 const BookHub = lazy(() => import("../features/story/BookHubPage").then((module) => ({ default: module.BookHubPage })));
 const BookLevel = lazy(() => import("../features/learning/BookLevelPage").then((module) => ({ default: module.BookLevelPage })));
 const Chat = lazy(() => import("../features/chat/ChatPage"));
+const Leaderboard = lazy(() => import("../features/library/LeaderboardPage"));
 const Settings = lazy(() => import("../features/settings/SettingsPage"));
 const Tools = lazy(() => import("../features/tools/ToolsDrawer"));
 const Journal = lazy(() => import("../features/story/PlayerJournal"));
@@ -218,6 +219,7 @@ export function AppShell() {
         <PageTurnProvider routeKey={route}><GrimoireHeaderSlot.Provider value={headerSlot}>
         {!inLibrary && <LibraryBookmarks
           onLibrary={() => navigate("bookshelf")}
+          onLeaderboard={() => navigate(LEADERBOARD_ROUTE)} leaderboardOpen={route === LEADERBOARD_ROUTE}
           onProfile={() => user ? navigate("library/profile") : setAuth(true)}
           onAccount={() => navigate("library/account")} onTools={openTools} onSearch={() => setSearch(true)}
           chapterRef={setHeaderSlot} toolsOpen={tools}
@@ -232,7 +234,7 @@ export function AppShell() {
                   focusRoom={returnToRoom}
                   onEnter={() => navigate("bookshelf")}
                   onExit={() => navigate("entrance")}
-                  bookmark={<ToolsBookmark open={tools} onClick={openTools} />}
+                  bookmark={<><LeaderboardBookmark onClick={() => navigate(LEADERBOARD_ROUTE)} /><ToolsBookmark open={tools} onClick={openTools} /></>}
                   onOpenBook={(book) => {
                     if (book.storyId) { setSelectedBookId(book.storyId); setSelectedChapterId(null); }
                     navigate(book.route);
@@ -258,6 +260,8 @@ export function AppShell() {
                   onExit={() => navigate("learn")}
                   onLessonChange={openQuest}
                 />
+              ) : route === LEADERBOARD_ROUTE ? (
+                <Leaderboard onSignIn={() => setAuth(true)} />
               ) : route.startsWith("library/") ? (
                 <LibraryUtilityPage id={route.slice("library/".length)} onNavigate={navigate} onSignIn={() => setAuth(true)} onCharacter={() => setCharacter(true)} onTools={openTools} />
               ) : route.startsWith("book/") ? (

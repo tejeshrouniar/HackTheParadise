@@ -12,6 +12,7 @@ import bookStack from "../../assets/library/room-book-stack.webp";
 import { useProgress } from "../learning/ProgressContext";
 import { journeyProgress } from "../learning/journeyProgress";
 import { useBookProgress } from "../story/useBookProgress";
+import { PixelJournalMark } from "./PixelJournalMark";
 
 interface LibraryEntranceProps {
   inside: boolean;
@@ -37,6 +38,8 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
   const room = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const selectionTimer = useRef<number | null>(null);
+  const parallaxFrame = useRef<number | null>(null);
+  const latestPointer = useRef({ x: 0, y: 0 });
   const [selectingShelf, setSelectingShelf] = useState(false);
   const [selectedBook, setSelectedBook] = useState<string | null>(null);
   const { completed: questProgress } = useProgress();
@@ -64,6 +67,7 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
 
   useEffect(() => () => {
     if (selectionTimer.current !== null) window.clearTimeout(selectionTimer.current);
+    if (parallaxFrame.current !== null) window.cancelAnimationFrame(parallaxFrame.current);
   }, []);
 
   function enterShelf() {
@@ -88,14 +92,23 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
 
   function setParallax(event: PointerEvent<HTMLElement>) {
     if (inside || selectingShelf || event.pointerType !== "mouse" || !room.current) return;
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - bounds.left) / bounds.width - .5;
-    const y = (event.clientY - bounds.top) / bounds.height - .5;
-    room.current.style.setProperty("--room-x", `${x * 26}px`);
-    room.current.style.setProperty("--room-y", `${y * 16}px`);
+    latestPointer.current = { x: event.clientX, y: event.clientY };
+    if (parallaxFrame.current !== null) return;
+    const foyer = event.currentTarget;
+    parallaxFrame.current = window.requestAnimationFrame(() => {
+      parallaxFrame.current = null;
+      if (!room.current) return;
+      const bounds = foyer.getBoundingClientRect();
+      const x = (latestPointer.current.x - bounds.left) / bounds.width - .5;
+      const y = (latestPointer.current.y - bounds.top) / bounds.height - .5;
+      room.current.style.setProperty("--room-x", `${x * 26}px`);
+      room.current.style.setProperty("--room-y", `${y * 16}px`);
+    });
   }
 
   function resetParallax() {
+    if (parallaxFrame.current !== null) window.cancelAnimationFrame(parallaxFrame.current);
+    parallaxFrame.current = null;
     room.current?.style.removeProperty("--room-x");
     room.current?.style.removeProperty("--room-y");
   }
@@ -166,7 +179,7 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
                     const progress = book.storyId ? completion(book) : undefined;
                     return (
                       <button
-                        className={`htp-library-book ${cover ? "has-art" : ""}`}
+                        className={`htp-library-book ${cover ? "has-art" : ""}${book.id === "leaderboard" ? " htp-library-book--leaderboard" : ""}`}
                         key={book.id}
                         type="button"
                         style={{ "--book-cover": book.coverColor } as CSSProperties}
@@ -176,6 +189,7 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
                         aria-label={`Open ${book.title}${progress ? `. ${progress}` : ""}`}
                       >
                         {cover && <img src={cover} alt="" draggable={false} />}
+                        {book.id === "leaderboard" && <PixelJournalMark kind="leaderboard" />}
                         <strong aria-hidden="true">{book.title}</strong>
                         {book.id === "credits" && <span className="htp-library-book__credit-caption" aria-hidden="true">Project links</span>}
                         {progress && <span className="htp-library-book__progress" aria-hidden="true">{progress}</span>}

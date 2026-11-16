@@ -1,9 +1,21 @@
-import { BookOpen, Search, UserRound, Zap } from "lucide-react";
+import { BookOpen, Search, Trophy, UserRound, Zap } from "lucide-react";
 import { useHintWallet } from "../learning/useHintWallet";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProfile } from "../profile/ProfileContext";
 import { Avatar } from "../../components/ui/Avatar";
 import bookmarkArt from "../../assets/library/cover-tools-bookmark.webp";
+import { LEADERBOARD_ROUTE } from "../../content/library";
+
+export function LeaderboardBookmark({ current, onClick }: { current?: boolean; onClick: () => void }) {
+  return <a className="htp-page-tag htp-page-tag--leaderboard" href={`#/${LEADERBOARD_ROUTE}`}
+    aria-label="Leaderboard" title="Leaderboard" aria-current={current ? "page" : undefined} onClick={event => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      onClick();
+    }}>
+    <Trophy size={16} aria-hidden="true" /> <span>Leaderboard</span>
+  </a>;
+}
 
 export function ToolsBookmark({ open, onClick }: { open: boolean; onClick: (trigger: HTMLButtonElement) => void }) {
   return (
@@ -13,8 +25,10 @@ export function ToolsBookmark({ open, onClick }: { open: boolean; onClick: (trig
   );
 }
 
-export function LibraryBookmarks({ onLibrary, onProfile, onAccount, onTools, onSearch, chapterRef, toolsOpen }: {
+export function LibraryBookmarks({ onLibrary, onLeaderboard, leaderboardOpen, onProfile, onAccount, onTools, onSearch, chapterRef, toolsOpen }: {
   onLibrary: () => void;
+  onLeaderboard: () => void;
+  leaderboardOpen: boolean;
   onProfile: () => void;
   onAccount: () => void;
   onTools: (trigger: HTMLButtonElement) => void;
@@ -35,6 +49,7 @@ export function LibraryBookmarks({ onLibrary, onProfile, onAccount, onTools, onS
         }}>
           <BookOpen size={16} aria-hidden="true" /> <span>Bookshelf</span>
         </a>
+        <LeaderboardBookmark current={leaderboardOpen} onClick={onLeaderboard} />
       </nav>
       <div className="htp-chapter-bookmark" ref={chapterRef} />
       <nav className="htp-bookmark-actions" aria-label="Tools and account">

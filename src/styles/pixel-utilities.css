@@ -89,6 +89,27 @@
   background: conic-gradient(#e0cea6 25%, #eadabb 0 50%, #e0cea6 0 75%, #eadabb 0) 0 0 / 32px 32px;
 }
 
+.htp-rank-card {
+  padding: clamp(12px, 2.4vw, 22px);
+  border: 3px double #937344;
+  background: #f4e8c8;
+  color: #243728;
+}
+.htp-rank-card h2, .htp-rank-heading h2 { margin: 0; }
+.htp-rank-card dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-block: .8rem; gap: 10px; }
+.htp-rank-card dl > div { padding: 8px; border-top: 1px solid #a38a59; }
+.htp-rank-card dt { font-size: .875rem; }
+.htp-rank-card dd { margin: .25rem 0 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.htp-rank-card p { color: #334639; }
+.htp-rank-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.htp-rank-table { width: 100%; border-collapse: collapse; text-align: start; font-variant-numeric: tabular-nums; color: #273526; }
+.htp-rank-table th, .htp-rank-table td { padding: 8px; border-bottom: 1px solid #c0a779; text-align: start; }
+.htp-rank-table :is(th, td):last-child { text-align: end; }
+.htp-rank-table thead { background: #2f503a; color: #fff0ca; }
+.htp-rank-table tbody th { font-weight: 600; overflow-wrap: anywhere; }
+.htp-rank-table tbody tr:nth-child(odd) { background: #eadaba; }
+.htp-rank-table tbody tr[data-player] { background: #c8d9bd; color: #1e3324; }
+
 @media (max-width: 480px) {
   .htp-pixel-journal .sc-grimoire__leaf { padding-inline: 1rem; }
   .htp-pixel-journal .sc-chat { height: auto; min-height: 450px; }

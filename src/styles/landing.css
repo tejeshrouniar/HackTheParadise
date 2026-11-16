@@ -345,6 +345,14 @@
 }
 .htp-library-book.has-art { padding:0; border:0; background:none; box-shadow:none; }
 .htp-library-book.has-art img { width:100%; height:100%; object-fit:contain; object-position:center bottom; filter:drop-shadow(3px 5px 1px #130b06bc); }
+.htp-library-book.htp-library-book--leaderboard {
+  border-color:#aa864a;
+  border-left-color:#15241a;
+  background-image:linear-gradient(90deg,#101e14 0 5%,#e2be7620 5% 9%,transparent 9% 82%,#101e148a),repeating-linear-gradient(0deg,#fff1cd09 0 2px,transparent 2px 5px);
+}
+.htp-library-book--leaderboard::before { content:""; position:absolute; inset:8%; border:3px double #b99956; pointer-events:none; }
+.htp-library-book--leaderboard .htp-journal-mark { position:absolute; top:10%; color:#e8c47b; transform:scale(.7); }
+.htp-library-book.htp-library-book--leaderboard strong { inset-inline:8% 5%; top:63%; font-size:clamp(9px,min(1.05vw,1.95cqh),14px); }
 .htp-library-book strong {
   position:absolute;
   inset-inline:12% 9%;
@@ -401,6 +409,10 @@
 .htp-page-tag:focus-visible { outline-offset:-5px !important; }
 .htp-page-tag--shelf { --tag-color:#3c503e; padding-inline:12px; }
 .htp-page-tag--sparks { --tag-color:#624524; }
+.htp-page-tag--leaderboard { --tag-color:#294d3d; }
+.htp-page-tag--leaderboard[aria-current="page"] { --tag-color:#3e603b; color:#fff5d3; border-color:#f1d192; }
+.htp-library-foyer > .htp-page-tag--leaderboard { position:absolute; z-index:4; top:0; left:clamp(14px,3vw,38px); }
+.htp-library-foyer.is-inside > .htp-page-tag--leaderboard { left:auto; right:calc(clamp(14px,3vw,38px) + 66px); }
 .htp-page-tag .sc-avatar { width:24px; height:24px; font-size:10px; }
 .htp-chapter-bookmark { min-width:0; padding-top:9px; }
 .htp-chapter-bookmark:empty { display:none; }
@@ -491,6 +503,9 @@
   .htp-page-tag { font-size:11px; }
   .htp-page-tag--shelf { padding-inline:6px; }
   .htp-page-tag--shelf svg { display:none; }
+  .htp-page-tag--leaderboard span { display:none; }
+  .htp-library-foyer > .htp-page-tag--leaderboard { left:8px; }
+  .htp-library-foyer.is-inside > .htp-page-tag--leaderboard { left:auto; right:54px; }
   .htp-open-bookcase { border-width:7px; grid-template-rows:none; grid-auto-rows:auto; }
   .htp-book-row { min-height:0; }
   .htp-book-row__books { justify-content:center; gap:10px; padding-inline:8px; }
@@ -506,6 +521,12 @@
   .htp-interior-heading h1 { font-size:26px; }
   .htp-open-bookcase { border-width:5px; }
   .htp-book-row__books { gap:8px; padding-inline:8px; }
+}
+@media (max-width:345px) {
+  .htp-page-bookmarks { padding-inline:5px; column-gap:4px; }
+  .htp-bookmark-links { gap:3px; }
+  .htp-page-tag--shelf span { display:none; }
+  .htp-page-tag--shelf svg { display:block; }
 }
 /* One collection at a time: the only route with a physical book display. */
 .htp-sketch-library { width:min(1460px,100%); margin:0 auto; padding:clamp(20px,4vw,48px) clamp(14px,4vw,52px) 64px; }

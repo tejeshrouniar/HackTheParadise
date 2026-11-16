@@ -44,10 +44,15 @@ export function ProgressProvider({ children }: PropsWithChildren) {
     void loadPlayerProgress(user.id)
       .then(async (remote) => {
         if (!active) return;
-        const merged = mergeLessons(remote, current.current);
+        const saved = validLessonIds(remote);
+        const merged = mergeLessons(saved, current.current);
         current.current = merged;
         setCompleted(merged);
         writeLocal(key, merged);
+        if (merged.length === saved.length) {
+          setStatus("Progress synced");
+          return;
+        }
         // Server merges atomically; never replace an entire account's progress after a failed read.
         const { data, error } = await supabase!.rpc("merge_player_progress", {
           lesson_ids: merged,
