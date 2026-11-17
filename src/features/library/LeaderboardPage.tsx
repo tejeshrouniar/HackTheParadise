@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { ErrorNotice, Loading } from "../../components/ui/Status";
-import { LEADERBOARD_ROUTE, LIBRARY } from "../../content/library";
 import { useAuth } from "../../contexts/AuthContext";
 import { supabase } from "../../lib/supabase";
 import { errorMessage } from "../../lib/validation";
@@ -15,8 +14,6 @@ type Standings = {
   leaders: Leader[];
   player: (Score & { visible: boolean; place: number | null }) | null;
 };
-
-const book = LIBRARY.find(entry => entry.route === LEADERBOARD_ROUTE)!;
 
 export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) {
   const { user, configured } = useAuth();
@@ -75,7 +72,7 @@ export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) 
   }
 
   return <div className="sc-page sc-utility-book htp-leaderboard">
-    <Grimoire label={book.title} coverColor={book.coverColor} className="htp-pixel-journal" left={<>
+    <Grimoire label="Leaderboard" coverColor="#254e42" className="htp-pixel-journal" left={<>
       <div className="sc-utility-intro">
         <PixelJournalMark kind="leaderboard" />
         <div><h1 ref={heading} tabIndex={-1}>Leaderboard</h1><p>Library rankings</p></div>

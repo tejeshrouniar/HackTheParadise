@@ -1,4 +1,4 @@
-import { BookOpen, Search, Trophy, UserRound, Zap } from "lucide-react";
+import { BookOpen, LogIn, Search, Trophy, UserRound, Zap } from "lucide-react";
 import { useHintWallet } from "../learning/useHintWallet";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProfile } from "../profile/ProfileContext";
@@ -17,6 +17,24 @@ export function LeaderboardBookmark({ current, onClick }: { current?: boolean; o
   </a>;
 }
 
+export function ProfileBookmark({ current, onClick }: { current?: boolean; onClick: () => void }) {
+  const { profile } = useProfile();
+  const { user } = useAuth();
+  return <button type="button" className="htp-page-tag htp-page-tag--profile" onClick={onClick}
+    aria-label="Open profile" title="Profile" aria-current={current ? "page" : undefined}>
+    {user ? <Avatar name={profile?.display_name || "Wizard"} url={profile?.avatar_url} /> : <UserRound size={16} aria-hidden="true" />}
+    <span>Profile</span>
+  </button>;
+}
+
+export function AccountBookmark({ onAccount, onSignIn }: { onAccount: () => void; onSignIn: () => void }) {
+  const { user } = useAuth();
+  return <button type="button" className="htp-page-tag htp-page-tag--account" onClick={user ? onAccount : onSignIn}
+    aria-label={user ? "Open account" : "Sign in or create an account"} title={user ? "Account" : "Sign in or create an account"}>
+    <LogIn size={16} aria-hidden="true" /> <span>{user ? "Account" : "Sign in"}</span>
+  </button>;
+}
+
 export function ToolsBookmark({ open, onClick }: { open: boolean; onClick: (trigger: HTMLButtonElement) => void }) {
   return (
     <button type="button" className="htp-tools-bookmark" aria-label="Open tools and settings bookmark" aria-haspopup="dialog" aria-expanded={open} onClick={event => onClick(event.currentTarget)}>
@@ -25,12 +43,14 @@ export function ToolsBookmark({ open, onClick }: { open: boolean; onClick: (trig
   );
 }
 
-export function LibraryBookmarks({ onLibrary, onLeaderboard, leaderboardOpen, onProfile, onAccount, onTools, onSearch, chapterRef, toolsOpen }: {
+export function LibraryBookmarks({ onLibrary, onLeaderboard, leaderboardOpen, onProfile, profileOpen, onAccount, onSignIn, onTools, onSearch, chapterRef, toolsOpen }: {
   onLibrary: () => void;
   onLeaderboard: () => void;
   leaderboardOpen: boolean;
   onProfile: () => void;
+  profileOpen: boolean;
   onAccount: () => void;
+  onSignIn: () => void;
   onTools: (trigger: HTMLButtonElement) => void;
   onSearch: () => void;
   chapterRef: (node: HTMLDivElement | null) => void;
@@ -38,7 +58,6 @@ export function LibraryBookmarks({ onLibrary, onLeaderboard, leaderboardOpen, on
 }) {
   const wallet = useHintWallet();
   const { user } = useAuth();
-  const { profile } = useProfile();
   return (
     <div className="htp-page-bookmarks" {...(toolsOpen ? { inert: "" } : {})}>
       <nav className="htp-bookmark-links" aria-label="Library shortcuts">
@@ -57,9 +76,8 @@ export function LibraryBookmarks({ onLibrary, onLeaderboard, leaderboardOpen, on
         <button type="button" className="htp-page-tag htp-page-tag--sparks" onClick={onAccount} aria-label={user ? `Open Spark wallet, ${wallet.unlimited ? "unlimited" : wallet.balance ?? "loading"}` : "Sign in to use Sparks"}>
           <Zap size={15} /><span>{!user ? "Sparks" : wallet.unlimited ? "∞" : wallet.balance ?? "…"}</span>
         </button>
-        <button type="button" className="htp-page-tag" onClick={onProfile} aria-label={user ? "Open your profile" : "Sign in"} title={user ? "Profile" : "Sign in"}>
-          {user ? <Avatar name={profile?.display_name || "Wizard"} url={profile?.avatar_url} /> : <UserRound size={18} />}
-        </button>
+        <ProfileBookmark current={profileOpen} onClick={onProfile} />
+        <AccountBookmark onAccount={onAccount} onSignIn={onSignIn} />
         <ToolsBookmark open={toolsOpen} onClick={onTools} />
       </nav>
     </div>

@@ -1,5 +1,5 @@
 import { Grimoire, GrimoireHeaderSlot, PageTurnProvider, RoutePageTurn } from "../features/library/Grimoire";
-import { LeaderboardBookmark, LibraryBookmarks, ToolsBookmark } from "../features/library/LibraryBookmarks";
+import { AccountBookmark, LeaderboardBookmark, LibraryBookmarks, ProfileBookmark, ToolsBookmark } from "../features/library/LibraryBookmarks";
 import { LibraryEntrance } from "../features/library/LibraryEntrance";
 import { FirstVisitGuide, guideIndexForRoute } from "../features/library/FirstVisitGuide";
 import type { CSSProperties } from "react";
@@ -241,7 +241,8 @@ export function AppShell() {
         {!inLibrary && <LibraryBookmarks
           onLibrary={() => navigate("bookshelf")}
           onLeaderboard={() => navigate(LEADERBOARD_ROUTE)} leaderboardOpen={route === LEADERBOARD_ROUTE}
-          onProfile={() => user ? navigate("library/profile") : setAuth(true)}
+          onProfile={() => navigate("library/profile")} profileOpen={route === "library/profile"}
+          onSignIn={() => setAuth(true)}
           onAccount={() => navigate("library/account")} onTools={openTools} onSearch={() => setSearch(true)}
           chapterRef={setHeaderSlot} toolsOpen={tools}
         />}
@@ -255,7 +256,7 @@ export function AppShell() {
                   focusRoom={returnToRoom}
                   onEnter={() => navigate("bookshelf")}
                   onExit={() => navigate("entrance")}
-                  bookmark={<><LeaderboardBookmark onClick={() => navigate(LEADERBOARD_ROUTE)} /><ToolsBookmark open={tools} onClick={openTools} /></>}
+                  bookmark={<><nav className="htp-foyer-shortcuts" aria-label="Library shortcuts"><LeaderboardBookmark onClick={() => navigate(LEADERBOARD_ROUTE)} /><ProfileBookmark onClick={() => navigate("library/profile")} /><AccountBookmark onAccount={() => navigate("library/account")} onSignIn={() => setAuth(true)} /></nav><ToolsBookmark open={tools} onClick={openTools} /></>}
                   onOpenBook={(book) => {
                     if (book.storyId) { setSelectedBookId(book.storyId); setSelectedChapterId(null); }
                     navigate(book.route);

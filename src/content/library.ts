@@ -66,7 +66,6 @@ export const LIBRARY: readonly LibraryBook[] = [
   })),
   { id: "contact", title: "Contact Guild", coverColor: "#394038", shelf: "guild", subtitle: "Get in touch", mark: "✉", route: "library/contact", chapters: [] },
   { id: "community", title: "Suggest Spells", coverColor: "#6b3a30", shelf: "guild", subtitle: "Community & ideas", mark: "✦", route: "community", chapters: [] },
-  { id: "leaderboard", title: "Leaderboard", coverColor: "#254e42", shelf: "guild", subtitle: "Library rankings", mark: "✦", route: LEADERBOARD_ROUTE, chapters: [] },
   { id: "credits", title: "Credits", coverColor: "#674e27", shelf: "guild", subtitle: "Project links & thanks", mark: "✦", route: "library/credits", chapters: [] },
 ];
 

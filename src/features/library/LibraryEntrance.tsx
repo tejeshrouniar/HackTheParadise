@@ -12,7 +12,6 @@ import bookStack from "../../assets/library/room-book-stack.webp";
 import { useProgress } from "../learning/ProgressContext";
 import { journeyProgress } from "../learning/journeyProgress";
 import { useBookProgress } from "../story/useBookProgress";
-import { PixelJournalMark } from "./PixelJournalMark";
 
 interface LibraryEntranceProps {
   inside: boolean;
@@ -179,7 +178,7 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
                     const progress = book.storyId ? completion(book) : undefined;
                     return (
                       <button
-                        className={`htp-library-book ${cover ? "has-art" : ""}${book.id === "leaderboard" ? " htp-library-book--leaderboard" : ""}`}
+                        className={`htp-library-book ${cover ? "has-art" : ""}`}
                         key={book.id}
                         type="button"
                         style={{ "--book-cover": book.coverColor } as CSSProperties}
@@ -189,7 +188,6 @@ export function LibraryEntrance({ inside, focusRoom, onEnter, onExit, onOpenBook
                         aria-label={`Open ${book.title}${progress ? `. ${progress}` : ""}`}
                       >
                         {cover && <img src={cover} alt="" draggable={false} />}
-                        {book.id === "leaderboard" && <PixelJournalMark kind="leaderboard" />}
                         <strong aria-hidden="true">{book.title}</strong>
                         {book.id === "credits" && <span className="htp-library-book__credit-caption" aria-hidden="true">Project links</span>}
                         {progress && <span className="htp-library-book__progress" aria-hidden="true">{progress}</span>}

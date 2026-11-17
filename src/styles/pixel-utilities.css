@@ -100,6 +100,16 @@
 .htp-rank-card dl > div { padding: 8px; border-top: 1px solid #a38a59; }
 .htp-rank-card dt { font-size: .875rem; }
 .htp-rank-card dd { margin: .25rem 0 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.htp-leaderboard .htp-rank-card dd,
+.htp-leaderboard .htp-rank-table tbody :is(td:first-child,td:last-child) {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: .01em;
+}
+.htp-leaderboard .sc-grimoire__leaf { color: #302719; }
+.htp-leaderboard .sc-grimoire__leaf :is(h1,h2,p,dt) { color: #302719; }
 .htp-rank-card p { color: #334639; }
 .htp-rank-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
 .htp-rank-table { width: 100%; border-collapse: collapse; text-align: start; font-variant-numeric: tabular-nums; color: #273526; }
@@ -114,6 +124,7 @@
 .htp-rank-table :is(th, td):last-child { width: 4.5rem; }
 .htp-rank-table tbody :is(th, td) { vertical-align: top; }
 .htp-rank-table tbody bdi { overflow-wrap: anywhere; }
+.htp-rank-table tbody td { color: #243329; }
 
 .htp-bookmark-drawer .sc-tools-body { min-height: 0; scrollbar-gutter: stable; }
 .htp-bookmark-drawer .sc-tool-tabs { flex-shrink: 0; }
