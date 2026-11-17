@@ -183,6 +183,51 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
         assert.ok(preferences.rows.every((row) => row.sound_effects));
       },
     );
+    await db.exec(migration("202611170016_private_phone_number.sql"));
+    await t.test("contact numbers are optional, validated, and owner-only", async () => {
+      const phone = "+919876543210";
+      await as(A);
+      try {
+        assert.deepEqual(
+          (await db.query("select phone_number from user_preferences")).rows,
+          [{ phone_number: null }],
+        );
+        const saved = await db.query(
+          "update user_preferences set phone_number=$1 where user_id=$2 returning phone_number",
+          [phone, A],
+        );
+        assert.deepEqual(saved.rows, [{ phone_number: phone }]);
+        await assert.rejects(
+          db.query("update user_preferences set phone_number='9876543210' where user_id=$1", [A]),
+          { code: "23514" },
+        );
+
+        await as(B);
+        assert.deepEqual(
+          (await db.query("select phone_number from user_preferences where user_id=$1", [A])).rows,
+          [],
+        );
+        assert.deepEqual(
+          (await db.query("update user_preferences set phone_number=null where user_id=$1 returning user_id", [A])).rows,
+          [],
+        );
+
+        await as(null);
+        await assert.rejects(db.query("select phone_number from user_preferences"), { code: "42501" });
+
+        await as(A);
+        assert.deepEqual(
+          (await db.query("select phone_number from user_preferences")).rows,
+          [{ phone_number: phone }],
+        );
+        assert.deepEqual(
+          (await db.query("update user_preferences set phone_number=null where user_id=$1 returning phone_number", [A])).rows,
+          [{ phone_number: null }],
+        );
+      } finally {
+        await db.exec("reset role");
+      }
+    });
     await t.test(
       "usernames are unique and normalized at the database boundary",
       async () => {
