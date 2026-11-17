@@ -1,9 +1,10 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import { Camera, Check, LoaderCircle } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { supabase } from "../../lib/supabase";
 import {
   errorMessage,
+  normalizePhoneNumber,
   normalizeUsername,
   usernameError,
 } from "../../lib/validation";
@@ -11,6 +12,7 @@ import { useProfile } from "./ProfileContext";
 import { usePreferences } from "../settings/PreferencesContext";
 import { Avatar } from "../../components/ui/Avatar";
 import { ErrorNotice } from "../../components/ui/Status";
+import { PhoneNumberField } from "../../components/ui/PhoneNumberField";
 
 export function ProfileForm({
   onSaved,
@@ -30,13 +32,9 @@ export function ProfileForm({
   const [name, setName] = useState(profile?.display_name ?? "");
   const [bio, setBio] = useState(profile?.bio ?? "");
   const [gender, setGender] = useState(preferences.gender);
-  const [phone, setPhone] = useState("");
-  const [savedPhone, setSavedPhone] = useState<string>();
-  const [phoneLoadError, setPhoneLoadError] = useState(false);
-  const [phoneLoadAttempt, setPhoneLoadAttempt] = useState(0);
+  const initialPhone = profile?.phone_number ?? "";
+  const [phone, setPhone] = useState(initialPhone);
   const [phoneInvalid, setPhoneInvalid] = useState(false);
-  const phoneHintId = useId();
-  const userId = user?.id;
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>();
   const [availability, setAvailability] = useState("");
@@ -46,28 +44,6 @@ export function ProfileForm({
   useEffect(() => {
     setGender(preferences.gender);
   }, [preferences.gender]);
-  useEffect(() => {
-    if (!userId || !supabase) return;
-    let active = true;
-    void supabase
-      .from("user_preferences")
-      .select("phone_number")
-      .eq("user_id", userId)
-      .single()
-      .then(({ data, error }) => {
-        if (!active) return;
-        if (error) {
-          setPhoneLoadError(true);
-          return;
-        }
-        const value = data.phone_number ?? "";
-        setPhone(value);
-        setSavedPhone(value);
-      });
-    return () => {
-      active = false;
-    };
-  }, [userId, phoneLoadAttempt]);
   useEffect(() => {
     if (!file) {
       setPreview(undefined);
@@ -113,8 +89,8 @@ export function ProfileForm({
       setError(invalid);
       return;
     }
-    const normalizedPhone = phone.replace(/[\s().-]/g, "");
-    if (phone.trim() && !/^\+[1-9][0-9]{6,14}$/.test(normalizedPhone)) {
+    const normalizedPhone = normalizePhoneNumber(phone);
+    if (normalizedPhone === null) {
       setPhoneInvalid(true);
       return;
     }
@@ -163,22 +139,15 @@ export function ProfileForm({
           .data.publicUrl;
       }
       if (gender !== preferences.gender) await update({ gender });
-      if (savedPhone !== undefined && normalizedPhone !== savedPhone) {
-        const { error } = await supabase
-          .from("user_preferences")
-          .update({ phone_number: normalizedPhone || null })
-          .eq("user_id", user.id)
-          .select("user_id")
-          .single();
-        if (error) throw error;
-        setSavedPhone(normalizedPhone);
-      }
       const result = await supabase
         .from("profiles")
         .update({
           username,
           display_name: name.trim(),
           bio: bio.trim(),
+          ...(normalizedPhone !== initialPhone && {
+            phone_number: normalizedPhone || null,
+          }),
           avatar_url: avatar,
           onboarding_completed: true,
         })
@@ -278,46 +247,16 @@ export function ProfileForm({
           }}
         />
       </label>
-      <label>
-        Phone number <span className="sc-muted">(optional, private)</span>
-        <input
-          type="tel"
-          autoComplete="tel"
-          maxLength={32}
-          value={phone}
-          disabled={busy || savedPhone === undefined}
-          aria-describedby={phoneHintId}
-          aria-invalid={phoneInvalid || undefined}
-          onChange={(e) => {
-            setPhone(e.target.value);
-            setPhoneInvalid(false);
-            setSaved(false);
-          }}
-        />
-        <small id={phoneHintId} aria-live="polite">
-          {phoneLoadError
-            ? "Could not load your phone number."
-            : savedPhone === undefined
-              ? "Loading phone number."
-              : "Include your country code, for example +91 98765 43210."}
-        </small>
-      </label>
-      {phoneLoadError && (
-        <button
-          type="button"
-          className="sc-link"
-          disabled={busy}
-          onClick={() => {
-            setPhoneLoadError(false);
-            setPhoneLoadAttempt((attempt) => attempt + 1);
-          }}
-        >
-          Retry loading phone number
-        </button>
-      )}
-      {phoneInvalid && (
-        <ErrorNotice message="Enter + followed by your country code and number (7–15 digits), or leave it blank." />
-      )}
+      <PhoneNumberField
+        value={phone}
+        invalid={phoneInvalid}
+        disabled={busy}
+        onChange={(value) => {
+          setPhone(value);
+          setPhoneInvalid(false);
+          setSaved(false);
+        }}
+      />
       <label>
         About you <span className="sc-muted">(optional)</span>
         <textarea

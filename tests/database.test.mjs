@@ -184,48 +184,75 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
       },
     );
     await db.exec(migration("202611170016_private_phone_number.sql"));
-    await t.test("contact numbers are optional, validated, and owner-only", async () => {
+    await t.test("phone numbers migrate to profiles and follow profile permissions", async () => {
       const phone = "+919876543210";
-      await as(A);
-      try {
-        assert.deepEqual(
-          (await db.query("select phone_number from user_preferences")).rows,
-          [{ phone_number: null }],
-        );
-        const saved = await db.query(
-          "update user_preferences set phone_number=$1 where user_id=$2 returning phone_number",
-          [phone, A],
-        );
-        assert.deepEqual(saved.rows, [{ phone_number: phone }]);
-        await assert.rejects(
-          db.query("update user_preferences set phone_number='9876543210' where user_id=$1", [A]),
-          { code: "23514" },
-        );
+      const editedPhone = "+14155550100";
+      await db.query("update user_preferences set phone_number=$1 where user_id=$2", [phone, A]);
+      await db.exec(migration("202611170017_profile_phone_number.sql"));
+      await assert.rejects(db.query("select phone_number from user_preferences"), { code: "42703" });
 
+      try {
         await as(B);
         assert.deepEqual(
-          (await db.query("select phone_number from user_preferences where user_id=$1", [A])).rows,
-          [],
+          (await db.query("select phone_number from profiles where id=$1", [A])).rows,
+          [{ phone_number: phone }],
         );
         assert.deepEqual(
-          (await db.query("update user_preferences set phone_number=null where user_id=$1 returning user_id", [A])).rows,
+          (await db.query("select phone_number from profiles where id=$1", [B])).rows,
+          [{ phone_number: null }],
+        );
+        assert.deepEqual(
+          (await db.query("update profiles set phone_number=null where id=$1 returning id", [A])).rows,
           [],
         );
 
         await as(null);
-        await assert.rejects(db.query("select phone_number from user_preferences"), { code: "42501" });
+        await assert.rejects(db.query("select phone_number from profiles"), { code: "42501" });
 
         await as(A);
-        assert.deepEqual(
-          (await db.query("select phone_number from user_preferences")).rows,
-          [{ phone_number: phone }],
+        await assert.rejects(
+          db.query("update profiles set phone_number='9876543210' where id=$1", [A]),
+          { code: "23514" },
         );
         assert.deepEqual(
-          (await db.query("update user_preferences set phone_number=null where user_id=$1 returning phone_number", [A])).rows,
+          (await db.query("update profiles set phone_number=$1 where id=$2 returning phone_number", [editedPhone, A])).rows,
+          [{ phone_number: editedPhone }],
+        );
+        assert.deepEqual(
+          (await db.query("update profiles set phone_number=null where id=$1 returning phone_number", [A])).rows,
           [{ phone_number: null }],
         );
       } finally {
         await db.exec("reset role");
+      }
+    });
+    await db.exec(migration("202611170018_email_signup_profile_phone.sql"));
+    await t.test("email signup saves profile details before a session exists", async () => {
+      await db.exec("begin");
+      try {
+        const { rows: users } = await db.query(
+          `insert into auth.users(id, email, raw_user_meta_data)
+           values
+             (gen_random_uuid(), 'manual-with-phone@example.test', '{"display_name":"Manual Learner","signup_phone_number":"+919876543210"}'),
+             (gen_random_uuid(), 'manual-without-phone@example.test', '{"display_name":"No Phone Learner"}'),
+             (gen_random_uuid(), 'manual-invalid-phone@example.test', '{"display_name":"Other Learner","signup_phone_number":"invalid"}'),
+             (gen_random_uuid(), 'oauth-signup@example.test', '{"full_name":"OAuth Learner","avatar_url":"https://example.test/avatar.png"}')
+           returning id, email`,
+        );
+        const { rows } = await db.query(
+          `select display_name, phone_number, avatar_url, onboarding_completed
+           from public.profiles where id = any($1::uuid[]) order by display_name`,
+          [users.map((user) => user.id)],
+        );
+        assert.equal(users[0].email, "manual-with-phone@example.test");
+        assert.deepEqual(rows, [
+          { display_name: "Manual Learner", phone_number: "+919876543210", avatar_url: null, onboarding_completed: false },
+          { display_name: "No Phone Learner", phone_number: null, avatar_url: null, onboarding_completed: false },
+          { display_name: "OAuth Learner", phone_number: null, avatar_url: "https://example.test/avatar.png", onboarding_completed: false },
+          { display_name: "Other Learner", phone_number: null, avatar_url: null, onboarding_completed: false },
+        ]);
+      } finally {
+        await db.exec("rollback");
       }
     });
     await t.test(

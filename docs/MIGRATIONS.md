@@ -19,7 +19,9 @@ Apply migrations in filename order on a clean project. Existing projects should 
 | `202611150013` | Enables sound effects for new players; preserves existing preferences | 002 |
 | `202611160014` | Adds an opt-in leaderboard for synced, sequential levels | 002, 005, 011 |
 | `202611170015` | Adds profile display names to leaderboard results | 014 |
-| `202611170016` | Adds an optional private contact phone to `user_preferences` | 002 |
+| `202611170016` | Adds an optional contact phone to `user_preferences` | 002 |
+| `202611170017` | Moves saved phone numbers into `profiles` with the existing member read policy | 016 |
+| `202611170018` | Saves the optional phone number during email signup through the existing profile trigger | 017 |
 
 ## Current hosted project check
 

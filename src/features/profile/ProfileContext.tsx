@@ -16,6 +16,7 @@ export interface Profile {
   display_name: string;
   avatar_url: string | null;
   bio: string;
+  phone_number: string | null;
   onboarding_completed: boolean;
 }
 const Context = createContext<{
@@ -39,7 +40,7 @@ export function ProfileProvider({ children }: PropsWithChildren) {
     setError("");
     const { data, error } = await supabase
       .from("profiles")
-      .select("id,username,display_name,avatar_url,bio,onboarding_completed")
+      .select("id,username,display_name,avatar_url,bio,phone_number,onboarding_completed")
       .eq("id", user.id)
       .single();
     if (error) {

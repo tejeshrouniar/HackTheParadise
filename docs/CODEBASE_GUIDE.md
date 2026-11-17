@@ -51,7 +51,7 @@ The shell's quest search indexes the story catalog and tutorial lessons together
 
 `src/contexts/AuthContext.tsx` wraps Supabase Auth. Public browser configuration is read from `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in `src/lib/supabase.ts`. Never put a secret or service-role key in the Vite environment.
 
-User-specific tables use row-level security. The shared onboarding and profile form saves optional contact numbers in owner-only `user_preferences.phone_number`. Progress is merged rather than overwritten. Spark balances and unlocks change through database functions; admin code generation and payment credits are not available to ordinary browser roles. A referral code stores attribution only; qualification and payout are not implemented. See [the migration guide](MIGRATIONS.md) for schema dependencies and the current hosted repair.
+User-specific tables use row-level security. Email signup saves the email in Supabase Auth. The profile trigger copies an optional signup phone from Auth metadata to `profiles.phone_number`, and the shared onboarding and profile form edits that profile field. Signed-in players can read this field under the existing profile policy, and only the profile owner can edit it. Progress is merged rather than overwritten. Spark balances and unlocks change through database functions; admin code generation and payment credits are not available to ordinary browser roles. A referral code stores attribution only; qualification and payout are not implemented. See [the migration guide](MIGRATIONS.md) for schema dependencies and the current hosted repair.
 
 ## Retained older content
 

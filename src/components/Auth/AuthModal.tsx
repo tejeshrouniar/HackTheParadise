@@ -3,7 +3,8 @@ import { ArrowRight, Eye, EyeOff, LoaderCircle, Sparkles } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Modal } from "../ui/Modal";
 import { ErrorNotice } from "../ui/Status";
-import { errorMessage } from "../../lib/validation";
+import { errorMessage, normalizePhoneNumber } from "../../lib/validation";
+import { PhoneNumberField } from "../ui/PhoneNumberField";
 import googleSignIn from "../../assets/google-sign-in.png";
 type Mode = "signin" | "signup" | "reset" | "new-password";
 export function AuthModal({
@@ -21,6 +22,8 @@ export function AuthModal({
   const [mode, setMode] = useState<Mode>("signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [phoneInvalid, setPhoneInvalid] = useState(false);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [show, setShow] = useState(false);
@@ -32,6 +35,8 @@ export function AuthModal({
   }, [auth.isPasswordRecovery]);
   const changeMode = (mode: Mode) => {
     setMode(mode);
+    setPhone("");
+    setPhoneInvalid(false);
     setError("");
     setNotice("");
     setPassword("");
@@ -55,7 +60,13 @@ export function AuthModal({
           throw new Error("Those passwords do not match.");
         await auth.setNewPassword(password);
       } else if (mode === "signup") {
-        const result = await auth.signUp(name.trim(), email.trim(), password);
+        const normalizedPhone = normalizePhoneNumber(phone);
+        if (normalizedPhone === null) {
+          setPhoneInvalid(true);
+          return;
+        }
+        const result = await auth.signUp(name, email.trim(), password, normalizedPhone);
+        setPhone("");
         if (result.needsEmailConfirmation) {
           changeMode("signin");
           setNotice(
@@ -139,6 +150,17 @@ export function AuthModal({
               required
             />
           </label>
+        )}
+        {mode === "signup" && (
+          <PhoneNumberField
+            value={phone}
+            invalid={phoneInvalid}
+            disabled={busy}
+            onChange={(value) => {
+              setPhone(value);
+              setPhoneInvalid(false);
+            }}
+          />
         )}
         {mode !== "reset" && (
           <label>
