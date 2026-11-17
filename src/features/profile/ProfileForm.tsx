@@ -30,6 +30,7 @@ export function ProfileForm({
       : (profile?.username ?? ""),
   );
   const [name, setName] = useState(profile?.display_name ?? "");
+  const [school, setSchool] = useState(profile?.school_name ?? "");
   const [bio, setBio] = useState(profile?.bio ?? "");
   const [gender, setGender] = useState(preferences.gender);
   const initialPhone = profile?.phone_number ?? "";
@@ -90,8 +91,13 @@ export function ProfileForm({
       return;
     }
     const normalizedPhone = normalizePhoneNumber(phone);
-    if (normalizedPhone === null) {
+    if (normalizedPhone === null || (onboarding && !normalizedPhone)) {
       setPhoneInvalid(true);
+      return;
+    }
+    const schoolName = school.trim();
+    if (onboarding && !schoolName) {
+      setError("Enter your school name.");
       return;
     }
     if (!user || !supabase) return;
@@ -145,6 +151,7 @@ export function ProfileForm({
           username,
           display_name: name.trim(),
           bio: bio.trim(),
+          school_name: schoolName || null,
           ...(normalizedPhone !== initialPhone && {
             phone_number: normalizedPhone || null,
           }),
@@ -247,10 +254,24 @@ export function ProfileForm({
           }}
         />
       </label>
+      <label>
+        School name
+        <input
+          value={school}
+          maxLength={120}
+          required={onboarding}
+          onChange={(event) => {
+            setSchool(event.target.value);
+            setSaved(false);
+          }}
+        />
+        <small>Shown below your name if you join the leaderboard.</small>
+      </label>
       <PhoneNumberField
         value={phone}
         invalid={phoneInvalid}
         disabled={busy}
+        required={onboarding}
         onChange={(value) => {
           setPhone(value);
           setPhoneInvalid(false);

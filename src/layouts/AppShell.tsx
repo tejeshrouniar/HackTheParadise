@@ -70,7 +70,7 @@ const routeFromHash = () => {
   const shelfRoute = route.match(/^bookshelf\/([a-z-]+)$/);
   const knownShelfRoute = shelfRoute && BOOKSHELVES.some((bookshelf) => bookshelf.id === shelfRoute[1]);
   if (knownShelfRoute) return "bookshelf";
-  if (knownBookRoute || LIBRARY.some((book) => book.route === route)) return route;
+  if (knownBookRoute || route === LEADERBOARD_ROUTE || LIBRARY.some((book) => book.route === route)) return route;
   return /^(entrance|bookshelf|learn|settings|quest\/(?:[1-9]|1[0-2])|book-level\/[a-z0-9-]+)$/.test(route)
     ? route
     : "entrance";

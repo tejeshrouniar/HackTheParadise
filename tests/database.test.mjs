@@ -669,6 +669,53 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
       await reset(board.reset_at);
       assert.deepEqual((await read()).leaders, []);
     });
+    await t.test("school profiles and developer exports work across leaderboard rounds", async () => {
+      await db.exec("reset role");
+      await db.exec(migration("202611170020_leaderboard_rounds_and_school.sql"));
+      const learner = "00000000-0000-4000-8000-000000000020";
+      await db.query(`insert into auth.users (id, email, raw_user_meta_data)
+        values ($1, 'school-learner@example.test', '{"display_name":"School Learner",
+          "signup_phone_number":"+919876543210","signup_school_name":"  Library High  "}')`, [learner]);
+      const read = async () => (await db.query("select public.get_library_leaderboard() as board")).rows[0].board;
+      const exportBoard = async () => (await db.query("select public.export_library_leaderboard() as workbook")).rows[0].workbook;
+      await as(null);
+      await assert.rejects(exportBoard, { code: "42501" });
+      await as(learner);
+      const profile = (await db.query("select public.get_my_library_profile() as profile")).rows[0].profile;
+      assert.equal(profile.school_name, "Library High");
+      assert.equal(profile.phone_number, "+919876543210");
+      await assert.rejects(db.query("select phone_number from public.profiles"), { code: "42501" });
+      await assert.rejects(db.query("select school_name from public.profiles"), { code: "42501" });
+      await assert.rejects(db.query("select * from public.library_leaderboard_archive"), { code: "42501" });
+      await assert.rejects(exportBoard, /Developer access required/);
+      await assert.rejects(
+        db.exec("update public.profiles set onboarding_completed=true, school_name=null where id=auth.uid()"),
+        /Enter your phone number and school name/,
+      );
+      await db.exec("update public.profiles set onboarding_completed=true where id=auth.uid()");
+      await db.query("select public.merge_player_progress($1)", [[1]]);
+      await db.exec("update public.user_preferences set leaderboard_visible=true where user_id=auth.uid()");
+      await as(A);
+      const before = await read();
+      assert.equal(before.leaders[0].school_name, "Library High");
+      const ranking = { place: 1, display_name: "School Learner", school_name: "Library High", cinder: 1, harry: 0, total: 1 };
+      assert.deepEqual((await exportBoard()).current, [ranking]);
+      await db.query("select public.reset_library_leaderboard($1)", [before.reset_at]);
+      const archived = await exportBoard();
+      assert.deepEqual(archived.current, []);
+      assert.deepEqual(archived.archive[0].standings, [ranking]);
+      await assert.rejects(
+        db.query("select public.reset_library_leaderboard($1)", [before.reset_at]),
+        /already been reset/,
+      );
+      await as(learner);
+      await db.query("select public.merge_player_progress($1)", [[2]]);
+      assert.deepEqual((await read()).leaders, []);
+      assert.equal((await read()).player.visible, false);
+      await db.exec("update public.user_preferences set leaderboard_visible=true where user_id=auth.uid()");
+      assert.equal((await read()).leaders[0].total, 1);
+      assert.equal((await db.query("select completed_lessons from public.player_progress where user_id=auth.uid()")).rows[0].completed_lessons.length, 2);
+    });
   } finally {
     await db.close();
   }

@@ -17,6 +17,7 @@ export interface Profile {
   avatar_url: string | null;
   bio: string;
   phone_number: string | null;
+  school_name: string | null;
   onboarding_completed: boolean;
 }
 const Context = createContext<{
@@ -38,11 +39,7 @@ export function ProfileProvider({ children }: PropsWithChildren) {
     }
     setLoading(true);
     setError("");
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id,username,display_name,avatar_url,bio,phone_number,onboarding_completed")
-      .eq("id", user.id)
-      .single();
+    const { data, error } = await supabase.rpc("get_my_library_profile");
     if (error) {
       setError(errorMessage(error));
       setProfile(null);

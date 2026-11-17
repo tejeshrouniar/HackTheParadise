@@ -117,6 +117,7 @@
 .htp-rank-table :is(th, td):last-child { text-align: end; }
 .htp-rank-table thead { background: #2f503a; color: #fff0ca; }
 .htp-rank-table tbody th { font-weight: 600; overflow-wrap: anywhere; }
+.htp-rank-school { display: block; margin-top: 4px; color: #394936; font-weight: 400; }
 .htp-rank-table tbody tr:nth-child(odd) { background: #eadaba; }
 .htp-rank-table tbody tr[data-player] { background: #c8d9bd; color: #1e3324; }
 .htp-rank-table { table-layout: fixed; }

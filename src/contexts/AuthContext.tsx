@@ -9,7 +9,7 @@ interface AuthContextValue {
   configured: boolean;
   isPasswordRecovery: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (name: string, email: string, password: string, phoneNumber?: string) => Promise<{ needsEmailConfirmation: boolean }>;
+  signUp: (name: string, email: string, password: string, phoneNumber: string, schoolName: string) => Promise<{ needsEmailConfirmation: boolean }>;
   signInWithGoogle: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   setNewPassword: (password: string) => Promise<void>;
@@ -66,14 +66,15 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       const { error } = await requireSupabase().auth.signInWithPassword({ email, password });
       if (error) throw error;
     },
-    signUp: async (name, email, password, phoneNumber) => {
+    signUp: async (name, email, password, phoneNumber, schoolName) => {
       const { data, error } = await requireSupabase().auth.signUp({
         email,
         password,
         options: {
           data: {
             display_name: name.trim(),
-            ...(phoneNumber && { signup_phone_number: phoneNumber }),
+            signup_phone_number: phoneNumber,
+            signup_school_name: schoolName,
           },
           emailRedirectTo: `${window.location.origin}${window.location.pathname}`,
         },

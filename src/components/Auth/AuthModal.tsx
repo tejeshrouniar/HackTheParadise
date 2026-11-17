@@ -21,6 +21,7 @@ export function AuthModal({
   const auth = useAuth();
   const [mode, setMode] = useState<Mode>("signin");
   const [name, setName] = useState("");
+  const [school, setSchool] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [phoneInvalid, setPhoneInvalid] = useState(false);
@@ -61,12 +62,14 @@ export function AuthModal({
         await auth.setNewPassword(password);
       } else if (mode === "signup") {
         const normalizedPhone = normalizePhoneNumber(phone);
-        if (normalizedPhone === null) {
+        if (!normalizedPhone) {
           setPhoneInvalid(true);
           return;
         }
-        const result = await auth.signUp(name, email.trim(), password, normalizedPhone);
+        if (!school.trim()) throw new Error("Enter your school name.");
+        const result = await auth.signUp(name, email.trim(), password, normalizedPhone, school.trim());
         setPhone("");
+        setSchool("");
         if (result.needsEmailConfirmation) {
           changeMode("signin");
           setNotice(
@@ -152,15 +155,22 @@ export function AuthModal({
           </label>
         )}
         {mode === "signup" && (
-          <PhoneNumberField
-            value={phone}
-            invalid={phoneInvalid}
-            disabled={busy}
-            onChange={(value) => {
-              setPhone(value);
-              setPhoneInvalid(false);
-            }}
-          />
+          <>
+            <label>
+              School name
+              <input value={school} onChange={(event) => setSchool(event.target.value)} required maxLength={120} />
+            </label>
+            <PhoneNumberField
+              value={phone}
+              invalid={phoneInvalid}
+              disabled={busy}
+              required
+              onChange={(value) => {
+                setPhone(value);
+                setPhoneInvalid(false);
+              }}
+            />
+          </>
         )}
         {mode !== "reset" && (
           <label>

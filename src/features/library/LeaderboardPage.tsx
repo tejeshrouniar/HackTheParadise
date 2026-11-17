@@ -7,7 +7,7 @@ import { errorMessage } from "../../lib/validation";
 import { Grimoire } from "./Grimoire";
 import { PixelJournalMark } from "./PixelJournalMark";
 
-type Score = { username: string; display_name: string; cinder: number; harry: number; total: number };
+type Score = { username: string; display_name: string; school_name: string | null; cinder: number; harry: number; total: number };
 type Leader = Score & { place: number };
 type Standings = {
   reset_at?: string | null;
@@ -58,6 +58,7 @@ export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) 
         .update({ leaderboard_visible: visible }).eq("user_id", userId).select("leaderboard_visible").single();
       if (error) throw error;
       setStandings(current => current ? {
+        ...current,
         leaders: current.leaders.filter(leader => leader.username !== player.username),
         player: { ...player, visible, place: null },
       } : current);
@@ -90,8 +91,8 @@ export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) 
         </dl>
         <p>{player.visible
           ? player.total === 0 ? "You’ll appear after your first synced level." : <>You’ve joined as <bdi>{player.display_name}</bdi>.</>
-          : "Join to share your display name and level count with other signed-in players."}</p>
-        <p><a className="sc-link" href="#/library/profile">Edit your display name</a></p>
+          : "Join to share your display name, school, and level count with other signed-in players. Developers can download the standings."}</p>
+        <p><a className="sc-link" href="#/library/profile">Edit your name and school</a></p>
         <button type="button" className="sc-button" disabled={saving || loading} onClick={() => void changeVisibility(!player.visible)}>
           {saving ? "Saving…" : player.visible ? "Hide my ranking" : "Join the leaderboard"}
         </button>
@@ -114,7 +115,12 @@ export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) 
         <tbody>{standings.leaders.map(leader => {
           const isPlayer = leader.username === player?.username;
           return <tr key={leader.username} data-player={isPlayer || undefined}>
-            <td>{leader.place}</td><th scope="row"><bdi>{leader.display_name}</bdi>{isPlayer && <span> · You</span>}</th><td>{leader.total}</td>
+            <td>{leader.place}</td>
+            <th scope="row">
+              <bdi>{leader.display_name}</bdi>{isPlayer && <span> · You</span>}
+              {leader.school_name && <small className="htp-rank-school"><bdi>{leader.school_name}</bdi></small>}
+            </th>
+            <td>{leader.total}</td>
           </tr>;
         })}</tbody>
       </table> : !loading && <p>No rankings yet. Clear a level and join to be listed.</p>)}

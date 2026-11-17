@@ -23,6 +23,7 @@ Apply migrations in filename order on a clean project. Existing projects should 
 | `202611170017` | Moves saved phone numbers into `profiles` with the existing member read policy | 016 |
 | `202611170018` | Saves the optional phone number during email signup through the existing profile trigger | 017 |
 | `202611170019` | Adds a developer-only leaderboard reset that preserves saved progress | 008, 015 |
+| `202611170020` | Adds school names, makes phone numbers private, and adds archived leaderboard rounds and developer Excel exports | 018, 019 |
 
 ## Current hosted project check
 
@@ -42,6 +43,8 @@ The user then applied migration 009 followed by migration 007. A second read-onl
 8. Apply `supabase/migrations/202611100012_book_scoped_spark_content.sql` to add Harry Potter’s separate paid hints and solutions. Its chapters are numbered 1–12 inside the Harry Potter book; the same lesson numbers under Cinder remain separate. Existing balances, tutorial unlocks, and story progress are preserved.
 
 Future storybook migrations should add one story row and its chapter rows under that story’s own stable ID. Keep chapter IDs unique across books, preserve old IDs once released, and do not edit or rerun an applied historical migration to change story content. See [the story authoring guide](STORY_WRITER.md) for the matching frontend catalog workflow.
+
+Apply 020 with the corresponding frontend release. The new frontend reads the signed-in player's own profile through `get_my_library_profile`. The previous frontend's direct phone lookup loses access when 020 takes effect. Apply any missing prerequisites in order first.
 
 Add the project owner to `public.spark_admins` through SQL Editor. Use the email on the Supabase Auth account:
 
