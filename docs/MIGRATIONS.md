@@ -24,6 +24,7 @@ Apply migrations in filename order on a clean project. Existing projects should 
 | `202611170018` | Saves the optional phone number during email signup through the existing profile trigger | 017 |
 | `202611170019` | Adds a developer-only leaderboard reset that preserves saved progress | 008, 015 |
 | `202611170020` | Adds school names, makes phone numbers private, and adds archived leaderboard rounds and developer Excel exports | 018, 019 |
+| `202611180021` | Adds email and phone to developer leaderboard exports. Archives created from this migration onward retain a private account ID for contact lookup. | 020 |
 
 ## Current hosted project check
 

@@ -4,6 +4,8 @@ type Ranking = {
   place: number;
   display_name: string;
   school_name: string | null;
+  email?: string | null;
+  phone_number?: string | null;
   cinder: number;
   harry: number;
   total: number;
@@ -15,7 +17,8 @@ export type LeaderboardExport = {
 };
 
 type Cell = string | number;
-const columns = ["Place", "Display name", "School", "The Last Light", "The Horcrux Code", "Total levels"];
+const columns = ["Place", "Display name", "School", "Email", "Phone number", "The Last Light", "The Horcrux Code", "Total levels"];
+const columnWidths = [9, 26, 35, 36, 20, 19, 22, 15];
 const header = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 const spreadsheet = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
 const packageRelationships = "http://schemas.openxmlformats.org/package/2006/relationships";
@@ -44,7 +47,10 @@ function worksheet(rows: Cell[][], widths: number[]) {
 }
 
 function rankingCells(row: Ranking): Cell[] {
-  return [row.place, row.display_name, row.school_name ?? "", row.cinder, row.harry, row.total];
+  return [
+    row.place, row.display_name, row.school_name ?? "", row.email ?? "", row.phone_number ?? "",
+    row.cinder, row.harry, row.total,
+  ];
 }
 
 export function createLeaderboardWorkbook(data: LeaderboardExport) {
@@ -67,11 +73,11 @@ export function createLeaderboardWorkbook(data: LeaderboardExport) {
       <Relationship Id="rId1" Type="${officeRelationships}/worksheet" Target="worksheets/sheet1.xml"/>
       <Relationship Id="rId2" Type="${officeRelationships}/worksheet" Target="worksheets/sheet2.xml"/>
     </Relationships>`,
-    "xl/worksheets/sheet1.xml": worksheet([columns, ...data.current.map(rankingCells)], [9, 26, 35, 19, 22, 15]),
+    "xl/worksheets/sheet1.xml": worksheet([columns, ...data.current.map(rankingCells)], columnWidths),
     "xl/worksheets/sheet2.xml": worksheet([
       ["Round ended (UTC)", ...columns],
       ...data.archive.flatMap(round => round.standings.map(row => [new Date(round.ended_at).toISOString(), ...rankingCells(row)])),
-    ], [29, 9, 26, 35, 19, 22, 15]),
+    ], [29, ...columnWidths]),
   };
   return zipSync(Object.fromEntries(Object.entries(files).map(([path, xml]) => [path, strToU8(header + xml)])));
 }

@@ -715,6 +715,28 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
       await db.exec("update public.user_preferences set leaderboard_visible=true where user_id=auth.uid()");
       assert.equal((await read()).leaders[0].total, 1);
       assert.equal((await db.query("select completed_lessons from public.player_progress where user_id=auth.uid()")).rows[0].completed_lessons.length, 2);
+
+      await db.exec("reset role");
+      await db.exec(migration("202611180021_leaderboard_export_contacts.sql"));
+      await as(null);
+      await assert.rejects(exportBoard, { code: "42501" });
+      await as(learner);
+      await assert.rejects(exportBoard, /Developer access required/);
+      await as(B);
+      const publicBoard = await read();
+      assert.deepEqual(publicBoard.leaders[0], { ...ranking, username: profile.username });
+      await as(A);
+      const contacts = { email: "school-learner@example.test", phone_number: "+919876543210" };
+      const upgraded = await exportBoard();
+      assert.deepEqual(upgraded.current, [{ ...ranking, ...contacts }]);
+      assert.deepEqual(upgraded.archive[0].standings, [{ ...ranking, email: null, phone_number: null }]);
+      await db.query("select public.reset_library_leaderboard($1)", [(await read()).reset_at]);
+      await as(learner);
+      await db.exec("update public.profiles set phone_number='+911234567890' where id=auth.uid()");
+      await as(A);
+      const afterReset = await exportBoard();
+      assert.deepEqual(afterReset.current, []);
+      assert.deepEqual(afterReset.archive[0].standings, [{ ...ranking, ...contacts, phone_number: "+911234567890" }]);
     });
   } finally {
     await db.close();

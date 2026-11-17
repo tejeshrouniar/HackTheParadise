@@ -86,6 +86,7 @@ export function LeaderboardResetControl() {
   return (
     <section>
       <h3>Leaderboard</h3>
+      <p>The Excel file includes rankings and student contact details.</p>
       <div className="sc-form">
         <button className="sc-button secondary" type="button" disabled={busy || exporting} onClick={() => void download()}>
           {exporting ? "Preparing Excel file…" : "Download leaderboard (.xlsx)"}
