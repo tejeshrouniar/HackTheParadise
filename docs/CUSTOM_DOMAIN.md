@@ -1,4 +1,14 @@
-# Hack The Paradise on GitHub Pages
+# Hack The Paradise hosting
+
+## Cloudflare Pages migration (17 November 2026)
+
+The static Vite build is deployed to [hacktheparadise.pages.dev](https://hacktheparadise.pages.dev/) on the Cloudflare Free plan. The `www.hacktheparadise.com` domain has been added to the `hacktheparadise` Pages project and is awaiting its DNS change at BigRock. Change only the existing `www` CNAME target from `tejeshrouniar.github.io` to `hacktheparadise.pages.dev`. Keep the GitHub Pages deployment as a fallback until Cloudflare reports the custom domain active and HTTPS works on the public domain.
+
+For direct deployments, run `npm test`, then build with the public `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` values from the current deployment configuration. Run `npx wrangler pages deploy dist --project-name hacktheparadise --branch main` after `npx wrangler login`. Do not use a Supabase service-role key in a Vite variable. The combined story film was compressed below Cloudflare Pages' 25 MiB per-file limit.
+
+The bare `hacktheparadise.com` name still uses BigRock DNS and the old GitHub Pages address records. Move or redirect that hostname only after the `www` hostname is serving the Cloudflare deployment with a valid certificate. Supabase's Site URL can remain `https://www.hacktheparadise.com/` because the public origin is unchanged.
+
+## Previous GitHub Pages setup
 
 The production URL is [www.hacktheparadise.com](https://www.hacktheparadise.com/). GitHub Actions builds the site and deploys it to GitHub Pages. BigRock serves the domain's DNS.
 

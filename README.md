@@ -168,8 +168,9 @@ The project uses a modern web development stack.
 | Supabase | Authentication, database and cloud synchronization |
 | PostgreSQL | Persistent application data |
 | CSS | Styling, animations and transitions |
-| GitHub Actions | Automated testing and deployment |
-| GitHub Pages | Static application hosting |
+| GitHub Actions | Existing test and fallback deployment workflow |
+| Cloudflare Pages | Static application hosting during migration |
+| GitHub Pages | Temporary hosting fallback until DNS cutover |
 
 ---
 
@@ -476,7 +477,9 @@ Explore the following documents for additional technical information.
 
 ## 🚢 Deployment
 
-The project includes a GitHub Actions workflow:
+The site is being moved to the Cloudflare Pages Free plan. The direct-upload project is `hacktheparadise`, with `dist` as its output directory. See [custom-domain and deployment notes](docs/CUSTOM_DOMAIN.md) for the current DNS cutover state.
+
+The existing GitHub Pages workflow remains available during the DNS cutover:
 
 `.github/workflows/deploy.yml`
 
