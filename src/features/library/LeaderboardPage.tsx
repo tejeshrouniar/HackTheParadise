@@ -11,6 +11,7 @@ import { PixelJournalMark } from "./PixelJournalMark";
 type Score = { username: string; display_name: string; cinder: number; harry: number; total: number };
 type Leader = Score & { place: number };
 type Standings = {
+  reset_at?: string | null;
   leaders: Leader[];
   player: (Score & { visible: boolean; place: number | null }) | null;
 };
@@ -80,6 +81,7 @@ export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) 
         <div><h1 ref={heading} tabIndex={-1}>Leaderboard</h1><p>Library rankings</p></div>
       </div>
       <p>Each level you clear in order and sync across The Last Light and The Horcrux Code earns one point. Players with the same total share a place.</p>
+      {standings?.reset_at && <p>Rankings count progress since <time dateTime={standings.reset_at}>{new Date(standings.reset_at).toLocaleDateString()}</time>.</p>}
       {!userId && (configured ? <button type="button" className="sc-button" onClick={onSignIn}>Sign in to view rankings</button> : <p>Rankings require a connection to the library database.</p>)}
       {player && <section className="htp-rank-card" aria-labelledby="htp-your-rank">
         <h2 id="htp-your-rank">Your standing</h2>

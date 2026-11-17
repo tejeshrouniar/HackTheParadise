@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { LeaderboardResetControl } from "../library/LeaderboardResetControl";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -124,6 +125,7 @@ export function SparkCodeTools() {
     <details className="sc-spark-admin">
       <summary>Developer Sparks tools</summary>
       <div className="sc-spark-admin-content">
+        <LeaderboardResetControl />
         <section>
           <h3>Mint redeemable codes</h3>
           <p>Codes are random, single-use by default, and stored as hashes. Copy them before leaving this screen.</p>

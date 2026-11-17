@@ -22,6 +22,7 @@ Apply migrations in filename order on a clean project. Existing projects should 
 | `202611170016` | Adds an optional contact phone to `user_preferences` | 002 |
 | `202611170017` | Moves saved phone numbers into `profiles` with the existing member read policy | 016 |
 | `202611170018` | Saves the optional phone number during email signup through the existing profile trigger | 017 |
+| `202611170019` | Adds a developer-only leaderboard reset that preserves saved progress | 008, 015 |
 
 ## Current hosted project check
 

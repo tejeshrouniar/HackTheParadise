@@ -621,6 +621,54 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
       assert.deepEqual(privateBoard.leaders.map(leader => leader.username), ["sparky"]);
       assert.equal(privateBoard.leaders[0].display_name, "Renamed Learner");
     });
+    await t.test("developers reset leaderboard scores without changing saved progress", async () => {
+      await db.exec("reset role");
+      await db.exec(`create schema extensions;
+        create function extensions.digest(data text, algorithm text) returns bytea
+        language sql immutable strict as $$ select sha256(convert_to(data, 'UTF8')) $$;`);
+      await db.exec(migration("202611090008_spark_codes_and_test_access.sql").replace(
+        "create extension if not exists pgcrypto with schema extensions;", "",
+      ));
+      await db.query("insert into public.spark_admins(user_id) values ($1)", [A]);
+      await db.exec(migration("202611170019_leaderboard_reset.sql"));
+
+      const read = async () => (await db.query("select public.get_library_leaderboard() as board")).rows[0].board;
+      const reset = (previous) => db.query("select public.reset_library_leaderboard($1)", [previous]);
+      await as(null);
+      await assert.rejects(reset(null), { code: "42501" });
+      await as(B);
+      await assert.rejects(reset(null), /Developer access required/);
+      await assert.rejects(db.query("select * from public.library_leaderboard_baselines"), { code: "42501" });
+      await assert.rejects(db.query("select * from public.library_leaderboard_progress"), { code: "42501" });
+
+      await as(A);
+      const savedProgress = async () => ({
+        cinder: (await db.query("select completed_lessons from public.player_progress where user_id = auth.uid()")).rows,
+        story: (await db.query("select chapter_id, completed from public.story_progress where user_id = auth.uid() order by chapter_id")).rows,
+      });
+      const beforeReset = await savedProgress();
+      assert.equal((await read()).player.total, 2);
+      await reset(null);
+      const board = await read();
+      assert.ok(board.reset_at);
+      assert.equal(board.player.total, 0);
+      assert.equal(board.player.visible, true);
+      assert.deepEqual(board.leaders, []);
+      assert.deepEqual(await savedProgress(), beforeReset);
+
+      await as(B);
+      await db.exec("update public.user_preferences set leaderboard_visible = true where user_id = auth.uid()");
+      assert.equal((await read()).player.total, 0);
+      await db.query("select public.merge_player_progress($1)", [[3]]);
+      assert.equal((await read()).player.total, 1);
+      assert.equal((await read()).player.place, 1);
+
+      await as(A);
+      await assert.rejects(reset(null), /already been reset/);
+      assert.equal((await read()).leaders[0].total, 1);
+      await reset(board.reset_at);
+      assert.deepEqual((await read()).leaders, []);
+    });
   } finally {
     await db.close();
   }
