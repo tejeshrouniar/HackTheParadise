@@ -15,7 +15,7 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
   try {
     // Minimal Supabase-owned schemas. This tests real PostgreSQL constraints/RLS;
     // GoTrue, Storage HTTP validation and Realtime transport require live staging tests.
-    await db.exec(`create role anon; create role authenticated; create schema auth; create schema storage;
+    await db.exec(`create role anon; create role authenticated; create role service_role; create schema auth; create schema storage;
       alter default privileges in schema public grant all on tables to anon,authenticated;
       create table auth.users(id uuid primary key,email text,raw_user_meta_data jsonb not null default '{}');
       create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
@@ -227,7 +227,8 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
       }
     });
     await db.exec(migration("202611170018_email_signup_profile_phone.sql"));
-    await t.test("email signup saves profile details before a session exists", async () => {
+    await db.exec(migration("202611050006_spark_wallet.sql"));
+    await t.test("email signup saves profile details and can use Sparks on first sign-in", async () => {
       await db.exec("begin");
       try {
         const { rows: users } = await db.query(
@@ -251,6 +252,19 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
           { display_name: "OAuth Learner", phone_number: null, avatar_url: "https://example.test/avatar.png", onboarding_completed: false },
           { display_name: "Other Learner", phone_number: null, avatar_url: null, onboarding_completed: false },
         ]);
+
+        await as(users[0].id);
+        const wallet = async () =>
+          (await db.query("select public.spark_wallet() as wallet")).rows[0].wallet;
+        assert.deepEqual(await wallet(), { balance: 30, unlocks: [] });
+        assert.equal((await wallet()).balance, 30);
+        const { rows: purchase } = await db.query(
+          "select public.spend_sparks(1, 'hint') as wallet",
+        );
+        assert.equal(purchase[0].wallet.balance, 20);
+        assert.deepEqual(purchase[0].wallet.unlocks, [{ lesson_id: 1, kind: "hint" }]);
+        await as(users[1].id);
+        assert.deepEqual(await wallet(), { balance: 30, unlocks: [] });
       } finally {
         await db.exec("rollback");
       }

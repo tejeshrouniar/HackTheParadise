@@ -39,7 +39,7 @@ The browser can redeem a code or spend sparks through authenticated RPCs, but it
 
 ## 3. Enable email accounts
 
-Email and password sign-up/sign-in are handled by Supabase Auth. Email confirmation follows the project's **Authentication → Providers → Email** setting. Add the local origin shown by Vite to **Authentication → URL Configuration → Redirect URLs**. The default is `http://localhost:3000/`; add `http://127.0.0.1:3000/` and the `:3010` variants only if you use those local URLs.
+Email and password sign-up/sign-in are handled by Supabase Auth. For immediate signup without a confirmation email, turn off **Confirm email** in **Authentication → Sign In / Providers → Email**. Keep the Email provider enabled for password sign-in. Supabase saves the signup email on the Auth account and starts a session immediately. The signed-in account can then access its Spark wallet, which grants the initial 30 Sparks on the first wallet call. Add the local origin shown by Vite to **Authentication → URL Configuration → Redirect URLs**. The default is `http://localhost:3000/`; add `http://127.0.0.1:3000/` and the `:3010` variants only if you use those local URLs.
 
 ## 4. Enable Google sign-in
 
