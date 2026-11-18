@@ -11,11 +11,35 @@ import {
   mergeLessons,
   safeUrl,
   messageError,
+  readLocal,
 } from "../src/lib/validation.ts";
+import { readPreferences, defaultPreferences } from "../src/features/settings/preferenceValues.ts";
 import { CODEDEX_LESSONS } from "../src/data/codedexLessons.ts";
 import { CORE_FRAGMENTS, chapterOutcome } from "../src/content/eldoria.ts";
 import { ALL_SAGAS } from "../src/content/storySagas.ts";
 import { FOREST_CHAPTERS } from "../src/content/forestCampaign.ts";
+
+test("damaged preference storage recovers with safe values", () => {
+  for (const value of [null, [], "invalid", 4, undefined]) {
+    assert.deepEqual(readPreferences(value), defaultPreferences);
+  }
+  assert.deepEqual(readPreferences({
+    sound_effects: "false", music_volume: Infinity, focus_minutes: 2.5, gender: "unexpected",
+  }), defaultPreferences);
+  assert.deepEqual(readPreferences({
+    sound_effects: false, music_volume: 2, focus_minutes: -9, gender: "prefer-not-to-say",
+  }), { sound_effects: false, music_volume: 1, focus_minutes: 1, gender: "prefer-not-to-say" });
+  const original = globalThis.localStorage;
+  try {
+    globalThis.localStorage = { getItem: () => "null" };
+    assert.deepEqual(readLocal("preferences", {}), {});
+    globalThis.localStorage = { getItem: () => "{" };
+    assert.deepEqual(readLocal("preferences", {}), {});
+  } finally {
+    if (original === undefined) delete globalThis.localStorage;
+    else globalThis.localStorage = original;
+  }
+});
 
 // Paid solution fixtures live in tests only. They are deliberately not imported
 // by the browser bundle; production reads them after a Supabase entitlement check.

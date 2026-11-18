@@ -40,7 +40,7 @@ export function messageError(value: string): string {
 export function readLocal<T>(key: string, fallback: T): T {
   try {
     const value = localStorage.getItem(key);
-    return value === null ? fallback : JSON.parse(value);
+    return value === null ? fallback : JSON.parse(value) ?? fallback;
   } catch {
     return fallback;
   }
@@ -67,7 +67,7 @@ export function errorMessage(error: unknown): string {
   if (/invalid login credentials/i.test(message))
     return "Your email or password is incorrect. Check both and try again.";
   if (message === "Enter your phone number and school name to complete your profile.")
-    return "Enter your phone number and school or college name to complete your profile.";
+    return "Enter your phone number and affiliation to complete your profile.";
   if (
     /schema cache|does not exist|could not find.*(table|column|function)/i.test(
       message,

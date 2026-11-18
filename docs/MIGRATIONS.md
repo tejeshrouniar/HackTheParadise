@@ -51,7 +51,7 @@ Future storybook migrations should add one story row and its chapter rows under 
 
 Apply 020 with the corresponding frontend release. The new frontend reads the signed-in player's own profile through `get_my_library_profile`. The previous frontend's direct phone lookup loses access when 020 takes effect. Apply any missing prerequisites in order first.
 
-For profile permission errors after 020, apply 022 and deploy the current frontend together. The signup and profile forms label `school_name` as School / college. Profile reads use `get_my_library_profile`; profile saves update the caller's row with explicit editable-column grants.
+For profile permission errors after 020, apply the unapplied repair migrations through 024 and deploy the current frontend together. The signup and profile forms label `school_name` as Affiliation. Profile reads use `get_my_library_profile`; profile saves use the owner-scoped `save_library_profile` RPC.
 
 Add the project owner to `public.spark_admins` through SQL Editor. Use the email on the Supabase Auth account:
 

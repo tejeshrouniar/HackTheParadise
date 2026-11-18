@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Camera, Check, LoaderCircle } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { supabase } from "../../lib/supabase";
@@ -24,6 +24,7 @@ export function ProfileForm({
   const { user } = useAuth();
   const { profile, saveProfile } = useProfile();
   const { preferences, update } = usePreferences();
+  const usernameHint = useId();
   const [username, setUsername] = useState(
     /^u_[0-9a-f]{32}$/.test(profile?.username ?? "")
       ? ""
@@ -34,8 +35,7 @@ export function ProfileForm({
   const [bio, setBio] = useState(profile?.bio ?? "");
   const [gender, setGender] = useState(preferences.gender);
   const [joinLeaderboard, setJoinLeaderboard] = useState(onboarding || profile?.leaderboard_visible === true);
-  const initialPhone = profile?.phone_number ?? "";
-  const [phone, setPhone] = useState(initialPhone);
+  const [phone, setPhone] = useState(profile?.phone_number ?? "");
   const [phoneInvalid, setPhoneInvalid] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>();
@@ -43,8 +43,9 @@ export function ProfileForm({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const dirty = useRef(false);
   useEffect(() => {
-    if (!profile?.onboarding_completed) return;
+    if (!profile?.onboarding_completed || dirty.current) return;
     setUsername(profile.username);
     setName(profile.display_name);
     setSchool(profile.school_name ?? "");
@@ -53,7 +54,7 @@ export function ProfileForm({
     setJoinLeaderboard(profile.leaderboard_visible === true);
   }, [profile]);
   useEffect(() => {
-    setGender(preferences.gender);
+    if (!dirty.current) setGender(preferences.gender);
   }, [preferences.gender]);
   useEffect(() => {
     if (!file) {
@@ -73,7 +74,7 @@ export function ProfileForm({
     setAvailability("Checking username…");
     const timer = setTimeout(() => {
       if (!supabase) return;
-      void supabase
+      void Promise.resolve(supabase
         .rpc("username_available", { candidate: username })
         .then(({ data, error }) => {
           if (active)
@@ -84,6 +85,8 @@ export function ProfileForm({
                   ? "Username available"
                   : "That username is taken",
             );
+        })).catch(() => {
+          if (active) setAvailability("Availability could not be checked. Try saving to retry.");
         });
     }, 400);
     return () => {
@@ -93,6 +96,7 @@ export function ProfileForm({
   }, [username]);
   async function save(event: React.FormEvent) {
     event.preventDefault();
+    if (busy) return;
     setError("");
     setSaved(false);
     const invalid = usernameError(username);
@@ -107,7 +111,7 @@ export function ProfileForm({
     }
     const schoolName = school.trim();
     if (onboarding && !schoolName) {
-      setError("Enter your school or college name.");
+      setError("Enter your affiliation.");
       return;
     }
     if (!user || !supabase) return;
@@ -169,6 +173,7 @@ export function ProfileForm({
         avatar_url: avatar ?? null,
         leaderboard_visible: joinLeaderboard,
       });
+      dirty.current = false;
       // The new avatar is now attached to the saved profile.
       const replacedPicture = uploadedPath && profile?.avatar_url;
       uploadedPath = undefined;
@@ -196,7 +201,11 @@ export function ProfileForm({
     }
   }
   return (
-    <form onSubmit={save} className="sc-form">
+    <form onSubmit={save} className="sc-form" onChangeCapture={() => {
+      dirty.current = true;
+      setSaved(false);
+    }}>
+      <fieldset className="sc-form-fields" disabled={busy}>
       <div className="sc-profile-photo">
         {preview ? (
           <img
@@ -243,10 +252,10 @@ export function ProfileForm({
               setUsername(normalizeUsername(e.target.value));
               setSaved(false);
             }}
-            aria-describedby="username-hint"
+            aria-describedby={usernameHint}
           />
         </span>
-        <small id="username-hint" aria-live="polite">
+        <small id={usernameHint} aria-live="polite">
           {availability ||
             "3–36 lowercase letters, numbers or underscores. Unique to you."}
         </small>
@@ -265,11 +274,11 @@ export function ProfileForm({
         />
       </label>
       <label>
-        School / college
+        Affiliation
         <input
           value={school}
           autoComplete="organization"
-          placeholder="Your school or college name"
+          placeholder="Your organization, school or college"
           maxLength={120}
           required={onboarding}
           onChange={(event) => {
@@ -301,7 +310,7 @@ export function ProfileForm({
           }}
         />
         <span>Join the leaderboard</span>
-        <small>Share your name, school and level count with other players. Developer exports include your email and phone number. You appear when you join, including with zero levels cleared.</small>
+        <small>Share your name, affiliation and level count with other players. Developer exports include your email and phone number. You appear when you join, including with zero levels cleared.</small>
       </label>
       <label>
         About you <span className="sc-muted">(optional)</span>
@@ -356,6 +365,7 @@ export function ProfileForm({
           Your profile is saved.
         </p>
       )}
+      </fieldset>
     </form>
   );
 }

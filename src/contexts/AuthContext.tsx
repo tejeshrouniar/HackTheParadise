@@ -13,6 +13,7 @@ interface AuthContextValue {
   signInWithGoogle: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   setNewPassword: (password: string) => Promise<void>;
+  dismissPasswordRecovery: () => void;
   signOut: () => Promise<void>;
 }
 
@@ -109,6 +110,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       if (error) throw error;
       setIsPasswordRecovery(false);
     },
+    dismissPasswordRecovery: () => setIsPasswordRecovery(false),
     signOut: async () => {
       const { error } = await requireSupabase().auth.signOut({ scope: 'local' });
       if (error) throw error;

@@ -98,10 +98,13 @@ function pageTurnDirection(from: string, to: string): "next" | "previous" {
   return "next";
 }
 export function AppShell() {
-  const { user, isPasswordRecovery, signOut } = useAuth();
+  const { user, isPasswordRecovery, signOut, dismissPasswordRecovery } = useAuth();
   const { completed } = useProgress();
   const { completed: completedChapters } = useBookProgress();
-  const { profile, loading: profileLoading } = useProfile();
+  const { profile, loading: profileLoading, error: profileError } = useProfile();
+  useEffect(() => {
+    if (profileError) toast.error("Your profile could not load. Open Profile to retry.");
+  }, [profileError]);
   const [{ route, previousRoute, pageTurn }, setRouteState] = useState<{
     route: string;
     previousRoute: string;
@@ -328,12 +331,12 @@ export function AppShell() {
           {!inLibrary && <footer className="sc-site-footer"><strong>Hack The Paradise</strong><span>© 2026 Hack The Paradise</span><a href={PROJECT_REPOSITORY} target="_blank" rel="noreferrer">Repository</a><a href="#/library/contact">Contact / feedback</a></footer>}
         </div>
         </GrimoireHeaderSlot.Provider></PageTurnProvider>
-        <AuthModal
+        {auth && <AuthModal
           isOpen={auth}
-          onClose={() => setAuth(false)}
+          onClose={() => { setAuth(false); dismissPasswordRecovery(); }}
           onGuest={() => {}}
           onAuthenticated={() => setAuth(false)}
-        />
+        />}
         <Modal
           open={
             !!profile && !profile.onboarding_completed && !isPasswordRecovery

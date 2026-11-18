@@ -72,22 +72,23 @@ function useBookProgressState() {
     const merged = [...new Set([...current.current, chapterId])];
     current.current = merged;
     setCompleted(merged);
-    writeLocal(key, merged);
+    const stored = writeLocal(key, merged);
     if (!user || !supabase) {
-      setStatus("Saved on this device");
+      setStatus(stored ? "Saved on this device" : "Device storage unavailable; keep this tab open.");
       return true;
     }
 
     setStatus("Saving book progress…");
-    const { error } = await supabase
-      .from("story_progress")
-      .upsert({ user_id: user.id, chapter_id: chapterId, completed: true }, { onConflict: "user_id,chapter_id" });
-    if (error) {
-      setStatus("Saved on this device · apply the latest storybook migration to sync this book");
-      return true;
+    try {
+      const { error } = await supabase
+        .from("story_progress")
+        .upsert({ user_id: user.id, chapter_id: chapterId, completed: true }, { onConflict: "user_id,chapter_id" });
+      if (error) throw error;
+      synced.current.add(chapterId);
+      setStatus("Synced to your account");
+    } catch (error) {
+      setStatus(`${stored ? "Saved on this device" : "Keep this tab open"} · ${errorMessage(error)}`);
     }
-    synced.current.add(chapterId);
-    setStatus("Synced to your account");
     return true;
   }, [key, user?.id]);
 

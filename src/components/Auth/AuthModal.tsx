@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowRight, Eye, EyeOff, LoaderCircle, Sparkles } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Modal } from "../ui/Modal";
 import { ErrorNotice } from "../ui/Status";
@@ -19,7 +19,7 @@ export function AuthModal({
   onAuthenticated: () => void;
 }) {
   const auth = useAuth();
-  const [mode, setMode] = useState<Mode>("signin");
+  const [mode, setMode] = useState<Mode>(() => auth.isPasswordRecovery ? "new-password" : "signin");
   const [name, setName] = useState("");
   const [school, setSchool] = useState("");
   const [email, setEmail] = useState("");
@@ -35,6 +35,7 @@ export function AuthModal({
     if (auth.isPasswordRecovery) setMode("new-password");
   }, [auth.isPasswordRecovery]);
   const changeMode = (mode: Mode) => {
+    if (busy) return;
     setMode(mode);
     setPhone("");
     setPhoneInvalid(false);
@@ -42,9 +43,11 @@ export function AuthModal({
     setNotice("");
     setPassword("");
     setConfirm("");
+    setShow(false);
   };
   async function submit(e: FormEvent) {
     e.preventDefault();
+    if (busy) return;
     setBusy(true);
     setError("");
     setNotice("");
@@ -66,7 +69,8 @@ export function AuthModal({
           setPhoneInvalid(true);
           return;
         }
-        if (!school.trim()) throw new Error("Enter your school or college name.");
+        if (!name.trim()) throw new Error("Enter your name.");
+        if (!school.trim()) throw new Error("Enter your affiliation.");
         const result = await auth.signUp(name, email.trim(), password, normalizedPhone, school.trim());
         setPhone("");
         setSchool("");
@@ -88,6 +92,7 @@ export function AuthModal({
     }
   }
   async function google() {
+    if (busy) return;
     setBusy(true);
     setError("");
     try {
@@ -112,10 +117,8 @@ export function AuthModal({
       }
       description="Save your progress and Sparks across devices."
       required={busy}
+      wide={mode === "signup"}
     >
-      <div className="sc-auth-emblem">
-        <Sparkles size={28} />
-      </div>
       {(mode === "signin" || mode === "signup") && (
         <>
           <button
@@ -129,7 +132,8 @@ export function AuthModal({
           <div className="sc-divider">or use email</div>
         </>
       )}
-      <form className="sc-form" onSubmit={submit}>
+      <form className={`sc-form${mode === "signup" ? " sc-auth-signup" : ""}`} onSubmit={submit}>
+        <fieldset className="sc-form-fields" disabled={busy}>
         {mode === "signup" && (
           <label>
             Your name
@@ -157,12 +161,12 @@ export function AuthModal({
         {mode === "signup" && (
           <>
             <label>
-              School / college
+              Affiliation
               <input
                 value={school}
                 onChange={(event) => setSchool(event.target.value)}
                 autoComplete="organization"
-                placeholder="Your school or college name"
+                placeholder="Your organization, school or college"
                 required
                 maxLength={120}
               />
@@ -180,7 +184,7 @@ export function AuthModal({
           </>
         )}
         {mode !== "reset" && (
-          <label>
+          <label className="sc-auth-password">
             Password
             <div className="sc-password">
               <input
@@ -244,21 +248,23 @@ export function AuthModal({
                 ? "Save password"
                 : "Sign in"}
         </button>
+        </fieldset>
       </form>
       <div className="sc-auth-links">
         {mode === "signin" ? (
           <>
-            <button onClick={() => changeMode("signup")}>
+            <button disabled={busy} onClick={() => changeMode("signup")}>
               New here? Create an account
             </button>
-            <button onClick={() => changeMode("reset")}>
+            <button disabled={busy} onClick={() => changeMode("reset")}>
               Forgot password?
             </button>
           </>
         ) : (
-          <button onClick={() => changeMode("signin")}>Back to sign in</button>
+          <button disabled={busy} onClick={() => changeMode("signin")}>Back to sign in</button>
         )}
         <button
+          disabled={busy}
           onClick={() => {
             onClose();
             onGuest();

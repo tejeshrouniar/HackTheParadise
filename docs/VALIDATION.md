@@ -144,3 +144,13 @@
 - A headless Brave check at 390px width used mocked Supabase responses for email signup, school and phone metadata, onboarding, photo upload, profile save, leaderboard membership, incorrect-password feedback, and returning-student sign-in. The onboarding page had no horizontal overflow.
 - The hosted Auth settings returned email and Google signup enabled, new registrations enabled, and email auto-confirmation enabled. These read-only probes did not create an account or test signed-in production writes.
 - The default Vite config bundler encountered a sandbox directory permission error. The production build passed with `npm run build -- --configLoader runner`. Migration 023 and the matching frontend still require deployment for live verification.
+
+## Account and frontend audit, 18 November 2026
+
+- Fixed preference retries that could skip the database after a failed save, stale profile responses, background refreshes overwriting profile drafts, persistent auth dialog modes/passwords, concurrent auth form actions, duplicate profile hint IDs, and uncaught book progress save failures. Restored Affiliation labels in account forms.
+- Added safe defaults for damaged preference values and JSON null in browser storage. Local tests cover corrupted settings along with the existing database permissions and progress checks.
+- Local browser checks used a synthetic API on port 54124. Covered invalid credentials, closing/reopening signup, successful login, failed preference save followed by retry, profile reload, leaderboard visibility, sign-out, and signup/onboarding. The backend confirmed both save attempts and the persisted preference/profile values.
+- Profile, leaderboard and tutorial book bounds fit the viewport at 1024×576 and 1280×720. No horizontal document overflow or duplicate profile field IDs were found in these checks.
+- Signup uses two columns on desktop and removes the decorative emblem so the submit and alternate sign-in controls fit at 1280×720.
+- Hosted SQL checks confirmed member access to the profile RPCs, private phone access, no missing profiles, and zero-score leaderboard membership. An authenticated-role profile read/save and leaderboard read succeeded inside a transaction that was rolled back. These checks did not exercise a real student's Google login or password reset email.
+- All 65 tests and the TypeScript/Vite production build passed. Deployed to Cloudflare Pages (`c1c516fb`). Both the public domain and Pages domain served HTTP 200 with the new entry bundle. Live signup showed Affiliation and required phone fields, all signup controls fit at 1280×720 without scrolling, and the browser reported no errors or warnings during the final release check.
