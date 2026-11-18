@@ -17,7 +17,7 @@ export type LeaderboardExport = {
 };
 
 type Cell = string | number;
-const columns = ["Place", "Display name", "School", "Email", "Phone number", "The Last Light", "The Horcrux Code", "Total levels"];
+const columns = ["Place", "Display name", "Affiliation", "Email", "Phone number", "The Last Light", "The Horcrux Code", "Total levels"];
 const columnWidths = [9, 26, 35, 36, 20, 19, 22, 15];
 const header = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 const spreadsheet = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";

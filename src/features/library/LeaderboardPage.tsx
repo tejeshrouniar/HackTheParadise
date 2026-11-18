@@ -91,8 +91,8 @@ export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) 
         </dl>
         <p>{player.visible
           ? player.total === 0 ? "You’ll appear after your first synced level." : <>You’ve joined as <bdi>{player.display_name}</bdi>.</>
-          : "Join to share your display name, school, and level count with other signed-in players. Developer exports also include your account email and phone number."}</p>
-        <p><a className="sc-link" href="#/library/profile">Edit your name and school</a></p>
+          : "Join to share your display name, affiliation, and level count with other signed-in players. Developer exports also include your account email and phone number."}</p>
+        <p><a className="sc-link" href="#/library/profile">Edit your name and affiliation</a></p>
         <button type="button" className="sc-button" disabled={saving || loading} onClick={() => void changeVisibility(!player.visible)}>
           {saving ? "Saving…" : player.visible ? "Hide my ranking" : "Join the leaderboard"}
         </button>

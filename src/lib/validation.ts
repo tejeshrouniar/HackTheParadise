@@ -58,6 +58,8 @@ export function errorMessage(error: unknown): string {
     error && typeof error === "object" && "message" in error
       ? String(error.message)
       : "Something went wrong.";
+  if (message === "Enter your phone number and school name to complete your profile.")
+    return "Enter your phone number and affiliation to complete your profile.";
   if (
     /schema cache|does not exist|could not find.*(table|column|function)/i.test(
       message,
