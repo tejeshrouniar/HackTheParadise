@@ -25,6 +25,7 @@ Apply migrations in filename order on a clean project. Existing projects should 
 | `202611170019` | Adds a developer-only leaderboard reset that preserves saved progress | 008, 015 |
 | `202611170020` | Adds school names, makes phone numbers private, and adds archived leaderboard rounds and developer Excel exports | 018, 019 |
 | `202611180021` | Adds email and phone to developer leaderboard exports. Archives created from this migration onward retain a private account ID for contact lookup. | 020 |
+| `202611180022` | Restores profile form grants and the owner profile lookup after the school migration | 020 |
 
 ## Current hosted project check
 
@@ -46,6 +47,8 @@ The user then applied migration 009 followed by migration 007. A second read-onl
 Future storybook migrations should add one story row and its chapter rows under that story’s own stable ID. Keep chapter IDs unique across books, preserve old IDs once released, and do not edit or rerun an applied historical migration to change story content. See [the story authoring guide](STORY_WRITER.md) for the matching frontend catalog workflow.
 
 Apply 020 with the corresponding frontend release. The new frontend reads the signed-in player's own profile through `get_my_library_profile`. The previous frontend's direct phone lookup loses access when 020 takes effect. Apply any missing prerequisites in order first.
+
+For profile permission errors after 020, apply 022 and deploy the current frontend together. The signup and profile forms label `school_name` as School / college. Profile reads use `get_my_library_profile`; profile saves update the caller's row with explicit editable-column grants.
 
 Add the project owner to `public.spark_admins` through SQL Editor. Use the email on the Supabase Auth account:
 

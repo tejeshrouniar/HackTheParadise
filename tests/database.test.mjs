@@ -738,6 +738,57 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
       assert.deepEqual(afterReset.current, []);
       assert.deepEqual(afterReset.archive[0].standings, [{ ...ranking, ...contacts, phone_number: "+911234567890" }]);
     });
+    await t.test("profile access repair restores form saves and keeps account ownership", async () => {
+      const learner = "00000000-0000-4000-8000-000000000020";
+      await db.exec("reset role");
+      // Reproduce missing grants and a profile lookup running as the browser role.
+      await db.exec(`revoke all on public.profiles from authenticated;
+        revoke select (id, username, display_name, avatar_url, bio, onboarding_completed, created_at, updated_at)
+          on public.profiles from authenticated;
+        revoke update (username, display_name, avatar_url, bio, phone_number, school_name, onboarding_completed)
+          on public.profiles from authenticated;
+        alter function public.get_my_library_profile() owner to authenticated;`);
+      await as(learner);
+      await assert.rejects(db.query("select public.get_my_library_profile()"), { code: "42501" });
+      await assert.rejects(
+        db.query("update public.profiles set school_name='Updated School' where id=auth.uid() returning id"),
+        { code: "42501" },
+      );
+
+      await db.exec("reset role");
+      const repair = migration("202611180022_profile_access_repair.sql");
+      await db.exec(repair);
+      await db.exec(repair);
+      await as(learner);
+      const readProfile = async () =>
+        (await db.query("select public.get_my_library_profile() as profile")).rows[0].profile;
+      assert.equal((await readProfile()).school_name, "Library High");
+      assert.equal((await readProfile()).phone_number, "+911234567890");
+      assert.deepEqual(
+        (await db.query(`update public.profiles set
+          display_name='School Learner', school_name='Updated School',
+          phone_number='+919876543210', bio='Learning to code', onboarding_completed=true
+          where id=auth.uid() returning id`)).rows,
+        [{ id: learner }],
+      );
+      assert.equal((await readProfile()).school_name, "Updated School");
+
+      await as(B);
+      assert.equal((await readProfile()).id, B);
+      assert.deepEqual(
+        (await db.query("update public.profiles set school_name='Other School' where id=$1 returning id", [learner])).rows,
+        [],
+      );
+      assert.equal(
+        (await db.query("select display_name from public.profiles where id=$1", [learner])).rows[0].display_name,
+        "School Learner",
+      );
+      await assert.rejects(db.query("select phone_number from public.profiles"), { code: "42501" });
+      await as(null);
+      await assert.rejects(db.query("select id from public.profiles"), { code: "42501" });
+      await assert.rejects(db.query("select public.get_my_library_profile()"), { code: "42501" });
+      await db.exec("reset role");
+    });
   } finally {
     await db.close();
   }

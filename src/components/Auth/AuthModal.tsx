@@ -66,7 +66,7 @@ export function AuthModal({
           setPhoneInvalid(true);
           return;
         }
-        if (!school.trim()) throw new Error("Enter your affiliation.");
+        if (!school.trim()) throw new Error("Enter your school or college name.");
         const result = await auth.signUp(name, email.trim(), password, normalizedPhone, school.trim());
         setPhone("");
         setSchool("");
@@ -157,8 +157,15 @@ export function AuthModal({
         {mode === "signup" && (
           <>
             <label>
-              Affiliation
-              <input value={school} onChange={(event) => setSchool(event.target.value)} required maxLength={120} />
+              School / college
+              <input
+                value={school}
+                onChange={(event) => setSchool(event.target.value)}
+                autoComplete="organization"
+                placeholder="Your school or college name"
+                required
+                maxLength={120}
+              />
             </label>
             <PhoneNumberField
               value={phone}

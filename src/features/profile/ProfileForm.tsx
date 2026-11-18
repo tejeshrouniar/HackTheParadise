@@ -97,7 +97,7 @@ export function ProfileForm({
     }
     const schoolName = school.trim();
     if (onboarding && !schoolName) {
-      setError("Enter your affiliation.");
+      setError("Enter your school or college name.");
       return;
     }
     if (!user || !supabase) return;
@@ -255,9 +255,11 @@ export function ProfileForm({
         />
       </label>
       <label>
-        Affiliation
+        School / college
         <input
           value={school}
+          autoComplete="organization"
+          placeholder="Your school or college name"
           maxLength={120}
           required={onboarding}
           onChange={(event) => {
