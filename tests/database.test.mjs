@@ -844,6 +844,42 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
       await db.exec("reset role");
       assert.equal((await db.query("select public from storage.buckets where id='avatars'")).rows[0].public, true);
     });
+    await t.test("profile RPCs work when their owner initially lacks table privileges", async () => {
+      await db.exec("reset role");
+      // Hosted postgres has BYPASSRLS without being a superuser. Use an equivalent
+      // test role so table ownership in the PGlite harness cannot hide missing grants.
+      await db.exec(`create role profile_executor bypassrls;
+        grant usage on schema public, auth to profile_executor;
+        grant select on auth.users to profile_executor;
+        alter function public.ensure_library_profile(uuid) owner to profile_executor;
+        alter function public.get_my_library_profile() owner to profile_executor;
+        alter function public.save_library_profile(text, text, text, text, text, text, boolean) owner to profile_executor;`);
+      const student = "00000000-0000-4000-8000-000000000023";
+      const readProfile = async () => (await db.query(
+        "select public.get_my_library_profile() as profile",
+      )).rows[0].profile;
+      await as(student);
+      await assert.rejects(readProfile(), /permission denied for table profiles/);
+
+      await db.exec("reset role");
+      const repair = migration("202611180024_profile_definer_grants.sql")
+        .replaceAll(/\bpostgres\b/g, "profile_executor");
+      await db.exec(repair);
+      await db.exec(repair);
+      await as(student);
+      assert.equal((await readProfile()).id, student);
+      const { rows } = await db.query(
+        "select public.save_library_profile($1,$2,$3,$4,$5,$6,$7) as profile",
+        ["student_23", "New Student", "Profile repaired", "Student College", "+919876543210", null, true],
+      );
+      assert.equal(rows[0].profile.bio, "Profile repaired");
+      assert.equal(rows[0].profile.leaderboard_visible, true);
+      await as(B);
+      assert.equal((await readProfile()).id, B);
+      await assert.rejects(db.query("select phone_number from public.profiles"), { code: "42501" });
+      await assert.rejects(db.query("select public.ensure_library_profile($1)", [student]), { code: "42501" });
+      await db.exec("reset role");
+    });
   } finally {
     await db.close();
   }
