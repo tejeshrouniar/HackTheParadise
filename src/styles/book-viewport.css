@@ -132,3 +132,44 @@
   }
   .htp-open-bookcase .htp-library-book strong { font-size: clamp(10px, 2.4cqh, 16px); }
 }
+
+@media (min-width: 761px) and (max-width: 1200px) {
+  .sc-magical-app .htp-page-bookmarks {
+    grid-template-columns: max-content minmax(0, 1fr) max-content;
+  }
+}
+
+@media (min-width: 900px) and (min-aspect-ratio: 3/2) and (max-height: 760px) {
+  .sc-magical-app .htp-page-bookmarks { padding-bottom: 2px; }
+  .htp-bookmark-actions .htp-tools-bookmark { height: 48px; }
+  .htp-page-bookmarks .htp-chapter-bookmark { padding-top: 2px; }
+
+  .htp-open-bookcase .htp-book-row__heading { margin-top: 3px; padding-block: 2px; }
+  .htp-open-bookcase .htp-book-row__books { padding-block: 3px; }
+
+  .sc-magical-app .sc-world-map-heading .sc-world-map-heading__progress {
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+    justify-content: end;
+    gap: 3px 6px;
+    padding: 5px 10px;
+  }
+  .sc-magical-app .sc-world-map-heading__progress .sc-button {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .sc-magical-app .sc-world-map-heading__progress strong { font-size: 20px; }
+  .sc-magical-app .sc-world-map-heading h1 { font-size: 32px; }
+  .sc-magical-app .sc-book-walk-stage { height: clamp(310px, 48dvh, 360px); min-height: 310px; }
+
+  .sc-magical-app .sc-route-turn .sc-grimoire { --book-gutter: 10px; }
+  /* Long instructions and compiler errors expand the editor inside the scrollable leaf. */
+  .sc-magical-app .sc-grimoire .sc-grimoire-editor-page { grid-template-rows: auto auto; }
+  .sc-magical-app .sc-grimoire .sc-spell-editor { min-height: var(--panel-height); }
+  .sc-magical-app .sc-route-turn .sc-grimoire--coding .sc-code-input {
+    contain: size;
+    min-height: 128px;
+  }
+  .sc-magical-app .sc-grimoire .sc-code-error { flex-shrink: 0; }
+}
