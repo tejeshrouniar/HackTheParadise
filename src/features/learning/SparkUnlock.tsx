@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { supabase } from "../../lib/supabase";
 import { useHintWallet } from "./useHintWallet";
-
-type UnlockKind = "hint" | "solution";
+import { sparkPrice, type UnlockKind } from "./sparkPricing";
 
 export function SparkUnlock({
   bookId = "cinder",
@@ -17,7 +16,7 @@ export function SparkUnlock({
   onUse?: (code: string) => void;
 }) {
   const wallet = useHintWallet();
-  const price = kind === "hint" ? 10 : 20;
+  const price = sparkPrice(bookId, kind);
   const { user } = useAuth();
   const owned = wallet.owns(id, kind, bookId);
   const [content, setContent] = useState<{

@@ -170,29 +170,44 @@ test("Spark codes work and migration 009 repairs a missing wallet foundation", a
 
     await t.test("each book starts its own Spark lesson range and all Harry Potter solutions pass", async () => {
       await db.exec("reset role");
-      const [content, { BOOK_PUZZLES }, { runPuzzleTests }] = await Promise.all([
+      await db.exec(migration("202611180026_harry_potter_beginner_help.sql"));
+      const [content, { BOOK_PUZZLES, starterSpell }, { runPuzzleTests }, { sparkPrice }] = await Promise.all([
         db.query("select lesson_id, kind, body from public.spark_content where book_id = 'harry-potter' order by lesson_id, kind"),
         importTypeScriptModule("../src/content/codeCampaign.ts"),
         importTypeScriptModule("../src/features/learning/puzzleRunner.ts"),
+        importTypeScriptModule("../src/features/learning/sparkPricing.ts"),
       ]);
       assert.equal(content.rows.length, 24);
       assert.deepEqual(BOOK_PUZZLES.map((puzzle) => puzzle.sparkLessonId), Array.from({ length: 12 }, (_, i) => i + 1));
       for (const puzzle of BOOK_PUZZLES) {
         const solution = content.rows.find((row) => row.lesson_id === puzzle.sparkLessonId && row.kind === "solution");
         assert.ok(solution, `missing protected solution for ${puzzle.chapterId}`);
+        assert.ok(runPuzzleTests(starterSpell(puzzle), puzzle.functionName, puzzle.tests).some((result) => !result.passed), `${puzzle.chapterId} starter must leave an edit for the learner`);
         assert.ok(runPuzzleTests(solution.body, puzzle.functionName, puzzle.tests).every((result) => result.passed), `${puzzle.chapterId} solution must pass every sandbox check`);
       }
 
       await as("authenticated", B);
       const before = await wallet();
       assert.equal(before.balance, 330);
-      assert.equal((await db.query("select public.spend_sparks('harry-potter', 1, 'hint') as wallet")).rows[0].wallet.balance, 320);
+      assert.equal(sparkPrice("harry-potter", "hint"), 0);
+      const afterHint = (await db.query("select public.spend_sparks('harry-potter', 1, 'hint') as wallet")).rows[0].wallet;
+      assert.equal(afterHint.balance, before.balance);
+      assert.match((await db.query("select public.get_spark_content('harry-potter', 1, 'hint') as body")).rows[0].body, /slice/);
+      await assert.rejects(db.query("select public.get_spark_content('harry-potter', 1, 'solution')"), /Purchase required/);
       const afterBookSolution = (await db.query("select public.spend_sparks('harry-potter', 1, 'solution') as wallet")).rows[0].wallet;
-      assert.equal(afterBookSolution.balance, 300);
+      assert.equal(sparkPrice("harry-potter", "solution"), 10);
+      assert.equal(afterBookSolution.balance, before.balance - 10);
+      const retried = (await db.query("select public.spend_sparks('harry-potter', 1, 'solution') as wallet")).rows[0].wallet;
+      assert.equal(retried.balance, afterBookSolution.balance);
       assert.ok(afterBookSolution.unlocks.some((unlock) => unlock.book_id === "harry-potter" && unlock.lesson_id === 1 && unlock.kind === "solution"));
       assert.match((await db.query("select public.get_spark_content('harry-potter', 1, 'solution') as body")).rows[0].body, /def reveal_diary_secret/);
       await assert.rejects(db.query("select public.get_spark_content(1, 'solution')"), /Purchase required/);
       await assert.rejects(db.query("select public.get_spark_content('harry-potter', 2, 'solution')"), /Purchase required/);
+
+      const cinderHint = (await db.query("select public.spend_sparks(3, 'hint') as wallet")).rows[0].wallet;
+      const cinderSolution = (await db.query("select public.spend_sparks(1, 'solution') as wallet")).rows[0].wallet;
+      assert.equal(cinderHint.balance, retried.balance - 10);
+      assert.equal(cinderSolution.balance, cinderHint.balance - 20);
     });
 
     await t.test("only the trusted service role can issue idempotent account credits", async () => {

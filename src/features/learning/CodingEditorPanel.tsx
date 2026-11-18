@@ -1,6 +1,7 @@
 import { Check, Copy, HelpCircle, Play, RotateCcw, Square } from "lucide-react";
-import { useRef, useState, type RefObject, type ReactNode } from "react";
+import { useId, useRef, useState, type RefObject, type ReactNode } from "react";
 import { SparkUnlock } from "./SparkUnlock";
+import { sparkPrice } from "./sparkPricing";
 
 export interface CodingEditorError {
   lineIndex: number;
@@ -19,6 +20,8 @@ interface CodingEditorPanelProps {
   onSolutionUse: (code: string) => void;
   sparkBookId?: string;
   sparkLessonId: number;
+  editInstruction?: string;
+  freeHint?: string;
   isRunning: boolean;
   canRun?: boolean;
   runLabel?: string;
@@ -42,6 +45,8 @@ export function CodingEditorPanel({
   onSolutionUse,
   sparkBookId = "cinder",
   sparkLessonId,
+  editInstruction,
+  freeHint,
   isRunning,
   canRun = true,
   runLabel = "Run spell",
@@ -57,6 +62,7 @@ export function CodingEditorPanel({
   const gutterRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const editor = textareaRef ?? editorRef;
+  const instructionId = useId();
   const [resetDraft, setResetDraft] = useState<string | null>(null);
 
   function goToError() {
@@ -86,13 +92,14 @@ export function CodingEditorPanel({
           onReset();
         }}><RotateCcw size={14} /></button>
       </div></div>
+      {editInstruction && <p className="sc-code-edit-instruction" id={instructionId}><strong>What to type</strong> {editInstruction}</p>}
       <div className="sc-code-input sc-highlight-editor">
         <div className="sc-code-gutter" aria-hidden="true"><div className="sc-code-lines" ref={gutterRef}>
           {Array.from({ length: Math.max(12, lines.length) }, (_, index) => <div key={index} className={error?.lineIndex === index ? "error" : activeLine === index ? "active" : ""}>{index + 1}</div>)}
         </div></div>
         <div className="sc-code-surface">
           <pre className="sc-code-highlight" ref={highlightRef} aria-hidden="true">{lines.map((line, index) => <code key={index} className={error?.lineIndex === index ? "error" : activeLine === index ? "active" : ""}>{colorLine(line)}{"\n"}</code>)}</pre>
-          <textarea aria-label="Quest code editor" aria-describedby="sc-editor-shortcut" ref={editor}
+          <textarea aria-label="Quest code editor" aria-describedby={editInstruction ? `${instructionId} sc-editor-shortcut` : "sc-editor-shortcut"} ref={editor}
             maxLength={20000} value={code} readOnly={isRunning}
             onChange={(event) => { setResetDraft(null); onCodeChange(event.target.value); }}
             onScroll={(event) => {
@@ -113,8 +120,10 @@ export function CodingEditorPanel({
     <section className="sc-grimoire-help" aria-label="Hints and solutions">
       <header><h2>Hints & solutions</h2><span>YOUR FIELD NOTES</span></header>
       {children}
-      <details className="sc-quest-disclosure"><summary>Reveal hint <small>10 Sparks</small></summary><SparkUnlock bookId={sparkBookId} id={sparkLessonId} kind="hint" /></details>
-      <details className="sc-quest-disclosure"><summary>Reveal solution <small>20 Sparks</small></summary><SparkUnlock bookId={sparkBookId} id={sparkLessonId} kind="solution" onUse={(next) => { setResetDraft(null); onSolutionUse(next); }} /></details>
+      <details className="sc-quest-disclosure"><summary>Reveal hint <small>{freeHint ? "Free" : `${sparkPrice(sparkBookId, "hint")} Sparks`}</small></summary>
+        {freeHint ? <p>{freeHint}</p> : <SparkUnlock bookId={sparkBookId} id={sparkLessonId} kind="hint" />}
+      </details>
+      <details className="sc-quest-disclosure"><summary>Reveal solution <small>{sparkPrice(sparkBookId, "solution")} Sparks</small></summary><SparkUnlock bookId={sparkBookId} id={sparkLessonId} kind="solution" onUse={(next) => { setResetDraft(null); onSolutionUse(next); }} /></details>
     </section>
     </div>
   );

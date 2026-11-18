@@ -29,6 +29,7 @@ Apply migrations in filename order on a clean project. Existing projects should 
 | `202611180023` | Recovers missing student profiles, saves profile and leaderboard membership together, and repairs avatar storage | 022 |
 | `202611180024` | Restores table privileges for the role executing profile RPCs | 023 |
 | `202611180025` | Lists joined players immediately, including students with zero completed levels | 020 |
+| `202611180026` | Makes Harry Potter hints free, prices solutions at 10 Sparks, and updates protected examples to match the starter code | 012 |
 
 ## Current hosted project check
 

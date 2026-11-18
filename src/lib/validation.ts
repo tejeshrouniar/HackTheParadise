@@ -4,9 +4,12 @@ export function usernameError(value: string): string {
     ? ""
     : "Use 3–36 lowercase letters, numbers or underscores.";
 }
+export const DEFAULT_PHONE_PREFIX = "+91";
+
 export function normalizePhoneNumber(value: string): string | null {
   if (!value.trim()) return "";
   const normalized = value.replace(/[\s().-]/g, "");
+  if (normalized === DEFAULT_PHONE_PREFIX) return "";
   return /^\+[1-9][0-9]{6,14}$/.test(normalized) ? normalized : null;
 }
 export function validLessonIds(value: unknown): number[] {

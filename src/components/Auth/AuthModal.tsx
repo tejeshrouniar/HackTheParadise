@@ -3,7 +3,7 @@ import { ArrowRight, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Modal } from "../ui/Modal";
 import { ErrorNotice } from "../ui/Status";
-import { errorMessage, normalizePhoneNumber } from "../../lib/validation";
+import { DEFAULT_PHONE_PREFIX, errorMessage, normalizePhoneNumber } from "../../lib/validation";
 import { PhoneNumberField } from "../ui/PhoneNumberField";
 import googleSignIn from "../../assets/google-sign-in.png";
 type Mode = "signin" | "signup" | "reset" | "new-password";
@@ -23,7 +23,7 @@ export function AuthModal({
   const [name, setName] = useState("");
   const [school, setSchool] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(DEFAULT_PHONE_PREFIX);
   const [phoneInvalid, setPhoneInvalid] = useState(false);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -37,7 +37,7 @@ export function AuthModal({
   const changeMode = (mode: Mode) => {
     if (busy) return;
     setMode(mode);
-    setPhone("");
+    setPhone(DEFAULT_PHONE_PREFIX);
     setPhoneInvalid(false);
     setError("");
     setNotice("");
@@ -72,7 +72,7 @@ export function AuthModal({
         if (!name.trim()) throw new Error("Enter your name.");
         if (!school.trim()) throw new Error("Enter your affiliation.");
         const result = await auth.signUp(name, email.trim(), password, normalizedPhone, school.trim());
-        setPhone("");
+        setPhone(DEFAULT_PHONE_PREFIX);
         setSchool("");
         if (result.needsEmailConfirmation) {
           changeMode("signin");

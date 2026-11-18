@@ -3,6 +3,7 @@ import { Camera, Check, LoaderCircle } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { supabase } from "../../lib/supabase";
 import {
+  DEFAULT_PHONE_PREFIX,
   errorMessage,
   normalizePhoneNumber,
   normalizeUsername,
@@ -35,7 +36,7 @@ export function ProfileForm({
   const [bio, setBio] = useState(profile?.bio ?? "");
   const [gender, setGender] = useState(preferences.gender);
   const [joinLeaderboard, setJoinLeaderboard] = useState(onboarding || profile?.leaderboard_visible === true);
-  const [phone, setPhone] = useState(profile?.phone_number ?? "");
+  const [phone, setPhone] = useState(profile?.phone_number ?? DEFAULT_PHONE_PREFIX);
   const [phoneInvalid, setPhoneInvalid] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>();
@@ -50,7 +51,7 @@ export function ProfileForm({
     setName(profile.display_name);
     setSchool(profile.school_name ?? "");
     setBio(profile.bio);
-    setPhone(profile.phone_number ?? "");
+    setPhone(profile.phone_number ?? DEFAULT_PHONE_PREFIX);
     setJoinLeaderboard(profile.leaderboard_visible === true);
   }, [profile]);
   useEffect(() => {

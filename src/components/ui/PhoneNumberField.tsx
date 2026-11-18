@@ -31,7 +31,7 @@ export function PhoneNumberField({
       <small id={hintId} aria-live="polite">
         {invalid
           ? "Enter + followed by your country code and number (7–15 digits)."
-          : "Include your country code, for example +91 98765 43210."}
+          : "Enter your number after the country code. You can change the code if needed."}
         {" This number is private."}
       </small>
     </label>

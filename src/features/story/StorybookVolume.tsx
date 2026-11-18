@@ -4,6 +4,7 @@ import { ArrowRight, Check, LockKeyhole, RotateCcw, Volume2, VolumeX } from "luc
 import toast from "react-hot-toast";
 import { LEVEL_PACES, LevelStage, showLevelStage } from "../learning/LevelStage";
 import type { CodingStoryBook } from "../../content/storyBooks";
+import { starterSpell } from "../../content/codeCampaign";
 import { formatPuzzleValue, PuzzleCodeError, runPuzzleTests, type PuzzleTestResult } from "../learning/puzzleRunner";
 import { WizardingExecutionStage } from "./WizardingExecutionStage";
 import { planSpellPlayback, type SpellPlayback } from "./spellPlayback";
@@ -23,9 +24,6 @@ interface StorybookVolumeProps {
   onChapterChange?: (chapterId: string) => void;
   onWatchMovie: (chapterId: string) => void;
 }
-
-const starterCode = (functionName: string, parameters: readonly string[]) =>
-  `def ${functionName}(${parameters.join(", ")}):\n    # Write your spell here.\n    return None\n`;
 
 function playScenePayoff(scene: string) {
   switch (scene) {
@@ -79,7 +77,7 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
   const chapter = book.chapters.find((item) => item.chapterId === selectedId) ?? book.chapters[0];
   const completedSet = useMemo(() => new Set(completed), [completed]);
   const chapterIndex = Math.max(0, book.chapters.findIndex((item) => item.chapterId === chapter?.chapterId));
-  const code = codeById[chapter?.chapterId ?? ""] ?? starterCode(chapter?.functionName ?? "spell", chapter?.parameters ?? []);
+  const code = chapter ? codeById[chapter.chapterId] ?? starterSpell(chapter) : "";
   const results = resultsById[chapter?.chapterId ?? ""];
   const finished = !!chapter && completedSet.has(chapter.chapterId);
   const goalReached = !busy && (results ? results.length > 0 && results.length === chapter?.tests.length && results.every(item => item.passed) : finished);
@@ -145,7 +143,7 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
       setSpeaking(false);
       return;
     }
-    speak(`${chapter?.chapterTitle}. Your task: ${chapter?.taskObjective} Lesson: ${chapter?.lesson}`);
+    speak(`${chapter?.chapterTitle}. Your task: ${chapter?.taskObjective} ${chapter?.editInstruction}`);
   }
 
   async function copyCode() {
@@ -207,7 +205,7 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
           setNotice("This chapter is still locked. Complete the earlier pages first.");
         }
       } else {
-        setNotice("Some checks still need work. Open Hints and solution for a clue, then try again.");
+        setNotice("Some checks still need work. Open Reveal hint for a free clue, then try again.");
       }
     } catch (error) {
       if (run !== liveRun.current) return;
@@ -314,7 +312,7 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
           }}
           onReset={() => {
             setPlayback(null);
-            setCodeById((current) => ({ ...current, [chapter.chapterId]: starterCode(chapter.functionName, chapter.parameters) }));
+            setCodeById((current) => ({ ...current, [chapter.chapterId]: starterSpell(chapter) }));
             setResultsById((current) => {
               const next = { ...current };
               delete next[chapter.chapterId];
@@ -343,15 +341,19 @@ export function StorybookVolume({ book, completed, progressStatus, onLevels, onC
           }}
           sparkBookId={book.id}
           sparkLessonId={chapterSparkId}
+          editInstruction={chapter.editInstruction}
+          freeHint={chapter.freeHint}
           canRun={previousChaptersComplete}
           isRunning={busy}
           runLabel={finished ? "Run again" : "Run spell"}
           error={errorsById[chapter.chapterId]}
-          consoleLogs={consoleById[chapter.chapterId] ?? [`$ storicode load · ${chapter.title}`, "> Type your solution, then run the spell."]}
+          consoleLogs={consoleById[chapter.chapterId] ?? [`$ storicode load · ${chapter.title}`, "> Edit the starter code, then run the spell."]}
         >
           <details className="sc-quest-disclosure" ref={chapterGuideRef}>
             <summary>Chapter guide</summary>
             <p>{chapter.lesson}</p>
+            <p>Example: <code>{chapter.functionName}({chapter.tests[0].input.map(formatPuzzleValue).join(", ")})</code>
+              {" returns "}<code>{formatPuzzleValue(chapter.tests[0].expected)}</code>.</p>
           </details>
           {notice && <p className="sc-volume-notice" role="status">{notice}</p>}
         </CodingEditorPanel>

@@ -2,6 +2,7 @@ import { Grimoire, usePageTurn } from "../library/Grimoire";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { SparkUnlock } from "./SparkUnlock";
+import { sparkPrice } from "./sparkPricing";
 
 type CompletionTheme = "cinder" | "wizarding";
 
@@ -121,7 +122,7 @@ export function BookCompletionSpread({
               <pre><code>{code}</code></pre>
             </section>
             <section>
-              <h2>Example solution <small>· 20 sparks</small></h2>
+              <h2>Example solution <small>· {sparkPrice(bookId, "solution")} sparks</small></h2>
               <SparkUnlock
                 bookId={bookId}
                 id={lessonId}
