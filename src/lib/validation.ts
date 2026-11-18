@@ -54,10 +54,18 @@ export function writeLocal(key: string, value: unknown) {
   }
 }
 export function errorMessage(error: unknown): string {
+  const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+  if (code === "invalid_credentials") return "Your email or password is incorrect. Check both and try again.";
+  if (code === "signup_disabled" || code === "email_provider_disabled") return "Email registration is currently disabled. Please contact the organizer.";
+  if (code === "over_email_send_rate_limit") return "The email service has reached its sending limit. Try signing in if you already have an account, or contact the organizer.";
+  if (code === "email_not_confirmed") return "This account is awaiting email confirmation. Use the confirmation link or contact the organizer.";
+  if (code === "user_already_exists" || code === "email_exists") return "An account already uses this email. Sign in or reset your password.";
   const message =
     error && typeof error === "object" && "message" in error
       ? String(error.message)
       : "Something went wrong.";
+  if (/invalid login credentials/i.test(message))
+    return "Your email or password is incorrect. Check both and try again.";
   if (message === "Enter your phone number and school name to complete your profile.")
     return "Enter your phone number and school or college name to complete your profile.";
   if (
@@ -68,6 +76,8 @@ export function errorMessage(error: unknown): string {
     return "This feature needs a Hack The Paradise database update. You can still play the coding levels.";
   if (/fetch|network/i.test(message))
     return "Unable to connect. Check your connection and try again.";
+  if (/timeout|timed out|aborted/i.test(message))
+    return "The request took too long. Check your connection and try again.";
   if (/duplicate|unique|23505/i.test(message))
     return "That username is taken. Try another one.";
   return message;

@@ -26,6 +26,7 @@ Apply migrations in filename order on a clean project. Existing projects should 
 | `202611170020` | Adds school names, makes phone numbers private, and adds archived leaderboard rounds and developer Excel exports | 018, 019 |
 | `202611180021` | Adds email and phone to developer leaderboard exports. Archives created from this migration onward retain a private account ID for contact lookup. | 020 |
 | `202611180022` | Restores profile form grants and the owner profile lookup after the school migration | 020 |
+| `202611180023` | Recovers missing student profiles, saves profile and leaderboard membership together, and repairs avatar storage | 022 |
 
 ## Current hosted project check
 

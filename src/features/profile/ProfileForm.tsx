@@ -22,7 +22,7 @@ export function ProfileForm({
   onboarding?: boolean;
 }) {
   const { user } = useAuth();
-  const { profile, refresh } = useProfile();
+  const { profile, saveProfile } = useProfile();
   const { preferences, update } = usePreferences();
   const [username, setUsername] = useState(
     /^u_[0-9a-f]{32}$/.test(profile?.username ?? "")
@@ -33,6 +33,7 @@ export function ProfileForm({
   const [school, setSchool] = useState(profile?.school_name ?? "");
   const [bio, setBio] = useState(profile?.bio ?? "");
   const [gender, setGender] = useState(preferences.gender);
+  const [joinLeaderboard, setJoinLeaderboard] = useState(onboarding || profile?.leaderboard_visible === true);
   const initialPhone = profile?.phone_number ?? "";
   const [phone, setPhone] = useState(initialPhone);
   const [phoneInvalid, setPhoneInvalid] = useState(false);
@@ -42,6 +43,15 @@ export function ProfileForm({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  useEffect(() => {
+    if (!profile?.onboarding_completed) return;
+    setUsername(profile.username);
+    setName(profile.display_name);
+    setSchool(profile.school_name ?? "");
+    setBio(profile.bio);
+    setPhone(profile.phone_number ?? "");
+    setJoinLeaderboard(profile.leaderboard_visible === true);
+  }, [profile]);
   useEffect(() => {
     setGender(preferences.gender);
   }, [preferences.gender]);
@@ -103,6 +113,7 @@ export function ProfileForm({
     if (!user || !supabase) return;
     setBusy(true);
     let uploadedPath: string | undefined;
+    let profileSubmitted = false;
     try {
       let avatar = profile?.avatar_url;
       if (file) {
@@ -122,9 +133,12 @@ export function ProfileForm({
         const ratio = Math.min(1, 512 / Math.max(bitmap.width, bitmap.height));
         canvas.width = Math.round(bitmap.width * ratio);
         canvas.height = Math.round(bitmap.height * ratio);
-        canvas
-          .getContext("2d")!
-          .drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        const context = canvas.getContext("2d");
+        if (!context) {
+          bitmap.close();
+          throw new Error("Your browser could not process this picture. Try another browser or save without a picture.");
+        }
+        context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
         bitmap.close();
         const blob = await new Promise<Blob | null>((resolve) =>
           canvas.toBlob(resolve, "image/webp", 0.85),
@@ -145,42 +159,37 @@ export function ProfileForm({
           .data.publicUrl;
       }
       if (gender !== preferences.gender) await update({ gender });
-      const result = await supabase
-        .from("profiles")
-        .update({
-          username,
-          display_name: name.trim(),
-          bio: bio.trim(),
-          school_name: schoolName || null,
-          ...(normalizedPhone !== initialPhone && {
-            phone_number: normalizedPhone || null,
-          }),
-          avatar_url: avatar,
-          onboarding_completed: true,
-        })
-        .eq("id", user.id)
-        .select("id")
-        .single();
-      if (result.error) throw result.error;
-      if (uploadedPath && profile?.avatar_url) {
-        const prefix = supabase.storage
-          .from("avatars")
-          .getPublicUrl(`${user.id}/`).data.publicUrl;
-        if (profile.avatar_url.startsWith(prefix))
-          await supabase.storage
-            .from("avatars")
-            .remove([
-              `${user.id}/${profile.avatar_url.slice(prefix.length).split("?")[0]}`,
-            ]);
-      }
+      profileSubmitted = true;
+      await saveProfile({
+        username,
+        display_name: name.trim(),
+        bio: bio.trim(),
+        school_name: schoolName || null,
+        phone_number: normalizedPhone || null,
+        avatar_url: avatar ?? null,
+        leaderboard_visible: joinLeaderboard,
+      });
+      // The new avatar is now attached to the saved profile.
+      const replacedPicture = uploadedPath && profile?.avatar_url;
       uploadedPath = undefined;
-      await refresh();
       setSaved(true);
       setFile(null);
       onSaved?.();
+      if (replacedPicture) {
+        const prefix = supabase.storage
+          .from("avatars")
+          .getPublicUrl(`${user.id}/`).data.publicUrl;
+        if (replacedPicture.startsWith(prefix))
+          await supabase.storage
+            .from("avatars")
+            .remove([
+              `${user.id}/${replacedPicture.slice(prefix.length).split("?")[0]}`,
+            ]).catch(() => {});
+      }
     } catch (error) {
-      if (uploadedPath)
-        await supabase.storage.from("avatars").remove([uploadedPath]);
+      // A lost save response may follow a commit that already references this file.
+      if (uploadedPath && !profileSubmitted)
+        await supabase.storage.from("avatars").remove([uploadedPath]).catch(() => {});
       setError(errorMessage(error));
     } finally {
       setBusy(false);
@@ -213,6 +222,7 @@ export function ProfileForm({
               }}
             />
           </label>
+          {file && <button type="button" className="sc-link" disabled={busy} onClick={() => setFile(null)}>Clear selected picture</button>}
           <small>
             JPG, PNG or WebP · up to 2 MB · visible to other learners
           </small>
@@ -280,6 +290,19 @@ export function ProfileForm({
           setSaved(false);
         }}
       />
+      <label className="sc-profile-leaderboard-option">
+        <input
+          type="checkbox"
+          checked={joinLeaderboard}
+          disabled={busy}
+          onChange={(event) => {
+            setJoinLeaderboard(event.target.checked);
+            setSaved(false);
+          }}
+        />
+        <span>Join the leaderboard</span>
+        <small>Share your name, school and level count with other players. Developer exports include your email and phone number. Your ranking appears after your first synced level.</small>
+      </label>
       <label>
         About you <span className="sc-muted">(optional)</span>
         <textarea

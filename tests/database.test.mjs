@@ -789,6 +789,61 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
       await assert.rejects(db.query("select public.get_my_library_profile()"), { code: "42501" });
       await db.exec("reset role");
     });
+    await t.test("students recover missing profiles, save photos and join the leaderboard", async () => {
+      await db.exec("reset role");
+      const repair = migration("202611180023_student_profile_recovery.sql");
+      await db.exec(repair);
+      await db.exec(repair);
+      const student = "00000000-0000-4000-8000-000000000023";
+      await db.query(`insert into auth.users(id,email,raw_user_meta_data) values ($1,$2,$3)`,
+        [student, "student@example.test", JSON.stringify({
+          display_name: "New Student", signup_school_name: "  Student College  ",
+          signup_phone_number: "+919876543210",
+        })]);
+      // Model an account created before a broken signup trigger was repaired.
+      await db.query("delete from public.profiles where id=$1", [student]);
+      await as(student);
+      const readProfile = async () =>
+        (await db.query("select public.get_my_library_profile() as profile")).rows[0].profile;
+      const recovered = await readProfile();
+      assert.equal(recovered.id, student);
+      assert.equal(recovered.school_name, "Student College");
+      assert.equal(recovered.phone_number, "+919876543210");
+      assert.equal(recovered.onboarding_completed, false);
+      assert.equal(recovered.leaderboard_visible, false);
+
+      const picture = "https://example.test/avatars/student.webp";
+      const save = (school, phone, joined) => db.query(
+        "select public.save_library_profile($1,$2,$3,$4,$5,$6,$7) as profile",
+        ["student_23", "New Student", "Learning to code", school, phone, picture, joined],
+      );
+      await assert.rejects(save(null, "+919876543210", true), /school name/);
+      assert.equal((await readProfile()).onboarding_completed, false);
+      assert.equal((await readProfile()).leaderboard_visible, false);
+      const { rows } = await save("Student College", "+919876543210", true);
+      assert.equal(rows[0].profile.avatar_url, picture);
+      assert.equal(rows[0].profile.onboarding_completed, true);
+      assert.equal(rows[0].profile.leaderboard_visible, true);
+
+      await db.query("select public.merge_player_progress($1)", [[1]]);
+      const board = (await db.query("select public.get_library_leaderboard() as board")).rows[0].board;
+      assert.equal(board.player.visible, true);
+      assert.equal(board.leaders.find(row => row.username === "student_23").school_name, "Student College");
+
+      await db.query("insert into storage.objects(bucket_id,name) values ('avatars',$1)", [student + "/picture.webp"]);
+      await as(B);
+      assert.equal((await readProfile()).id, B);
+      assert.deepEqual((await db.query(
+        "delete from storage.objects where bucket_id='avatars' and name=$1 returning id",
+        [student + "/picture.webp"],
+      )).rows, []);
+      await assert.rejects(db.query("select public.ensure_library_profile($1)", [student]), { code: "42501" });
+      await as(null);
+      await assert.rejects(readProfile(), { code: "42501" });
+      await assert.rejects(save("Other College", "+919876543210", true), { code: "42501" });
+      await db.exec("reset role");
+      assert.equal((await db.query("select public from storage.buckets where id='avatars'")).rows[0].public, true);
+    });
   } finally {
     await db.close();
   }

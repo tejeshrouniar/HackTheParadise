@@ -36,11 +36,16 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     }
 
     let active = true;
+    const startupTimer = setTimeout(() => { if (active) setLoading(false); }, 20_000);
     void supabase.auth.getSession().then(({ data, error }) => {
       if (!active) return;
       if (error) console.error('Unable to restore Hack The Paradise session:', error.message);
       setSession(data.session);
-      setLoading(false);
+    }).catch((error) => {
+      if (active) console.error('Unable to restore Hack The Paradise session:', error);
+    }).finally(() => {
+      clearTimeout(startupTimer);
+      if (active) setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, nextSession) => {
@@ -52,6 +57,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
     return () => {
       active = false;
+      clearTimeout(startupTimer);
       subscription.unsubscribe();
     };
   }, []);
@@ -80,7 +86,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         },
       });
       if (error?.name === 'AuthRetryableFetchError') {
-        throw new Error('Could not confirm account creation. Check your inbox for a confirmation email before trying again.');
+        throw new Error('Account creation could not be confirmed. Try signing in with your email and password before creating another account.');
       }
       if (error) throw error;
       return { needsEmailConfirmation: !data.session };
