@@ -880,6 +880,72 @@ test("database upgrade preserves data and enforces member isolation", async (t) 
       await assert.rejects(db.query("select public.ensure_library_profile($1)", [student]), { code: "42501" });
       await db.exec("reset role");
     });
+    await t.test("joining lists zero-score students and retains standings outside the top 25", async () => {
+      await db.exec("reset role");
+      const student = "00000000-0000-4000-8000-000000000025";
+      const peer = "00000000-0000-4000-8000-000000000026";
+      await db.query("insert into auth.users(id,email) values ($1,$2),($3,$4)",
+        [student, "zero-student@example.test", peer, "zero-peer@example.test"]);
+      const save = (username, joined) => db.query(
+        "select public.save_library_profile($1,$2,$3,$4,$5,$6,$7)",
+        [username, "Zero Score Student", "", "Test College", "+919876543210", null, joined],
+      );
+      const read = async () => (await db.query("select public.get_library_leaderboard() as board")).rows[0].board;
+      await as(student);
+      await save("zero_student", false);
+      await db.exec("update public.user_preferences set leaderboard_visible=true where user_id=auth.uid()");
+      const before = await read();
+      assert.equal(before.player.visible, true);
+      assert.equal(before.player.total, 0);
+      assert.equal(before.player.place, null);
+      assert.equal(before.leaders.some(row => row.username === "zero_student"), false);
+
+      await db.exec("reset role");
+      const repair = migration("202611180025_leaderboard_zero_score_members.sql");
+      await db.exec(repair);
+      await db.exec(repair);
+      await as(student);
+      const joined = await read();
+      assert.equal(joined.player.visible, true);
+      assert.ok(joined.player.place > 0);
+      assert.deepEqual(joined.leaders.find(row => row.username === "zero_student"), {
+        username: "zero_student", display_name: "Zero Score Student", school_name: "Test College",
+        cinder: 0, harry: 0, total: 0, place: joined.player.place,
+      });
+
+      await as(peer);
+      await save("zero_peer", false);
+      assert.equal((await read()).leaders.some(row => row.username === "zero_peer"), false);
+      await db.exec("update public.user_preferences set leaderboard_visible=true where user_id=auth.uid()");
+      const tied = await read();
+      assert.equal(tied.player.place, joined.player.place);
+      assert.ok(tied.leaders.some(row => row.username === "zero_peer"));
+      await db.exec("update public.user_preferences set leaderboard_visible=false where user_id=auth.uid()");
+      const hidden = await read();
+      assert.equal(hidden.player.visible, false);
+      assert.equal(hidden.player.place, null);
+      assert.equal(hidden.leaders.some(row => row.username === "zero_peer"), false);
+
+      await db.exec("reset role");
+      await db.exec(`insert into auth.users(id,email)
+        select ('00000000-0000-4000-8025-' || lpad(n::text,12,'0'))::uuid,
+          'zero-' || n || '@example.test' from generate_series(1,26) n;
+        update public.profiles set username='a_zero_' || right(id::text,12),
+          school_name='Test College', phone_number='+919876543210', onboarding_completed=true
+          where id::text like '00000000-0000-4000-8025-%';
+        update public.user_preferences set leaderboard_visible=true
+          where user_id::text like '00000000-0000-4000-8025-%';`);
+      await as(student);
+      const outside = await read();
+      assert.equal(outside.leaders.length, 25);
+      assert.equal(outside.leaders.some(row => row.username === "zero_student"), false);
+      assert.equal(outside.player.visible, true);
+      assert.equal(outside.player.total, 0);
+      assert.equal(outside.player.place, joined.player.place);
+      await as(null);
+      await assert.rejects(read(), { code: "42501" });
+      await db.exec("reset role");
+    });
   } finally {
     await db.close();
   }

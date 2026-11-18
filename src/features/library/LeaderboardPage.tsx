@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { ErrorNotice, Loading } from "../../components/ui/Status";
 import { useAuth } from "../../contexts/AuthContext";
+import { useProfile } from "../profile/ProfileContext";
 import { supabase } from "../../lib/supabase";
 import { errorMessage } from "../../lib/validation";
 import { Grimoire } from "./Grimoire";
@@ -17,6 +18,7 @@ type Standings = {
 
 export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) {
   const { user, configured } = useAuth();
+  const { refresh: refreshProfile } = useProfile();
   const userId = user?.id;
   const heading = useRef<HTMLHeadingElement>(null);
   const [standings, setStandings] = useState<Standings>();
@@ -48,6 +50,10 @@ export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) 
   }, [userId, attempt]);
 
   const player = standings?.player;
+  const leaders = [...(standings?.leaders ?? [])];
+  if (player?.visible && player.place !== null && !leaders.some(leader => leader.username === player.username)) {
+    leaders.push({ ...player, place: player.place });
+  }
   async function changeVisibility(visible: boolean) {
     if (!supabase || !userId || !player || loading || saving) return;
     setSaveError("");
@@ -57,18 +63,24 @@ export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) 
       const { error } = await supabase.from("user_preferences")
         .update({ leaderboard_visible: visible }).eq("user_id", userId).select("leaderboard_visible").single();
       if (error) throw error;
-      setStandings(current => current ? {
-        ...current,
-        leaders: current.leaders.filter(leader => leader.username !== player.username),
-        player: { ...player, visible, place: null },
-      } : current);
-      setVisibilityStatus(visible ? "You’ve joined the leaderboard." : "Your ranking is now hidden from other players.");
       setLoading(true);
-      refresh();
+      const result = await supabase.rpc("get_library_leaderboard");
+      if (result.error) throw result.error;
+      if (!result.data) throw new Error("Your leaderboard membership could not be confirmed. Refresh and try again.");
+      const updated = result.data as Standings;
+      setStandings(updated);
+      setLoadError("");
+      if (visible && !updated.player?.visible) {
+        setSaveError("Complete your profile before joining. Use Edit your name and affiliation below.");
+      } else {
+        setVisibilityStatus(visible ? "You’ve joined the leaderboard." : "Your ranking is now hidden from other players.");
+      }
+      await refreshProfile();
     } catch (error) {
       setSaveError(errorMessage(error));
     } finally {
       setSaving(false);
+      setLoading(false);
     }
   }
 
@@ -90,7 +102,7 @@ export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) 
           <div><dt>The Horcrux Code</dt><dd>{player.harry}</dd></div>
         </dl>
         <p>{player.visible
-          ? player.total === 0 ? "You’ll appear after your first synced level." : <>You’ve joined as <bdi>{player.display_name}</bdi>.</>
+          ? <>You’ve joined as <bdi>{player.display_name}</bdi>.</>
           : "Join to share your display name, affiliation, and level count with other signed-in players. Developer exports also include your account email and phone number."}</p>
         <p><a className="sc-link" href="#/library/profile">Edit your name and affiliation</a></p>
         <button type="button" className="sc-button" disabled={saving || loading} onClick={() => void changeVisibility(!player.visible)}>
@@ -107,12 +119,13 @@ export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) 
         </button>}
       </div>
       <p>The top 25 players, ranked by levels cleared. Equal scores share the same place.</p>
+      {leaders.length > (standings?.leaders.length ?? 0) && <p>Your standing is included below the top 25.</p>}
       {!userId && <p>Sign in to see who’s leading the library.</p>}
       {loading && <Loading label={standings ? "Updating rankings…" : "Loading rankings…"} />}
       {loadError && <ErrorNotice message={loadError} retry={refresh} />}
-      {standings && !loadError && (standings.leaders.length ? <table className="htp-rank-table" aria-label="Library leaderboard rankings" aria-busy={loading}>
+      {standings && !loadError && (leaders.length ? <table className="htp-rank-table" aria-label="Library leaderboard rankings" aria-busy={loading}>
         <thead><tr><th scope="col">Place</th><th scope="col">Player</th><th scope="col">Levels</th></tr></thead>
-        <tbody>{standings.leaders.map(leader => {
+        <tbody>{leaders.map(leader => {
           const isPlayer = leader.username === player?.username;
           return <tr key={leader.username} data-player={isPlayer || undefined}>
             <td>{leader.place}</td>
@@ -123,7 +136,7 @@ export default function LeaderboardPage({ onSignIn }: { onSignIn: () => void }) 
             <td>{leader.total}</td>
           </tr>;
         })}</tbody>
-      </table> : !loading && <p>No rankings yet. Clear a level and join to be listed.</p>)}
+      </table> : !loading && <p>No players have joined yet. Join the leaderboard to be listed.</p>)}
     </>} />
   </div>;
 }

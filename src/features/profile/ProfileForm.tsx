@@ -301,7 +301,7 @@ export function ProfileForm({
           }}
         />
         <span>Join the leaderboard</span>
-        <small>Share your name, school and level count with other players. Developer exports include your email and phone number. Your ranking appears after your first synced level.</small>
+        <small>Share your name, school and level count with other players. Developer exports include your email and phone number. You appear when you join, including with zero levels cleared.</small>
       </label>
       <label>
         About you <span className="sc-muted">(optional)</span>

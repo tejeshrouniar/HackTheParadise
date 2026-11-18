@@ -28,6 +28,7 @@ Apply migrations in filename order on a clean project. Existing projects should 
 | `202611180022` | Restores profile form grants and the owner profile lookup after the school migration | 020 |
 | `202611180023` | Recovers missing student profiles, saves profile and leaderboard membership together, and repairs avatar storage | 022 |
 | `202611180024` | Restores table privileges for the role executing profile RPCs | 023 |
+| `202611180025` | Lists joined players immediately, including students with zero completed levels | 020 |
 
 ## Current hosted project check
 
