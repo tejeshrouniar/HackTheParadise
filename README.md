@@ -575,6 +575,16 @@ Hack The Paradise is built through collaboration, creativity, and a shared passi
 </p>
 
 <p align="center">
+  <a href="https://github.com/sakshamdoye-09">
+    <img src="https://avatars.githubusercontent.com/sakshamdoye-09?v=4" width="100" height="100" alt="Saksham Doye"/>
+  </a>
+  <br/>
+  <strong><a href="https://github.com/sakshamdoye-09">Saksham Doye</a></strong>
+  <br/>
+  <sub>@sakshamdoye-09</sub>
+</p>
+
+<p align="center">
   <a href="https://github.com/tejeshrouniar/HackTheParadise/graphs/contributors">
     <strong>View all contributors →</strong>
   </a>
