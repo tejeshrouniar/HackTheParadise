@@ -634,4 +634,3 @@ Please refer to the repository's license file for the applicable terms of use an
     Explore Hack The Paradise on GitHub
   </a>
 </p>
-<!goodguy!>
